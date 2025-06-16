@@ -90,7 +90,7 @@ export function TitleBar() {
       }
     >
       <div className="inline-flex" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
-        {isMobile && <SidebarTrigger className="size-8" />}
+        <SidebarTrigger className="size-8" />
         <NavigationButtons />
       </div>
 
