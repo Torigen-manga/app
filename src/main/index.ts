@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { preferencesService } from './services/preferences'
+import { extensionsService } from './services/extension'
 
 function createWindow(): void {
   // Create the browser window.
@@ -56,7 +57,7 @@ function createWindow(): void {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -69,6 +70,14 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  await extensionsService.loadExtensions()
+
+  const testExtension = await extensionsService.loadExtension('weebcentral')
+
+  const homepage = await testExtension.getHomepage()
+  console.log('Homepage:', JSON.stringify(homepage, null, 2))
+
 
   ipcMain.handle('preferences:load', async () => {
     try {

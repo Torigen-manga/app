@@ -65,6 +65,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.80.7
         version: 5.80.7(react@19.1.0)
+      '@torigen/mounter':
+        specifier: ^0.3.4
+        version: 0.3.4(typescript@5.8.3)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1306,6 +1309,11 @@ packages:
   '@tootallnate/once@2.0.0':
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
+
+  '@torigen/mounter@0.3.4':
+    resolution: {integrity: sha512-nqsppuXAKdJBWC0UdWpiISQZtbvH6UrMLr7nAKyB7KP0g44Qw5c3WWFzu3V2lxL27XC8pRvgpehM+CklqO5QTA==}
+    peerDependencies:
+      typescript: ^5
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -4804,6 +4812,10 @@ snapshots:
       react: 19.1.0
 
   '@tootallnate/once@2.0.0': {}
+
+  '@torigen/mounter@0.3.4(typescript@5.8.3)':
+    dependencies:
+      typescript: 5.8.3
 
   '@types/babel__core@7.20.5':
     dependencies:

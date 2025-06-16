@@ -1,30 +1,38 @@
-interface Entry {
-  source: string
-  id: string
-  title: string
-  coverUrl: string
-  addedAt: Date
-}
+import { z } from 'zod'
 
-type EntryPointer = {
-  source: string
-  id: string
-}
+const entrySchema = z.object({
+  source: z.string(),
+  id: z.string(),
+  title: z.string(),
+  coverUrl: z.string().url(),
+  addedAt: z.date()
+})
 
-interface Category {
-  title: string
-  slug: string
-  entries: EntryPointer[]
-  sortBy: string
-  sortOrder: 'asc' | 'desc'
-  createdAt: Date
-}
+const entryPointerSchema = z.object({
+  source: z.string(),
+  id: z.string()
+})
 
+const categorySchema = z.object({
+  title: z.string(),
+  slug: z.string(),
+  entries: z.array(entryPointerSchema),
+  sortBy: z.string(),
+  sortOrder: z.enum(['asc', 'desc']),
+  createdAt: z.date()
+})
+
+const librarySchema = z.object({
+  entries: z.array(entrySchema),
+  categories: z.array(categorySchema),
+  lastUpdated: z.date()
+})
+
+type Entry = z.infer<typeof entrySchema>
+type EntryPointer = z.infer<typeof entryPointerSchema>
+type Category = z.infer<typeof categorySchema>
 type CategoryManifest = Omit<Category, 'entries'>
-
-interface Library {
-  categories: Category[]
-  entries: Entry[]
-}
+type Library = z.infer<typeof librarySchema>
 
 export type { Entry, EntryPointer, Category, CategoryManifest, Library }
+export { entrySchema, entryPointerSchema, categorySchema, librarySchema }
