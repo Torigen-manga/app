@@ -71,14 +71,6 @@ app.whenReady().then(async () => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  await extensionsService.loadExtensions()
-
-  const testExtension = await extensionsService.loadExtension('weebcentral')
-
-  const homepage = await testExtension.getHomepage()
-  console.log('Homepage:', JSON.stringify(homepage, null, 2))
-
-
   ipcMain.handle('preferences:load', async () => {
     try {
       return await preferencesService.loadPreferences()

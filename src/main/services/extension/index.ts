@@ -107,9 +107,6 @@ class ExtensionsService {
     }
 
     const bundlePath = path.join(extension.path, extension.main)
-
-    const code = await readFile(bundlePath, 'utf-8')
-
     const fileUrl = pathToFileURL(bundlePath).href
 
     const mod = await import(fileUrl)
