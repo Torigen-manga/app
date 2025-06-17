@@ -1,9 +1,22 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
+import { app, shell, BrowserWindow, ipcMain, protocol, net } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { preferencesService } from './services/preferences'
 import { extensionsService } from './services/extension'
+import path, { join } from 'path'
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'app',
+    privileges: {
+      secure: true,
+      standard: true,
+      supportFetchAPI: true,
+      stream: true,
+      corsEnabled: true
+    }
+  }
+])
 
 function createWindow(): void {
   // Create the browser window.
@@ -68,14 +81,60 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.handle('proxy-fetch', async (_, url, options) => {
+    try {
+      console.log(`[MAIN PROCESS] Proxying fetch for: ${url}`)
+
+      const res = await net.fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+          'User-Agent': 'Torigen/0.1.0'
+        }
+      })
+
+      return {
+        ok: res.ok,
+        status: res.status,
+        statusText: res.statusText,
+        headers: Object.fromEntries(res.headers.entries()),
+        body: await res.text()
+      }
+    } catch (err) {
+      return {
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        error: err instanceof Error ? err.message : String(err)
+      }
+    }
+  })
+
+  protocol.handle('app', async (req) => {
+    const url = new URL(req.url)
+    const { host, pathname } = url
+
+    let basePath = ''
+
+    if (host === 'extensions') {
+      basePath = path.join(app.getPath('userData'), 'user', 'extensions')
+    } else {
+      return new Response(null, { status: 404, statusText: 'Not found' })
+    }
+
+    const absolutePath = path.normalize(path.join(basePath, pathname))
+
+    if (!absolutePath.startsWith(basePath)) {
+      return new Response(null, { status: 403, statusText: 'Forbidden' })
+    }
+
+    return net.fetch('file://' + absolutePath)
+  })
 
   ipcMain.handle('preferences:load', async () => {
     try {
       return await preferencesService.loadPreferences()
     } catch (error) {
-      console.error('Failed to load preferences:', error)
       throw new Error('Failed to load preferences')
     }
   })
@@ -84,7 +143,6 @@ app.whenReady().then(async () => {
     try {
       await preferencesService.savePreferences(preferences)
     } catch (error) {
-      console.error('Failed to save preferences:', error)
       throw new Error('Failed to save preferences')
     }
   })
@@ -93,8 +151,45 @@ app.whenReady().then(async () => {
     try {
       await preferencesService.resetPreferences()
     } catch (error) {
-      console.error('Failed to reset preferences:', error)
       throw new Error('Failed to reset preferences')
+    }
+  })
+
+  ipcMain.handle('extension:get-homepage', async (_, id: string) => {
+    try {
+      const extension = await extensionsService.loadExtension(id)
+
+      return extension.getHomepage()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      throw new Error(`Failed to load extension with id ${id}: ${message}`)
+    }
+  })
+
+  ipcMain.handle('extensions:load', async () => {
+    try {
+      return await extensionsService.loadExtensions()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      throw new Error(`Failed to load extensions: ${message}`)
+    }
+  })
+
+  ipcMain.handle('extensions:load-registry', async () => {
+    try {
+      return await extensionsService.loadRegistry()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      throw new Error(`Failed to load extension registry: ${message}`)
+    }
+  })
+
+  ipcMain.handle('extensions:save-registry', async (_, registry) => {
+    try {
+      await extensionsService.saveRegistry(registry)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      throw new Error(`Failed to save extension registry: ${message}`)
     }
   })
 

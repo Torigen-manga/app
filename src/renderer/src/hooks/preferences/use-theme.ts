@@ -6,14 +6,16 @@ type Theme = 'light' | 'dark' | 'system'
 export function useTheme() {
   const { layoutPreferences, loading, isUpdating, updateLayoutPreferences } = usePreferences()
 
-  const theme = layoutPreferences?.theme || 'system'
+  const theme = (layoutPreferences?.theme as Theme) || 'system'
 
   useEffect(() => {
+    if (loading || isUpdating) return
+
     const root = window.document.documentElement
     root.classList.remove('light', 'dark')
 
-    if (theme === 'light') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark').matches
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light'
       root.classList.add(systemTheme)
@@ -26,7 +28,7 @@ export function useTheme() {
     if (theme !== 'system') return
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    function handleChange() {
+    const handleChange = () => {
       const root = window.document.documentElement
       root.classList.remove('light', 'dark')
       root.classList.add(mediaQuery.matches ? 'dark' : 'light')
@@ -36,7 +38,7 @@ export function useTheme() {
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [theme])
 
-  function setTheme(newTheme: Theme) {
+  const setTheme = (newTheme: Theme) => {
     updateLayoutPreferences({ theme: newTheme })
   }
 

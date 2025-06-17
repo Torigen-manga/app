@@ -5,7 +5,7 @@ import { TitleBar } from '@renderer/components/titlebar'
 
 export default function BaseLayout() {
   return (
-    <SidebarProvider draggable className="flex">
+    <SidebarProvider className="flex">
       <AppSidebar />
 
       <div className="bg-sidebar relative min-h-screen w-full overflow-hidden pb-10">

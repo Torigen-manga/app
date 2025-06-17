@@ -52,7 +52,6 @@ function usePreferences() {
         await invoke('preferences:save', updatedPreferences)
         return updatedPreferences
       } catch (error) {
-        console.error('Failed to save preferences:', error)
         throw error
       }
     },
@@ -72,8 +71,8 @@ function usePreferences() {
         await invoke('preferences:reset')
         await queryClient.invalidateQueries({ queryKey: PREFERENCES_QUERY_KEY })
       } catch (error) {
-        console.error('Failed to reset preferences:', error)
-        throw new Error('Failed to reset preferences')
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        throw new Error('Failed to reset preferences: ' + message)
       }
     },
     onSuccess: (updatedPreferences) => {

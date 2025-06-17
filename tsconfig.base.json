@@ -1,9 +1,4 @@
 {
   "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["src/shared/*"]
-    }
-  }
+  
 }

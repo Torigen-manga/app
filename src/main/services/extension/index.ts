@@ -28,6 +28,7 @@ class ExtensionsService {
 
     try {
       const data = await readFile(this.registryFile, 'utf-8')
+
       const parsed: Registry = JSON.parse(data)
 
       return parsed
@@ -68,8 +69,7 @@ class ExtensionsService {
           const manifest: SourceInfo = JSON.parse(rawManifest)
 
           if (!manifest.id) {
-            console.error('Manifest missing "id" field', manifest)
-            return
+            throw new Error(`Extension ${ext} does not have a valid id in its manifest`)
           }
 
           updatedRegistry[manifest.id] = {
@@ -81,7 +81,9 @@ class ExtensionsService {
 
           list.push(manifest.id)
         } catch (err) {
-          console.error(`Failed to read manifest for extension ${ext}:`, err)
+          throw new Error(
+            `Failed to load extension ${ext}: ${err instanceof Error ? err.message : String(err)}`
+          )
         }
       })
 
@@ -116,7 +118,7 @@ class ExtensionsService {
         return mod.default() as SourceProvider
       } else if (typeof mod.default === 'object') {
         return mod.default as SourceProvider
-      }   
+      }
     }
 
     throw new Error(`Extension ${entry} does not export a default function`)

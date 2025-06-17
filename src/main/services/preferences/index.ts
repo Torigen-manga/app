@@ -11,18 +11,15 @@ class PreferencesService {
 
   private async ensurePreferences(): Promise<void> {
     try {
-      console.log('Checking for existing preferences file...')
       await access(this.preferencesFile)
     } catch (error) {
       try {
-        console.log('Preferences file not found, creating default preferences...')
         await mkdir(this.base, { recursive: true })
 
         const parsed = appPreferencesSchema.parse(defaultPreferences)
 
         await writeFile(this.preferencesFile, JSON.stringify(parsed, null, 2), 'utf-8')
       } catch (writeError) {
-        console.error('Failed to create preferences file:', writeError)
         throw writeError
       }
     }
@@ -32,11 +29,9 @@ class PreferencesService {
     await this.ensurePreferences()
 
     try {
-      console.log('Loading preferences from file...')
       const data = await readFile(this.preferencesFile, 'utf-8')
       return appPreferencesSchema.parse(JSON.parse(data))
     } catch (error) {
-      console.error('Failed to load preferences:', error)
       const parsed = appPreferencesSchema.parse(defaultPreferences)
       return appPreferencesSchema.parse(parsed)
     }
@@ -46,14 +41,10 @@ class PreferencesService {
     await this.ensurePreferences()
 
     try {
-      console.log('Saving preferences to file...')
-
       const parsed = appPreferencesSchema.parse(preferences)
 
       await writeFile(this.preferencesFile, JSON.stringify(parsed, null, 2), 'utf-8')
-      console.log('Preferences saved successfully.')
     } catch (error) {
-      console.error('Failed to save preferences:', error)
       throw error
     }
   }

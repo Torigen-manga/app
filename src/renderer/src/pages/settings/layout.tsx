@@ -3,11 +3,18 @@ import { SettingItem } from '@renderer/components/settings/item'
 import { SettingRenderer } from '@renderer/components/settings/renderer'
 import { Paintbrush } from 'lucide-react'
 import { usePreferences } from '@renderer/hooks/preferences/use-preferences'
+import { useTheme } from '@renderer/hooks/preferences/use-theme'
 
 export default function LayoutPreferences() {
   const { layoutPreferences, updateLayoutPreferences } = usePreferences()
+  const { theme, setTheme } = useTheme()
 
   if (!layoutPreferences) return <div>Loading...</div>
+
+  const handleChangeTheme = (value: 'light' | 'dark' | 'system') => {
+    updateLayoutPreferences({ theme: value })
+    setTheme(value)
+  }
 
   return (
     <div className="max-w-2xl">
@@ -60,11 +67,7 @@ export default function LayoutPreferences() {
                 ]
               }}
               value={layoutPreferences.theme}
-              onChange={(value) => {
-                updateLayoutPreferences({
-                  theme: value
-                })
-              }}
+              onChange={handleChangeTheme}
             />
           </SettingItem>
 
