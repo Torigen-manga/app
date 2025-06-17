@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { SourceProvider } from '@torigen/mounter'
 import { ElectronRequestManager } from '@renderer/providers/electron-req'
 
-async function extensionFetchProvider(path: string): Promise<SourceProvider> {
+async function extensionFetchProvider(path: string) {
   const url = `app://extensions/${path}/bundle.js`
 
   const res = await fetch(url)
@@ -51,6 +51,45 @@ function useSourceProvider(path: string | null) {
   })
 }
 
+function useHomepage(extension: SourceProvider | undefined) {
+  return useQuery({
+    queryKey: ['source-provider', extension?.info.id, 'homepage'],
+    queryFn: async () => {
+      const homepage = await extension?.getHomepage()
+      return homepage
+    },
+    enabled: !!extension,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10
+  })
+}
+
+function useGetMangaDetails(extension: SourceProvider | undefined, mangaId: string) {
+  return useQuery({
+    queryKey: ['source-provider', extension?.info.id, 'manga-details', mangaId],
+    queryFn: async () => {
+      const details = await extension?.getMangaDetails(mangaId)
+      return details
+    },
+    enabled: !!extension && !!mangaId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10
+  })
+}
+
+function useGetChapters(extensions: SourceProvider | undefined, mangaId: string) {
+  return useQuery({
+    queryKey: ['source-provider', extensions?.info.id, 'load-chapters', mangaId],
+    queryFn: async () => {
+      const chapters = await extensions?.getChapters(mangaId)
+      return chapters
+    },
+    enabled: !!extensions && !!mangaId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10
+  })
+}
+
 function useExtensions() {
   const {
     data: extensions,
@@ -89,4 +128,4 @@ function useExtensions() {
   }
 }
 
-export { useExtensions, useSourceProvider }
+export { useExtensions, useSourceProvider, useHomepage, useGetMangaDetails, useGetChapters }

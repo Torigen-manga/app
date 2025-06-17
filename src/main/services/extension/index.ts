@@ -75,7 +75,7 @@ class ExtensionsService {
           updatedRegistry[manifest.id] = {
             name: manifest.name,
             version: manifest.version || '',
-            path: extPath,
+            path: ext,
             main: 'bundle.js'
           }
 

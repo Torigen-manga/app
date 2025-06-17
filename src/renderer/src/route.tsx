@@ -2,6 +2,7 @@ import { createBrowserRouter, type RouteObject } from 'react-router'
 import BaseLayout from './layout/base'
 import SettingsLayout from './layout/setting'
 import Home from './pages/home'
+import MangaDetail from './pages/mangaDetails'
 
 import LayoutPreferences from './pages/settings/layout'
 import ExperimentalPreferences from './pages/settings/experimental'
@@ -57,6 +58,10 @@ const mainRoutes: RouteObject[] = [
   {
     path: '/extensions',
     element: <Extensions />
+  },
+  {
+    path: '/manga/:source/:id',
+    element: <MangaDetail />
   }
 ]
 
