@@ -7,7 +7,7 @@ import type {
   ExperimentalPreferences
 } from '@shared/types/preferences'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { invoke } from '@renderer/config/ipc'
+import { invoke } from '@renderer/lib/ipcMethods'
 import { toast } from 'sonner'
 
 const PREFERENCES_QUERY_KEY = ['preferences'] as const

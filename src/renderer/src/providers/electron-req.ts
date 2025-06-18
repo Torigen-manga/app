@@ -23,8 +23,6 @@ export class ElectronRequestManager implements RequestManager {
       headers: req.headers
     }
 
-    // Handle URL parameters for GET requests
-    // Removed '|| req.method === "HEAD"' to avoid type error, as AppRequest.method doesn't include 'HEAD'
     if (req.params && req.method === 'GET') {
       const urlParams = new URLSearchParams()
       Object.entries(req.params).forEach(([key, value]) => {
@@ -40,7 +38,6 @@ export class ElectronRequestManager implements RequestManager {
       }
     }
 
-    // Handle request body for non-GET requests
     if (req.data && (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH')) {
       if (typeof req.data === 'object') {
         requestOptions.body = JSON.stringify(req.data)

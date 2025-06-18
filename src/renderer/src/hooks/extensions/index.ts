@@ -1,9 +1,11 @@
 // import type { Section, SourceProvider } from '@torigen/mounter'
-import type { Registry } from '@shared/types'
-import { invoke } from '@renderer/config/ipc'
+import type { Registry, RegistryEntry } from '@shared/types'
+import { invoke } from '@renderer/lib/ipcMethods'
 import { useQuery } from '@tanstack/react-query'
-import { SourceProvider } from '@torigen/mounter'
+import { SourceInfo, SourceProvider } from '@torigen/mounter'
 import { ElectronRequestManager } from '@renderer/providers/electron-req'
+import { channels } from '@shared/lib/methods'
+import type { APIResponse } from '@shared/types'
 
 async function extensionFetchProvider(path: string) {
   const url = `app://extensions/${path}/bundle.js`
@@ -39,6 +41,41 @@ async function extensionFetchProvider(path: string) {
   } finally {
     URL.revokeObjectURL(scriptUrl)
   }
+}
+
+function useLoadExtensions() {
+  return useQuery({
+    queryKey: ['extensions', 'load'],
+    queryFn: async () => {
+      const res: APIResponse<SourceInfo[]> = await invoke(channels.extensions.loadAll)
+
+      if (!res.success) {
+        throw new Error(`Failed to load extensions: ${res.error}`)
+      }
+
+      return res.data
+    },
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10
+  })
+}
+
+function useGetExtensionEntry(id: string) {
+  return useQuery({
+    queryKey: ['extensions', id, 'entry'],
+    queryFn: async () => {
+      const res: APIResponse<RegistryEntry> = await invoke(channels.extensions.getEntry, id)
+
+      if (!res.success) {
+        throw new Error(`Failed to get extension entry for ${id}: ${res.error}`)
+      }
+
+      return res.data
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10
+  })
 }
 
 function useSourceProvider(path: string | null) {
@@ -90,42 +127,11 @@ function useGetChapters(extensions: SourceProvider | undefined, mangaId: string)
   })
 }
 
-function useExtensions() {
-  const {
-    data: extensions,
-    isLoading: loadingExtensions,
-    error: extensionsError
-  } = useQuery({
-    queryKey: ['extensions'],
-    queryFn: async () => {
-      const extensions: string[] = await invoke('extensions:load')
-      return extensions
-    }
-  })
-
-  const {
-    data: registry,
-    isLoading: loadingRegistry,
-    error: registryError
-  } = useQuery({
-    queryKey: ['extensions:registry'],
-    queryFn: async () => {
-      const registry: Registry = await invoke('extensions:load-registry')
-      return registry
-    }
-  })
-
-  return {
-    // extensions
-    extensions,
-    loadingExtensions,
-    extensionsError,
-
-    // registry
-    registry,
-    loadingRegistry,
-    registryError
-  }
+export {
+  useSourceProvider,
+  useHomepage,
+  useGetMangaDetails,
+  useGetChapters,
+  useGetExtensionEntry,
+  useLoadExtensions
 }
-
-export { useExtensions, useSourceProvider, useHomepage, useGetMangaDetails, useGetChapters }

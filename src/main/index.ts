@@ -2,7 +2,8 @@ import { app, shell, BrowserWindow, ipcMain, protocol, net } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { preferencesService } from './services/preferences'
-import { extensionsService } from './services/extension'
+import { createExtensionHandlers } from './services/extension/ipc'
+import { createPreferencesHandlers } from './services/preferences/ipc'
 import path, { join } from 'path'
 
 protocol.registerSchemesAsPrivileged([
@@ -131,67 +132,9 @@ app.whenReady().then(async () => {
     return net.fetch('file://' + absolutePath)
   })
 
-  ipcMain.handle('preferences:load', async () => {
-    try {
-      return await preferencesService.loadPreferences()
-    } catch (error) {
-      throw new Error('Failed to load preferences')
-    }
-  })
-
-  ipcMain.handle('preferences:save', async (_, preferences) => {
-    try {
-      await preferencesService.savePreferences(preferences)
-    } catch (error) {
-      throw new Error('Failed to save preferences')
-    }
-  })
-
-  ipcMain.handle('preferences:reset', async () => {
-    try {
-      await preferencesService.resetPreferences()
-    } catch (error) {
-      throw new Error('Failed to reset preferences')
-    }
-  })
-
-  ipcMain.handle('extension:get-homepage', async (_, id: string) => {
-    try {
-      const extension = await extensionsService.loadExtension(id)
-
-      return extension.getHomepage()
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      throw new Error(`Failed to load extension with id ${id}: ${message}`)
-    }
-  })
-
-  ipcMain.handle('extensions:load', async () => {
-    try {
-      return await extensionsService.loadExtensions()
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      throw new Error(`Failed to load extensions: ${message}`)
-    }
-  })
-
-  ipcMain.handle('extensions:load-registry', async () => {
-    try {
-      return await extensionsService.loadRegistry()
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      throw new Error(`Failed to load extension registry: ${message}`)
-    }
-  })
-
-  ipcMain.handle('extensions:save-registry', async (_, registry) => {
-    try {
-      await extensionsService.saveRegistry(registry)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      throw new Error(`Failed to save extension registry: ${message}`)
-    }
-  })
+  // IPC Handlers
+  createExtensionHandlers()
+  createPreferencesHandlers()
 
   createWindow()
 

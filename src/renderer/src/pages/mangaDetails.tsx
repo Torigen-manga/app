@@ -1,7 +1,12 @@
 import { useParams } from 'react-router'
-import { useSourceProvider, useGetMangaDetails } from '@renderer/hooks/extensions'
+import {
+  useSourceProvider,
+  useGetMangaDetails,
+  useGetExtensionEntry
+} from '@renderer/hooks/extensions'
 import { BookOpen, Brush, Star } from 'lucide-react'
 import { Badge } from '@renderer/components/ui/badge'
+import { Loader2 } from 'lucide-react'
 
 export default function MangaDetail() {
   const { id, source } = useParams<{
@@ -11,26 +16,41 @@ export default function MangaDetail() {
 
   if (!id || !source) {
     return (
-      <>
-        <h1>400 - Bad Request</h1>
-        <p>Missing {id ? 'source' : 'id'}</p>
-      </>
+      <div className="w-full h-full flex flex-col items-center justify-center">
+        <h1 className="text-primary font-bold text-2xl">400 - Bad Request</h1>
+        <p className="text-muted-foreground">Missing {id ? 'source' : 'id'}</p>
+      </div>
+    )
+  }
+  const { data: entry } = useGetExtensionEntry(source)
+
+  if (!entry) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center">
+        <h1 className="text-primary font-bold text-2xl">404 - Not Found</h1>
+        <p className="text-muted-foreground">Extension not found</p>
+      </div>
     )
   }
 
-  const { data: extension } = useSourceProvider(source)
+  const { data: extension } = useSourceProvider(entry.path)
   const { data: mangaDetails, isLoading } = useGetMangaDetails(extension, id)
 
   if (isLoading) {
-    return <p>Loading...</p>
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center">
+        <h1 className="text-3xl text-center font-bold text-primary">Loading...</h1>
+        <Loader2 className="size-6 animate-spin duration-200" />
+      </div>
+    )
   }
 
   if (!mangaDetails) {
     return (
-      <>
-        <h1>404 - Not Found</h1>
-        <p>Manga not found</p>
-      </>
+      <div className="w-full h-full flex flex-col items-center justify-center">
+        <h1 className="text-primary font-bold text-2xl">404 - Not Found</h1>
+        <p className="text-muted-foreground">Manga not found</p>
+      </div>
     )
   }
 
