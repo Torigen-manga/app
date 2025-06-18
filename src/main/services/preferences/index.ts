@@ -2,8 +2,7 @@ import { app } from 'electron'
 import { mkdir, writeFile, access, readFile } from 'fs/promises'
 import path from 'path'
 import { defaultPreferences } from './default'
-import type { AppPreferences } from '@shared/types/preferences'
-import { appPreferencesSchema } from '@shared/types/preferences'
+import { type AppPreferences, appPreferencesSchema } from '@common/index'
 
 class PreferencesService {
   private readonly base = path.join(app.getPath('userData'), 'user')
@@ -23,15 +22,18 @@ class PreferencesService {
         throw writeError
       }
     }
-  }
+  } 
 
   async loadPreferences(): Promise<AppPreferences> {
     await this.ensurePreferences()
+    console.log('Loading preferences from:', this.preferencesFile)
 
     try {
       const data = await readFile(this.preferencesFile, 'utf-8')
+      console.log('Preferences file read successfully:', this.preferencesFile)
       return appPreferencesSchema.parse(JSON.parse(data))
     } catch (error) {
+      console.error('Error reading preferences file:', error)
       const parsed = appPreferencesSchema.parse(defaultPreferences)
       return appPreferencesSchema.parse(parsed)
     }

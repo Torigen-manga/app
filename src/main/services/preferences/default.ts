@@ -1,4 +1,4 @@
-import type { AppPreferences } from '@shared/types/preferences'
+import type { AppPreferences } from '@common/index'
 
 const defaultPreferences: AppPreferences = {
   layoutPreferences: {

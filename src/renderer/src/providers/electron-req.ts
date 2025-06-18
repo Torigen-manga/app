@@ -1,5 +1,5 @@
 // renderer/requestManager.ts
-import type { IPCResponse } from '@shared/types/ipcResponse'
+import type { IPCResponse } from '@common/index'
 import type { RequestManager, AppRequest } from '@torigen/mounter'
 
 /**

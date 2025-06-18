@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import { IPCResponse } from '@shared/types/ipcResponse'
+import { IPCResponse } from '@common/types/ipcResponse'
 
 declare global {
   interface Window {

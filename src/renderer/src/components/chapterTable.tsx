@@ -35,7 +35,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@renderer/components/ui/select'
-import { Entry } from '@shared/types/library'
+import { ChapterEntry } from '@torigen/mounter'
 import {
   Table,
   TableBody,
@@ -58,7 +58,7 @@ import {
   TooltipTrigger
 } from '@renderer/components/ui/tooltip'
 
-const columns: ColumnDef<Entry>[] = [
+const columns: ColumnDef<ChapterEntry>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -105,7 +105,7 @@ const columns: ColumnDef<Entry>[] = [
     ),
     cell: ({ row }) => (
       <div className="flex justify-end">
-        <span className="text-muted-foreground">{row.original.addedAt.toISOString()}</span>
+        <span className="text-muted-foreground">{row.original.timestamp ?? ''}</span>
       </div>
     )
   },
@@ -132,7 +132,7 @@ const columns: ColumnDef<Entry>[] = [
   }
 ]
 
-function ChapterRow({ row }: { row: Row<Entry> }) {
+function ChapterRow({ row }: { row: Row<ChapterEntry> }) {
   return (
     <TableRow data-state={row.getIsSelected() && 'selected'} className="relative z-0">
       {row.getVisibleCells().map((cell) => (
@@ -144,7 +144,7 @@ function ChapterRow({ row }: { row: Row<Entry> }) {
   )
 }
 
-export function ChapterTable({ data: initialData }: { data: Entry[] }) {
+export function ChapterTable({ data: initialData }: { data: ChapterEntry[] }) {
   const [inverted, setInverted] = React.useState(false)
   const data = React.useMemo(() => {
     return inverted ? [...initialData].reverse() : initialData

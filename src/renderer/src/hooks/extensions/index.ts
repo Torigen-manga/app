@@ -1,11 +1,9 @@
 // import type { Section, SourceProvider } from '@torigen/mounter'
-import type { Registry, RegistryEntry } from '@shared/types'
 import { invoke } from '@renderer/lib/ipcMethods'
 import { useQuery } from '@tanstack/react-query'
 import { SourceInfo, SourceProvider } from '@torigen/mounter'
 import { ElectronRequestManager } from '@renderer/providers/electron-req'
-import { channels } from '@shared/lib/methods'
-import type { APIResponse } from '@shared/types'
+import { channels, type APIResponse, type RegistryEntry } from '@common/index'
 
 async function extensionFetchProvider(path: string) {
   const url = `app://extensions/${path}/bundle.js`

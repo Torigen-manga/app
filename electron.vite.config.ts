@@ -6,7 +6,7 @@ export default defineConfig({
   main: {
     resolve: {
       alias: {
-        '@shared': resolve('src/shared')
+        '@common': resolve('src/common')
       }
     },
     plugins: [externalizeDepsPlugin()]
@@ -18,7 +18,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),
-        '@shared': resolve('src/shared')
+        '@common': resolve('src/common')
       }
     },
     plugins: [react()]

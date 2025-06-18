@@ -5,19 +5,15 @@
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.tsx",
     "src/preload/*.d.ts",
-    "src/shared/**/*"
+    "src/common/**/*",
   ],
   "compilerOptions": {
     "composite": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@renderer/*": [
-        "src/renderer/src/*"
-      ],
-      "@shared/*": [
-        "src/shared/*"
-      ]
+      "@renderer/*": ["src/renderer/src/*"],
+      "@common/*": ["src/common/*"]
     }
   }
 }

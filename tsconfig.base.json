@@ -1,4 +1,3 @@
 {
-  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
-  
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json"
 }

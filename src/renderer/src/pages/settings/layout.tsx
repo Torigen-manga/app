@@ -7,9 +7,12 @@ import { useTheme } from '@renderer/hooks/preferences/use-theme'
 
 export default function LayoutPreferences() {
   const { layoutPreferences, updateLayoutPreferences } = usePreferences()
-  const { theme, setTheme } = useTheme()
+  const { setTheme } = useTheme()
 
-  if (!layoutPreferences) return <div>Loading...</div>
+  if (!layoutPreferences) {
+    console.log('Layout preferences not loaded yet')
+    return <div>Loading...</div>
+  }
 
   const handleChangeTheme = (value: 'light' | 'dark' | 'system') => {
     updateLayoutPreferences({ theme: value })

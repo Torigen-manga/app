@@ -1,5 +1,5 @@
 import { invoke } from '@renderer/lib/ipcMethods'
-import type { APIResponse } from '@shared/types'
+import type { APIResponse } from '@common/index'
 
 async function invokeIPC<T>(channel: string, ...args: any[]): Promise<T> {
   const res: APIResponse<T> = await invoke(channel, ...args)

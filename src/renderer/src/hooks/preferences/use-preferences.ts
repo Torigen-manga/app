@@ -1,11 +1,13 @@
-import type {
-  AppPreferences,
-  LayoutPreferences,
-  LibraryHistoryPreferences,
-  ReaderPreferences,
-  SystemBehaviorPreferences,
-  ExperimentalPreferences
-} from '@shared/types/preferences'
+import {
+  type AppPreferences,
+  type LayoutPreferences,
+  type LibraryHistoryPreferences,
+  type ReaderPreferences,
+  type SystemBehaviorPreferences,
+  type ExperimentalPreferences,
+  type APIResponse,
+  channels
+} from '@common/index'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { invoke } from '@renderer/lib/ipcMethods'
 import { toast } from 'sonner'
@@ -23,14 +25,25 @@ function usePreferences() {
   } = useQuery({
     queryKey: PREFERENCES_QUERY_KEY,
     queryFn: async () => {
-      const preferences: AppPreferences = await invoke('preferences:load')
-      return preferences
+      const res: APIResponse<AppPreferences> = await invoke(channels.preferences.load)
+      
+      if (!res.success) {
+        throw new Error(`Failed to load preferences: ${res.error}`)
+      }
+
+      return res.data
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
   })
+
+  if (error) {
+    console.log(error)
+  }
+
+  console.log('Preferences loaded:', preferences)
 
   const layoutPreferences = preferences?.layoutPreferences
   const readerDisplayPreferences = preferences?.readerDisplayPreferences
@@ -49,7 +62,7 @@ function usePreferences() {
 
         const updatedPreferences = { ...currentPreferences, ...newPreferences }
 
-        await invoke('preferences:save', updatedPreferences)
+        await invoke(channels.preferences.save, updatedPreferences)
         return updatedPreferences
       } catch (error) {
         throw error
@@ -62,13 +75,14 @@ function usePreferences() {
       toast.error('Failed to update preferences', {
         description: err instanceof Error ? err.message : 'Unknown error'
       })
+      console.error('Failed to update preferences:', err)
     }
   })
 
   const resetPreferences = useMutation({
     mutationFn: async () => {
       try {
-        await invoke('preferences:reset')
+        await invoke(channels.preferences.reset)
         await queryClient.invalidateQueries({ queryKey: PREFERENCES_QUERY_KEY })
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'

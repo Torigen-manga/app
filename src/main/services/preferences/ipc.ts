@@ -1,9 +1,6 @@
 import { ipcMain } from 'electron'
-import { channels } from '@shared/lib/methods'
 import { preferencesService } from '.'
-import { apiWrapper } from '@shared/types'
-
-import type { AppPreferences } from '@shared/types/preferences'
+import { type AppPreferences, apiWrapper, channels } from '@common/index'
 
 const createPreferencesHandlers = () => {
   ipcMain.handle(channels.preferences.load, async () =>

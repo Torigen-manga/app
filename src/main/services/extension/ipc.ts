@@ -1,9 +1,8 @@
 import { ipcMain } from 'electron'
-import { channels } from '@shared/lib/methods'
 import { extensionsService } from '.'
 
 import type { SourceInfo } from '@torigen/mounter'
-import { type RegistryEntry, apiWrapper } from '@shared/types'
+import { type RegistryEntry, apiWrapper, channels } from '@common/index'
 
 const createExtensionHandlers = () => {
   ipcMain.handle(channels.extensions.loadAll, async () =>

@@ -39,7 +39,7 @@ export default function MangaDetail() {
   if (isLoading) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center">
-        <h1 className="text-3xl text-center font-bold text-primary">Loading...</h1>
+        <h1 className="text-xl text-center font-bold text-primary">Loading...</h1>
         <Loader2 className="size-6 animate-spin duration-200" />
       </div>
     )

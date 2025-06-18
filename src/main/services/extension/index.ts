@@ -1,6 +1,6 @@
 import { access, mkdir, writeFile, readFile, readdir } from 'fs/promises'
 import type { SourceInfo, SourceProvider } from '@torigen/mounter'
-import type { Registry, RegistryEntry } from '@shared/types/extensions'
+import type { Registry, RegistryEntry } from '@common/index'
 import { pathToFileURL } from 'url'
 import { app } from 'electron'
 import path from 'path'
