@@ -103,11 +103,25 @@ const columns: ColumnDef<ChapterEntry>[] = [
         <span className="text-muted-foreground">Released Since</span>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="flex justify-end">
-        <span className="text-muted-foreground">{row.original.timestamp ?? ''}</span>
-      </div>
-    )
+    cell: ({ row }) => {
+      const timestamp = row.original.timestamp
+
+      return (
+        <div className="flex justify-end">
+          {timestamp ? (
+            <time className="text-muted-foreground" dateTime={timestamp}>
+              {new Date(timestamp).toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}
+            </time>
+          ) : (
+            <span className="text-muted-foreground italic">Unknown</span>
+          )}
+        </div>
+      )
+    }
   },
   {
     id: 'actions',
@@ -185,7 +199,7 @@ export function ChapterTable({ data: initialData }: { data: ChapterEntry[] }) {
 
   return (
     <>
-      <div className="mt-8">
+      <div className="mt-8 w-full max-w-4xl">
         <div className="flex items-center">
           <h2 className="text-xl font-semibold">Chapters</h2>
           <TooltipProvider>

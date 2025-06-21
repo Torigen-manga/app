@@ -80,7 +80,7 @@ export function TitleBar() {
 
   return (
     <header
-      className="items-center-2 bg-sidebar fixed top-0 right-0 z-50 flex h-8 items-center justify-between transition-[left,width] duration-200 ease-linear"
+      className="items-center-2 bg-sidebar fixed top-0 right-0 z-50 flex h-8 items-center justify-between pl-2 transition-[left,width] duration-200 ease-linear"
       style={
         {
           left: getLeftOffset(),

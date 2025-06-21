@@ -125,11 +125,25 @@ function useGetChapters(extensions: SourceProvider | undefined, mangaId: string)
   })
 }
 
+function useGetChapter(extension: SourceProvider | undefined, mangaId: string, chapterId: string) {
+  return useQuery({
+    queryKey: ['source-provider', extension?.info.id, 'load-chapter', mangaId, chapterId],
+    queryFn: async () => {
+      const chapter = await extension?.getChapterDetails(mangaId, chapterId)
+      return chapter
+    },
+    enabled: !!extension && !!mangaId && !!chapterId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10
+  })
+}
+
 export {
   useSourceProvider,
   useHomepage,
   useGetMangaDetails,
   useGetChapters,
   useGetExtensionEntry,
-  useLoadExtensions
+  useLoadExtensions,
+  useGetChapter
 }

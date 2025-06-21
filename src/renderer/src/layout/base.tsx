@@ -8,9 +8,9 @@ export default function BaseLayout() {
     <SidebarProvider className="flex">
       <AppSidebar />
 
-      <div className="bg-sidebar relative min-h-screen w-full overflow-hidden pb-10">
+      <div className="bg-sidebar relative h-screen w-full overflow-hidden pb-10">
         <TitleBar />
-        <main className="bg-background mt-8 h-full overflow-hidden">
+        <main className="bg-background relative mt-8 mr-2 ml-2 h-full overflow-y-scroll rounded-xl border shadow shadow-black/20 md:ml-0">
           <Outlet />
         </main>
       </div>

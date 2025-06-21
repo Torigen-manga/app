@@ -16,7 +16,7 @@
   --font-serif: Adamina, ui-serif, serif;
   --font-mono: Fira Code, ui-monospace, monospace;
 
-  --radius: 0.25rem;
+  --radius: 0.625rem;
   --background: oklch(0.982 0.005 95.099);
   --foreground: oklch(0.344 0.027 95.723);
   --card: oklch(0.982 0.005 95.099);
