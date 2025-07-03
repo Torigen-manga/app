@@ -1,149 +1,135 @@
-// import type { Section, SourceProvider } from '@torigen/mounter'
 import { invoke } from '@renderer/lib/ipcMethods'
 import { useQuery } from '@tanstack/react-query'
-import { SourceInfo, SourceProvider } from '@torigen/mounter'
-import { ElectronRequestManager } from '@renderer/providers/electron-req'
-import { channels, type APIResponse, type RegistryEntry } from '@common/index'
+import type {
+  Chapter,
+  ChapterEntry,
+  Manga,
+  Section,
+  SourceFieldsMetadata,
+  SourceInfo
+} from '@torigen/mounter'
+import { channels, type APIResponse } from '@common/index'
 
-async function extensionFetchProvider(path: string) {
-  const url = `app://extensions/${path}/bundle.js`
+type Maybe<T> = T | undefined
 
-  const res = await fetch(url)
+function useSourceInfo(id: Maybe<string>) {
+  return useQuery({
+    queryKey: ['extension', id, 'info'],
+    queryFn: async () => {
+      const res: APIResponse<SourceInfo> = await invoke(channels.extension.info, id)
+      console.log('[HOOK] raw result:', res)
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch source provider from ${url}: ${res.statusText}`)
-  }
+      if (!res.success) {
+        throw new Error(`Failed to load extension info for ${id}: ${res.error}`)
+      }
 
-  const content = await res.text()
+      return res.data
+    },
+    enabled: Boolean(id)
+  })
+}
 
-  const blob = new Blob([content], { type: 'application/javascript' })
-  const scriptUrl = URL.createObjectURL(blob)
+function useSourceMetadata(id: Maybe<string>) {
+  return useQuery({
+    queryKey: ['extension', id, 'metadata'],
+    queryFn: async () => {
+      const res: APIResponse<SourceFieldsMetadata> = await invoke(channels.extension.metadata, id)
+      console.log('[HOOK] raw result:', res)
 
-  try {
-    const module = await import(/* @vite-ignore */ scriptUrl)
+      if (!res.success) {
+        throw new Error(`Failed to load extension metadata for ${id}: ${res.error}`)
+      }
 
-    if (!module.default) {
-      throw new Error(
-        `Extension '${path}' does not have a default export (expected a Source class).`
+      return res.data
+    },
+    enabled: Boolean(id)
+  })
+}
+
+function useHomepage(id: Maybe<string>) {
+  return useQuery({
+    queryKey: ['extension', id, 'homepage'],
+    queryFn: async () => {
+      const res: APIResponse<Section[]> = await invoke(channels.extension.homepage, id)
+      console.log('[HOOK] raw result:', res)
+
+      if (!res.success) {
+        throw new Error(`Failed to load homepage for extension ${id}: ${res.error}`)
+      }
+
+      return res.data
+    },
+    enabled: Boolean(id)
+  })
+}
+
+function useMangaDetails(id: Maybe<string>, mangaId: Maybe<string>) {
+  return useQuery({
+    queryKey: ['extension', id, 'mangaDetails', mangaId],
+    queryFn: async () => {
+      const res: APIResponse<Manga> = await invoke(channels.extension.mangaDetails, id, mangaId)
+
+      if (!res.success) {
+        throw new Error(`Failed to load manga details for ${mangaId}: ${res.error}`)
+      }
+
+      return res.data
+    },
+    enabled: Boolean(id && mangaId)
+  })
+}
+
+function useMangaChapters(id: Maybe<string>, mangaId: Maybe<string>) {
+  return useQuery({
+    queryKey: ['extension', id, 'mangaChapters', mangaId],
+    queryFn: async () => {
+      const res: APIResponse<ChapterEntry[]> = await invoke(
+        channels.extension.mangaChapters,
+        id,
+        mangaId
       )
-    }
-
-    type SourceClassConstructor = new (requestManager: ElectronRequestManager) => SourceProvider
-    const SourceClass = module.default as SourceClassConstructor
-
-    const requestManager = new ElectronRequestManager()
-
-    const sourceInstance = new SourceClass(requestManager)
-
-    return sourceInstance
-  } finally {
-    URL.revokeObjectURL(scriptUrl)
-  }
-}
-
-function useLoadExtensions() {
-  return useQuery({
-    queryKey: ['extensions', 'load'],
-    queryFn: async () => {
-      const res: APIResponse<SourceInfo[]> = await invoke(channels.extensions.loadAll)
 
       if (!res.success) {
-        throw new Error(`Failed to load extensions: ${res.error}`)
+        throw new Error(`Failed to load manga chapters for ${mangaId}: ${res.error}`)
       }
 
       return res.data
     },
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10
+    enabled: Boolean(id && mangaId)
   })
 }
 
-function useGetExtensionEntry(id: string) {
+function useChapterDetails(id: Maybe<string>, mangaId: Maybe<string>, chapterId: Maybe<string>) {
   return useQuery({
-    queryKey: ['extensions', id, 'entry'],
+    queryKey: ['extension', id, 'chapterDetails', mangaId, chapterId],
     queryFn: async () => {
-      const res: APIResponse<RegistryEntry> = await invoke(channels.extensions.getEntry, id)
+      const res: APIResponse<Chapter> = await invoke(
+        channels.extension.chapterDetails,
+        id,
+        mangaId,
+        chapterId
+      )
 
       if (!res.success) {
-        throw new Error(`Failed to get extension entry for ${id}: ${res.error}`)
+        throw new Error(`Failed to load chapter details for ${mangaId}/${chapterId}: ${res.error}`)
       }
 
       return res.data
     },
-    enabled: !!id,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10
+    enabled: Boolean(id && mangaId && chapterId)
   })
 }
 
-function useSourceProvider(path: string | null) {
-  return useQuery({
-    queryKey: ['source-provider', path],
-    queryFn: () => extensionFetchProvider(path!),
-    enabled: !!path,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10
-  })
-}
+const extensionMethods = {
+  useSourceInfo,
+  useSourceMetadata,
 
-function useHomepage(extension: SourceProvider | undefined) {
-  return useQuery({
-    queryKey: ['source-provider', extension?.info.id, 'homepage'],
-    queryFn: async () => {
-      const homepage = await extension?.getHomepage()
-      return homepage
-    },
-    enabled: !!extension,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10
-  })
-}
-
-function useGetMangaDetails(extension: SourceProvider | undefined, mangaId: string) {
-  return useQuery({
-    queryKey: ['source-provider', extension?.info.id, 'manga-details', mangaId],
-    queryFn: async () => {
-      const details = await extension?.getMangaDetails(mangaId)
-      return details
-    },
-    enabled: !!extension && !!mangaId,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10
-  })
-}
-
-function useGetChapters(extensions: SourceProvider | undefined, mangaId: string) {
-  return useQuery({
-    queryKey: ['source-provider', extensions?.info.id, 'load-chapters', mangaId],
-    queryFn: async () => {
-      const chapters = await extensions?.getChapters(mangaId)
-      return chapters
-    },
-    enabled: !!extensions && !!mangaId,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10
-  })
-}
-
-function useGetChapter(extension: SourceProvider | undefined, mangaId: string, chapterId: string) {
-  return useQuery({
-    queryKey: ['source-provider', extension?.info.id, 'load-chapter', mangaId, chapterId],
-    queryFn: async () => {
-      const chapter = await extension?.getChapterDetails(mangaId, chapterId)
-      return chapter
-    },
-    enabled: !!extension && !!mangaId && !!chapterId,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10
-  })
-}
-
-export {
-  useSourceProvider,
   useHomepage,
-  useGetMangaDetails,
-  useGetChapters,
-  useGetExtensionEntry,
-  useLoadExtensions,
-  useGetChapter
+  useMangaDetails,
+  useMangaChapters,
+  useChapterDetails
 }
+
+type ExtensionMethods = typeof extensionMethods
+
+export { extensionMethods, type ExtensionMethods }

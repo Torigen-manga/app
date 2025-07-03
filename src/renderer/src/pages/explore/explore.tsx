@@ -1,4 +1,4 @@
-import { useLoadExtensions } from '@renderer/hooks/extensions'
+import { useLoadExtensions } from '@renderer/hooks/extensions/registry'
 import { Button } from '@renderer/components/ui/button'
 import { Link } from 'react-router'
 

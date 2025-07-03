@@ -1,11 +1,6 @@
 import { useParams } from 'react-router'
-import {
-  useSourceProvider,
-  useGetMangaDetails,
-  useGetExtensionEntry,
-  useGetChapters
-} from '@renderer/hooks/extensions'
 import { Badge } from '@renderer/components/ui/badge'
+import { extensionMethods } from '@renderer/hooks/extensions'
 
 import { ChapterTable } from '@renderer/components/chapter-table'
 import { Button } from '@renderer/components/ui/button'
@@ -13,11 +8,13 @@ import { useState, useRef, useEffect } from 'react'
 import { cn } from '@renderer/lib/utils'
 import { ErrorPage } from './error'
 
-export default function MangaDetail() {
+export default function MangaDetail(): React.JSX.Element {
   const { mangaId, source } = useParams<{
     mangaId: string
     source: string
   }>()
+  const { data: manga, isLoading } = extensionMethods.useMangaDetails(source, mangaId)
+  const { data: chapters } = extensionMethods.useMangaChapters(source, mangaId)
   const [expanded, setExpanded] = useState(false)
   const [isOverflow, setIsOverflow] = useState(false)
   const descRef = useRef<HTMLParagraphElement>(null)
@@ -32,27 +29,17 @@ export default function MangaDetail() {
         setIsOverflow(true)
       }
     }
-  })
-
-  const { data: entry, isLoading: entryLoading } = useGetExtensionEntry(source || '')
-  const { data: extension } = useSourceProvider(entry?.path || null)
-
-  const { data: chapters } = useGetChapters(extension, mangaId || '')
-  const { data: manga, isLoading } = useGetMangaDetails(extension, mangaId || '')
+  }, [descRef.current, isOverflow])
 
   if (!mangaId || !source) {
     return <ErrorPage code={400} />
-  }
-
-  if (!entry && !entryLoading) {
-    return <ErrorPage code={404} message={`Extension "${source}" not found`} />
   }
 
   if (!manga && !isLoading) {
     return <ErrorPage code={404} message="Manga not found" />
   }
 
-  if (!manga) return null
+  if (!manga) return <></>
 
   interface DetailCampProps {
     title: string
@@ -73,8 +60,8 @@ export default function MangaDetail() {
 
   return (
     <main className="flex h-full w-full flex-col items-center p-4">
-      <div className="flex w-full flex-col gap-2 md:w-4xl md:flex-row">
-        <div className="aspect-2/3 h-96 max-h-88 w-fit">
+      <div className="container flex w-full flex-col gap-2 sm:max-w-2xl md:max-w-4xl md:flex-row">
+        <div className="aspect-2/3 max-h-88 w-fit">
           <img src={manga.image} alt="" className="size-full rounded-lg border shadow-xl" />
         </div>
         <div className="max-w-2xl">

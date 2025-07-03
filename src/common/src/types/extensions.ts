@@ -3,8 +3,6 @@ import { z } from 'zod'
 const registryEntrySchema = z.object({
   name: z.string(),
   path: z.string(),
-  version: z.string(),
-  main: z.string(),
   dependencies: z.array(z.string()).optional()
 })
 

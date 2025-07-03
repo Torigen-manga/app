@@ -1,218 +1,169 @@
-import { access, mkdir, writeFile, readFile, readdir } from 'fs/promises'
-import type { SourceInfo, SourceProvider } from '@torigen/mounter'
-import type { Registry, RegistryEntry } from '@common/index'
+import type {
+  Chapter,
+  ChapterEntry,
+  Manga,
+  PagedResults,
+  RequestManager,
+  SearchRequest,
+  Section,
+  SourceCapabilities,
+  SourceFieldsMetadata,
+  SourceInfo,
+  SourceProvider,
+  Tag
+} from '@torigen/mounter'
+import { ProxyFetch } from './request-manager'
 import { pathToFileURL } from 'url'
-import { app } from 'electron'
-import path from 'path'
+import { extensionsService } from './registry'
 
-interface ExtensionSyncResult {
-  loaded: SourceInfo[]
-  failed: Array<{ path: string; error: Error }>
-  removed: string[]
-}
+class ExtensionService {
+  private readonly cache = new Map<string, SourceProvider>()
 
-class ExtensionsService {
-  private readonly base = path.join(app.getPath('userData'), 'user', 'extensions')
-  private readonly registryFile = path.join(this.base, 'registry.json')
+  constructor() {
+    this.init()
+  }
 
-  private async ensureRegistry(): Promise<void> {
+  private async init() {
     try {
-      await mkdir(this.base, { recursive: true })
-      await access(this.registryFile)
+      await extensionsService.loadExtensions()
+      console.log('Extensions service initialized successfully')
     } catch (err) {
-      const initialRegistry: Registry = {}
-      try {
-        await writeFile(this.registryFile, JSON.stringify(initialRegistry, null, 2))
-      } catch (writeErr) {
-        throw writeErr
-      }
+      console.error('Failed to initialize extensions service:', err)
     }
   }
 
-  private async loadRegistry(): Promise<Registry> {
-    await this.ensureRegistry()
+  private async getExtension(id: string) {
+    const file = await extensionsService.getExtensionPath(id)
 
-    try {
-      const data = await readFile(this.registryFile, 'utf-8')
-
-      const parsed: Registry = JSON.parse(data)
-
-      return parsed
-    } catch (err) {
-      console.warn('Could not load registry, using empty registry:', err)
-      return {}
+    if (!id) {
+      throw new Error(`Extension with ID ${id} not found`)
     }
-  }
 
-  private async saveRegistry(registry: Registry): Promise<boolean> {
-    await this.ensureRegistry()
-
-    try {
-      await writeFile(this.registryFile, JSON.stringify(registry, null, 2))
-      return true
-    } catch (err) {
-      console.error('Failed to save registry:', err)
-      return false
+    if (!file) {
+      throw new Error(`Extension with ID ${id} not found in registry`)
     }
-  }
 
-  private async loadExtFolders(): Promise<string[]> {
-    try {
-      const folders: string[] = (await readdir(this.base, { withFileTypes: true }))
-        .filter((item) => item.isDirectory())
-        .map((item) => item.name)
-
-      return folders
-    } catch (err) {
-      console.warn('Could not read extensions directory:', err)
-      return []
+    if (this.cache.has(id)) {
+      return this.cache.get(id)!
     }
-  }
 
-  private async loadExtension(folderName: string) {
-    const bundlePath = path.join(this.base, folderName, 'bundle.js')
-    const fileUrl = pathToFileURL(bundlePath).href
+    const fileUrl = pathToFileURL(file).href
 
     try {
       const mod = await import(fileUrl)
 
       if (!mod.default) {
         throw new Error(
-          `Extension in ${folderName} does not have a default export (expected a Source class).`
+          `Extension in ${file} does not have a default export (expected a Source class).`
         )
       }
 
-      type SourceClassConstructor = new (requestManager: any) => SourceProvider
-      const SourceClass = mod.default as SourceClassConstructor
+      type SourceClassConstructor = new (requestManager: RequestManager) => SourceProvider
 
-      const requestManager = {}
+      const SourceClass = mod.default as SourceClassConstructor
+      const requestManager = new ProxyFetch()
       const sourceInstance = new SourceClass(requestManager)
 
-      return sourceInstance.info as SourceInfo
+      this.cache.set(id, sourceInstance)
+
+      return sourceInstance
     } catch (err) {
-      throw new Error(`Failed to load extension from ${folderName}: ${(err as Error).message}`)
-    }
-  }
-
-  private async syncRegistryWithFilesystem(): Promise<ExtensionSyncResult> {
-    const currentFolders = await this.loadExtFolders()
-    const currentRegistry = await this.loadRegistry()
-
-    const result: ExtensionSyncResult = {
-      loaded: [],
-      failed: [],
-      removed: []
-    }
-
-    const updatedRegistry: Registry = { ...currentRegistry }
-
-    for (const folderName of currentFolders) {
-      try {
-        const extensionInfo = await this.loadExtension(folderName)
-
-        const existingEntry = updatedRegistry[extensionInfo.id]
-
-        if (!existingEntry) {
-          console.log(`Discovered new extension: ${extensionInfo.name} (${extensionInfo.id})`)
-
-          updatedRegistry[extensionInfo.id] = {
-            name: extensionInfo.name,
-            path: folderName,
-            main: 'bundle.js',
-            version: extensionInfo.version || '1.0.0',
-            dependencies: extensionInfo.dependencies?.map((dep) => dep.name) || []
-          }
-
-          result.loaded.push(extensionInfo)
-        } else {
-          const needsUpdate =
-            existingEntry.version !== (extensionInfo.version || '1.0.0') ||
-            existingEntry.name !== extensionInfo.name ||
-            existingEntry.path !== folderName
-
-          if (needsUpdate) {
-            console.log(`Updating extension metadata: ${extensionInfo.name}`)
-
-            updatedRegistry[extensionInfo.id] = {
-              ...existingEntry,
-              name: extensionInfo.name,
-              path: folderName,
-              version: extensionInfo.version || '1.0.0',
-              dependencies: extensionInfo.dependencies?.map((dep) => dep.name) || []
-            }
-          }
-
-          result.loaded.push(extensionInfo)
-        }
-      } catch (err) {
-        console.error(`Failed to process extension in folder ${folderName}:`, err)
-        result.failed.push({ path: folderName, error: err as Error })
-      }
-    }
-
-    const currentFolderSet = new Set(currentFolders)
-
-    for (const [extensionId, entry] of Object.entries(updatedRegistry)) {
-      if (!currentFolderSet.has(entry.path)) {
-        console.log(`Removing stale registry entry for: ${entry.name} (${extensionId})`)
-        delete updatedRegistry[extensionId]
-        result.removed.push(extensionId)
-      }
-    }
-
-    await this.saveRegistry(updatedRegistry)
-
-    return result
-  }
-
-  async loadExtensions(): Promise<SourceInfo[]> {
-    await this.ensureRegistry()
-
-    try {
-      const syncResult = await this.syncRegistryWithFilesystem()
-
-      if (syncResult.failed.length > 0) {
-        console.warn(`Failed to load ${syncResult.failed.length} extensions:`)
-        syncResult.failed.forEach(({ path, error }) => {
-          console.warn(`  - ${path}: ${error.message}`)
-        })
-      }
-
-      if (syncResult.removed.length > 0) {
-        console.log(`Cleaned up ${syncResult.removed.length} stale registry entries`)
-      }
-
-      console.log(`Successfully loaded ${syncResult.loaded.length} extensions`)
-
-      return syncResult.loaded
-    } catch (err) {
-      console.error('Critical error during extension loading:', err)
+      console.error(`Failed to load extension from ${file}:`, err)
       throw err
     }
   }
 
-  async getExtensionPath(extensionId: string): Promise<string | null> {
-    const registry = await this.loadRegistry()
-    const entry = registry[extensionId]
+  async getExtensionInfo(id: string): Promise<SourceInfo> {
+    const ext = await this.getExtension(id)
 
-    if (!entry) {
-      return null
+    if (!ext.info) {
+      throw new Error(`Extension ${id} does not have info defined`)
     }
 
-    return path.join(this.base, entry.path)
+    return ext.info
   }
 
-  async getExtensionEntry(extensionId: string): Promise<RegistryEntry | null> {
-    const registry = await this.loadRegistry()
-    return registry[extensionId] || null
+  async getMetadata(id: string): Promise<SourceFieldsMetadata> {
+    const ext = await this.getExtension(id)
+
+    if (!ext.fieldsMetadata) {
+      throw new Error(`Extension ${id} does not implement getMetadata method`)
+    }
+
+    return ext.fieldsMetadata
   }
 
-  async hasExtension(extensionId: string): Promise<boolean> {
-    const registry = await this.loadRegistry()
-    return extensionId in registry
+  async getCapabilities(id: string): Promise<SourceCapabilities> {
+    const ext = await this.getExtension(id)
+
+    if (!ext.capabilities) {
+      throw new Error(`Extension ${id} does not implement getCapabilities method`)
+    }
+
+    return ext.capabilities
+  }
+
+  async getHomepage(id: string): Promise<Section[]> {
+    const ext = await this.getExtension(id)
+
+    if (!ext.getHomepage) {
+      throw new Error(`Extension ${id} does not implement getHomepage method`)
+    }
+
+    return ext.getHomepage()
+  }
+
+  async getMangaDetails(id: string, mangaId: string): Promise<Manga> {
+    const ext = await this.getExtension(id)
+
+    if (!ext.getMangaDetails) {
+      throw new Error(`Extension ${id} does not implement getMangaDetails method`)
+    }
+
+    return ext.getMangaDetails(mangaId)
+  }
+
+  async getMangaChapters(id: string, mangaId: string): Promise<ChapterEntry[]> {
+    const ext = await this.getExtension(id)
+
+    if (!ext.getChapters) {
+      throw new Error(`Extension ${id} does not implement getMangaChapters method`)
+    }
+
+    return ext.getChapters(mangaId)
+  }
+
+  async getMangaSearch(id: string, query: SearchRequest): Promise<PagedResults> {
+    const ext = await this.getExtension(id)
+
+    if (!ext.getSearchResults) {
+      throw new Error(`Extension ${id} does not implement getSearchResults method`)
+    }
+
+    return ext.getSearchResults(query)
+  }
+
+  async getChapterDetails(id: string, mangaId: string, chapterId: string): Promise<Chapter> {
+    const ext = await this.getExtension(id)
+
+    if (!ext.getChapterDetails) {
+      throw new Error(`Extension ${id} does not implement getChapterDetails method`)
+    }
+
+    return ext.getChapterDetails(mangaId, chapterId)
+  }
+
+  async getTags(id: string): Promise<Tag[]> {
+    const ext = await this.getExtension(id)
+
+    if (!ext.getSearchTags) {
+      throw new Error(`Extension ${id} does not implement getSearchTags method`)
+    }
+
+    return ext.getSearchTags()
   }
 }
 
-const extensionsService = new ExtensionsService()
+const extensionService = new ExtensionService()
 
-export { extensionsService }
+export { extensionService, extensionsService }

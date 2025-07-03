@@ -1,5 +1,3 @@
-
-
 const channels = {
   preferences: {
     load: 'preferences:load',
@@ -16,6 +14,19 @@ const channels = {
 
     getAll: 'extensions:get-all',
     count: 'extensions:count'
+  },
+  extension: {
+    load: 'extension:load',
+    homepage: 'extension:homepage',
+    mangaDetails: 'extension:mangaDetails',
+    mangaChapters: 'extension:mangaChapters',
+    searchResults: 'extension:searchResults',
+    chapterDetails: 'extension:chapterDetails',
+    searchTags: 'extension:searchTags',
+
+    info: 'extension:info',
+    metadata: 'extension:metadata',
+    capabilities: 'extension:capabilities'
   }
 }
 

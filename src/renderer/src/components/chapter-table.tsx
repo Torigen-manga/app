@@ -109,7 +109,7 @@ const columns: ColumnDef<ChapterEntry>[] = [
       return (
         <div className="flex justify-end">
           {timestamp ? (
-            <time className="text-muted-foreground" dateTime={timestamp}>
+            <time className="text-muted-foreground/60" dateTime={timestamp}>
               {new Date(timestamp).toLocaleDateString(undefined, {
                 year: 'numeric',
                 month: 'short',

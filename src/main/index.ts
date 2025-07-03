@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain, protocol, net } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { createExtensionHandlers } from './services/extension/ipc'
+import { createExtensionsHandlers, createExtensionHandlers } from './services/extension/ipc'
 import { createPreferencesHandlers } from './services/preferences/ipc'
 import path, { join } from 'path'
 import { pathToFileURL } from 'url'
@@ -130,8 +130,9 @@ app.whenReady().then(async () => {
   })
 
   // IPC Handlers
-  createExtensionHandlers()
+  createExtensionsHandlers()
   createPreferencesHandlers()
+  createExtensionHandlers()
 
   createWindow()
 

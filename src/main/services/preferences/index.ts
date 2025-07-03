@@ -22,7 +22,7 @@ class PreferencesService {
         throw writeError
       }
     }
-  } 
+  }
 
   async loadPreferences(): Promise<AppPreferences> {
     await this.ensurePreferences()
@@ -41,6 +41,7 @@ class PreferencesService {
 
   async savePreferences(preferences: AppPreferences): Promise<void> {
     await this.ensurePreferences()
+    console.log('Saving preferences to:', this.preferencesFile)
 
     try {
       const parsed = appPreferencesSchema.parse(preferences)

@@ -71,7 +71,7 @@ const mainRoutes: RouteObject[] = [
     element: <MangaDetail />
   },
   {
-    path: '/manga/:source/:mangaId/:chapterId',
+    path: '/manga/:source/:mangaId/chapter/:chapterId',
     element: <Reader />
   },
   {
