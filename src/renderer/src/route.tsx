@@ -7,6 +7,7 @@ import Explore from './pages/explore/explore'
 import ExploreExt from './pages/explore/explore-ext'
 import Search from './pages/search'
 import Extensions from './pages/extensions'
+import Library from './pages/library'
 
 import LayoutPreferences from './pages/settings/layout'
 import ExperimentalPreferences from './pages/settings/experimental'
@@ -67,6 +68,10 @@ const mainRoutes: RouteObject[] = [
     element: <Extensions />
   },
   {
+    path: '/library',
+    element: <Library />
+  },
+  {
     path: '/manga/:source/:mangaId',
     element: <MangaDetail />
   },
@@ -76,7 +81,7 @@ const mainRoutes: RouteObject[] = [
   },
   {
     path: '*',
-    element: <ErrorPage code={404} />
+    element: <ErrorPage code={404} message="Page Not Found" />
   }
 ]
 

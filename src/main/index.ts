@@ -1,20 +1,27 @@
-import { app, shell, BrowserWindow, ipcMain, protocol, net } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, net, protocol } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { createExtensionsHandlers, createExtensionHandlers } from './services/extension/ipc'
-import { createPreferencesHandlers } from './services/preferences/ipc'
-import path, { join } from 'path'
-import { pathToFileURL } from 'url'
+import {
+  createPreferencesHandlers,
+  createExtensionsHandlers,
+  createExtensionHandlers,
+  createLibraryHandlers,
+  ensureDirectoriesExist,
+  ensureServicesFiles,
+  directories
+} from './src'
+import { join } from 'path'
+import { createReadStream, existsSync } from 'fs'
 
 protocol.registerSchemesAsPrivileged([
   {
-    scheme: 'app',
+    scheme: 'cover',
     privileges: {
       secure: true,
-      standard: true,
-      supportFetchAPI: true,
       stream: true,
-      corsEnabled: true
+      standard: true,
+      corsEnabled: true,
+      supportFetchAPI: true
     }
   }
 ])
@@ -101,35 +108,35 @@ app.whenReady().then(async () => {
     }
   })
 
-  protocol.handle('app', async (req) => {
+  await ensureDirectoriesExist()
+  await ensureServicesFiles()
+
+  protocol.handle('cover', async (req) => {
     const url = new URL(req.url)
-    const { host, pathname } = url
+    const fileName = url.hostname + url.pathname
 
-    let basePath = ''
+    const filePath = join(directories.coverCacheDir, decodeURIComponent(fileName))
 
-    if (host === 'extensions') {
-      basePath = path.join(app.getPath('userData'), 'user', 'extensions')
-    } else {
-      return new Response(null, { status: 404, statusText: 'Not found' })
+    if (!existsSync(filePath)) {
+      console.warn(`[cover protocol] File not found: ${filePath}`)
+      return new Response(null, {
+        status: 404,
+        statusText: 'Not Found'
+      })
     }
 
-    const absolutePath = path.normalize(path.join(basePath, pathname))
+    const stream = createReadStream(filePath)
 
-    if (!absolutePath.startsWith(basePath)) {
-      return new Response(null, { status: 403, statusText: 'Forbidden' })
-    }
-
-    console.log('[protocol] URL:', req.url)
-    console.log('[protocol] Base Path:', basePath)
-    console.log('[protocol] Resolved Path:', absolutePath)
-
-    const fileUrl = pathToFileURL(absolutePath).href
-    console.log('[protocol] File URL:', fileUrl)
-
-    return net.fetch(fileUrl)
+    return new Response(stream as any, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/jpeg',
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
   })
 
-  // IPC Handlers
+  createLibraryHandlers()
   createExtensionsHandlers()
   createPreferencesHandlers()
   createExtensionHandlers()

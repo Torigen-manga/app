@@ -17,7 +17,6 @@ function useSourceInfo(id: Maybe<string>) {
     queryKey: ['extension', id, 'info'],
     queryFn: async () => {
       const res: APIResponse<SourceInfo> = await invoke(channels.extension.info, id)
-      console.log('[HOOK] raw result:', res)
 
       if (!res.success) {
         throw new Error(`Failed to load extension info for ${id}: ${res.error}`)
@@ -34,7 +33,6 @@ function useSourceMetadata(id: Maybe<string>) {
     queryKey: ['extension', id, 'metadata'],
     queryFn: async () => {
       const res: APIResponse<SourceFieldsMetadata> = await invoke(channels.extension.metadata, id)
-      console.log('[HOOK] raw result:', res)
 
       if (!res.success) {
         throw new Error(`Failed to load extension metadata for ${id}: ${res.error}`)
@@ -51,7 +49,6 @@ function useHomepage(id: Maybe<string>) {
     queryKey: ['extension', id, 'homepage'],
     queryFn: async () => {
       const res: APIResponse<Section[]> = await invoke(channels.extension.homepage, id)
-      console.log('[HOOK] raw result:', res)
 
       if (!res.success) {
         throw new Error(`Failed to load homepage for extension ${id}: ${res.error}`)

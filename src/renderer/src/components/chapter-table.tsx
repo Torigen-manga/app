@@ -20,7 +20,8 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
   PlusIcon,
-  ArrowUp
+  ArrowUp,
+  Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -158,7 +159,13 @@ function ChapterRow({ row }: { row: Row<ChapterEntry> }) {
   )
 }
 
-export function ChapterTable({ data: initialData }: { data: ChapterEntry[] }) {
+export function ChapterTable({
+  data: initialData,
+  isLoading
+}: {
+  data: ChapterEntry[]
+  isLoading: boolean
+}): React.JSX.Element {
   const [inverted, setInverted] = React.useState(false)
   const data = React.useMemo(() => {
     return inverted ? [...initialData].reverse() : initialData
@@ -220,38 +227,54 @@ export function ChapterTable({ data: initialData }: { data: ChapterEntry[] }) {
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="bg-muted my-4 rounded-lg p-8 text-center">
+        <div
+          className={cn(
+            'bg-muted my-4 rounded-lg p-8 text-center',
+            isLoading && 'flex items-center justify-center'
+          )}
+        >
           <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    )
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody className="**:data-[slot=table-cell]:first:w-8">
-              {table.getRowModel().rows?.length ? (
-                <>
-                  {table.getRowModel().rows.map((row) => (
-                    <ChapterRow key={row.id} row={row} />
+            {isLoading ? (
+              <>
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <h1 className="text-lg">Loading...</h1>
+                  <Loader2 className="size-4 animate-spin" />
+                </div>
+              </>
+            ) : (
+              <>
+                <TableHeader className="bg-muted sticky top-0 z-10">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        return (
+                          <TableHead key={header.id} colSpan={header.colSpan}>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(header.column.columnDef.header, header.getContext())}
+                          </TableHead>
+                        )
+                      })}
+                    </TableRow>
                   ))}
-                </>
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-left">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
+                </TableHeader>
+                <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                  {table.getRowModel().rows?.length ? (
+                    <>
+                      {table.getRowModel().rows.map((row) => (
+                        <ChapterRow key={row.id} row={row} />
+                      ))}
+                    </>
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-left">
+                        No results.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </>
+            )}
           </Table>
         </div>
         <div className="flex items-center justify-between px-4">

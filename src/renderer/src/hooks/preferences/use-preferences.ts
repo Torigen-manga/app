@@ -43,8 +43,6 @@ function usePreferences() {
     console.log(error)
   }
 
-  console.log('Preferences loaded:', preferences)
-
   const layoutPreferences = preferences?.layoutPreferences
   const readerDisplayPreferences = preferences?.readerDisplayPreferences
   const libraryHistoryPreferences = preferences?.libraryHistoryPreferences

@@ -8,7 +8,7 @@ function useLoadExtensions() {
   return useQuery({
     queryKey: ['extensions', 'load'],
     queryFn: async () => {
-      const res: APIResponse<SourceInfo[]> = await invoke(channels.extensions.loadAll)
+      const res: APIResponse<SourceInfo[]> = await invoke(channels.registry.loadAll)
 
       if (!res.success) {
         throw new Error(`Failed to load extensions: ${res.error}`)
@@ -25,7 +25,7 @@ function useGetExtensionEntry(id: string) {
   return useQuery({
     queryKey: ['extensions', id, 'entry'],
     queryFn: async () => {
-      const res: APIResponse<RegistryEntry> = await invoke(channels.extensions.getEntry, id)
+      const res: APIResponse<RegistryEntry> = await invoke(channels.registry.getEntry, id)
 
       if (!res.success) {
         throw new Error(`Failed to get extension entry for ${id}: ${res.error}`)

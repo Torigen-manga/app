@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { preferencesService } from '.'
+import { preferencesService } from './instance'
 import { type AppPreferences, apiWrapper, channels } from '@common/index'
 
 const createPreferencesHandlers = () => {

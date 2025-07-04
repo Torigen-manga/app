@@ -8,10 +8,9 @@
       http-equiv="Content-Security-Policy"
       content="
         default-src 'self';
-        script-src 'self' app: blob:; 
-        connect-src 'self' app: https:;
+        script-src 'self'; 
         style-src 'self' 'unsafe-inline';
-        img-src 'self' data: https:
+        img-src 'self' blob: data: https: cover:;
       "
     />
   </head>

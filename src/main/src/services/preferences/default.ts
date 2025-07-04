@@ -3,7 +3,8 @@ import type { AppPreferences } from '@common/index'
 const defaultPreferences: AppPreferences = {
   layoutPreferences: {
     gridSize: 8,
-    theme: 'system',
+    theme: 'default',
+    preferDarkMode: 'system',
     showTitles: true,
     compactMode: false,
     showReadIndicator: true,

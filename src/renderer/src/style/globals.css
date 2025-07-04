@@ -1,29 +1,44 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import './themes.css';
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant strawberry-rush (&:is(.strawberry-rush *));
+@custom-variant strawberry-night (&:is(.strawberry-night *));
+@custom-variant blueberry-breeze (&:is(.blueberry-breeze *));
+@custom-variant blueberry-dark (&:is(.blueberry-dark *));
 
 @font-face {
-  font-family: Inter;
+  font-family: Figtree;
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
-  src: url('./InterVariable.ttf') format('truetype');
+  src: url('./FigtreeVariable.ttf') format('truetype');
 }
 
-:root {
-  --font-sans: Inter, ui-sans-serif, sans-serif;
-  --font-serif: Adamina, ui-serif, serif;
-  --font-mono: Fira Code, ui-monospace, monospace;
+@font-face {
+  font-family: JetBrains Mono;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./JetBrainsMonoVariable.ttf') format('truetype');
+}
 
-  --radius: 0.625rem;
+:root:not(.dark):not(.strawberry-rush):not(.strawberry-night):not(.blueberry-breeze):not(
+    .blueberry-dark
+  ) {
+  --font-sans: Figtree, ui-sans-serif, sans-serif;
+  --font-mono: JetBrains Mono, ui-monospace, monospace;
+
+  --primary: oklch(0.596 0.145 163.225);
+
+  --radius: 0rem;
   --background: oklch(0.982 0.005 95.099);
   --foreground: oklch(0.344 0.027 95.723);
   --card: oklch(0.982 0.005 95.099);
   --card-foreground: oklch(0.191 0.002 106.586);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.267 0.02 98.939);
-  --primary: oklch(0.596 0.145 163.225);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.925 0.014 92.989);
   --secondary-foreground: oklch(0.433 0.018 98.605);
@@ -71,13 +86,38 @@
 }
 
 .dark {
+  --font-sans: Figtree, ui-sans-serif, sans-serif;
+  --font-mono: JetBrains Mono, ui-monospace, monospace;
+
+  --radius: 0rem;
+
+  --shadow-2xs: 0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.05);
+  --shadow-xs: 0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.05);
+  --shadow-sm:
+    0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1),
+    0 1px 2px -1px rgb(from var(--shadow-color) r g b / 0.1);
+  --shadow:
+    0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1),
+    0 1px 2px -1px rgb(from var(--shadow-color) r g b / 0.1);
+  --shadow-md:
+    0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1),
+    0 2px 4px -1px rgb(from var(--shadow-color) r g b / 0.1);
+  --shadow-lg:
+    0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1),
+    0 4px 6px -1px rgb(from var(--shadow-color) r g b / 0.1);
+  --shadow-xl:
+    0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1),
+    0 8px 10px -1px rgb(from var(--shadow-color) r g b / 0.1);
+  --shadow-2xl: 0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1);
+
+  /* Only override the color variables for dark mode */
+  --primary: oklch(0.596 0.145 163.225);
   --background: oklch(0.268 0.004 106.643);
   --foreground: oklch(0.807 0.014 93.014);
   --card: oklch(0.268 0.004 106.643);
   --card-foreground: oklch(0.982 0.005 95.099);
   --popover: oklch(0.308 0.004 106.604);
   --popover-foreground: oklch(0.921 0.004 106.478);
-  --primary: oklch(0.596 0.145 163.225);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.982 0.005 95.099);
   --secondary-foreground: oklch(0.308 0.004 106.604);
@@ -107,9 +147,8 @@
 }
 
 @theme inline {
-  --font-sans: Inter, ui-sans-serif, sans-serif;
-  --font-serif: Adamina, ui-serif, serif;
-  --font-mono: Fira Code, ui-monospace, monospace;
+  --font-sans: Figtree, ui-sans-serif, sans-serif;
+  --font-mono: JetBrains Mono, ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

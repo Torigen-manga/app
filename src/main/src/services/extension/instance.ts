@@ -12,28 +12,19 @@ import type {
   SourceProvider,
   Tag
 } from '@torigen/mounter'
+import { registryService } from './registry'
 import { ProxyFetch } from './request-manager'
 import { pathToFileURL } from 'url'
-import { extensionsService } from './registry'
 
 class ExtensionService {
   private readonly cache = new Map<string, SourceProvider>()
 
-  constructor() {
-    this.init()
-  }
-
-  private async init() {
-    try {
-      await extensionsService.loadExtensions()
-      console.log('Extensions service initialized successfully')
-    } catch (err) {
-      console.error('Failed to initialize extensions service:', err)
-    }
+  async init() {
+    await registryService.loadExtensions()
   }
 
   private async getExtension(id: string) {
-    const file = await extensionsService.getExtensionPath(id)
+    const file = await registryService.getExtensionPath(id)
 
     if (!id) {
       throw new Error(`Extension with ID ${id} not found`)
@@ -166,4 +157,4 @@ class ExtensionService {
 
 const extensionService = new ExtensionService()
 
-export { extensionService, extensionsService }
+export { extensionService }

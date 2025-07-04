@@ -1,26 +1,27 @@
 import { ipcMain } from 'electron'
-import { extensionService, extensionsService } from '.'
 import { apiWrapper, channels } from '@common/index'
+import { registryService } from './registry'
+import { extensionService } from './instance'
 
 const createExtensionsHandlers = () => {
-  ipcMain.handle(channels.extensions.loadAll, async () =>
-    apiWrapper(() => extensionsService.loadExtensions())
+  ipcMain.handle(channels.registry.loadAll, async () =>
+    apiWrapper(() => registryService.loadExtensions())
   )
 
-  ipcMain.handle(channels.extensions.has, async (_, id: string) =>
-    apiWrapper(() => extensionsService.hasExtension(id))
+  ipcMain.handle(channels.registry.has, async (_, id: string) =>
+    apiWrapper(() => registryService.hasExtension(id))
   )
 
-  ipcMain.handle(channels.extensions.getPath, async (_, id: string) =>
-    apiWrapper(() => extensionsService.getExtensionPath(id))
+  ipcMain.handle(channels.registry.getPath, async (_, id: string) =>
+    apiWrapper(() => registryService.getExtensionPath(id))
   )
 
-  ipcMain.handle(channels.extensions.count, async () =>
-    apiWrapper(() => extensionsService.loadExtensions().then((exts) => exts.length))
+  ipcMain.handle(channels.registry.count, async () =>
+    apiWrapper(() => registryService.loadExtensions().then((exts) => exts.length))
   )
 
-  ipcMain.handle(channels.extensions.getEntry, (_, id: string) =>
-    apiWrapper(() => extensionsService.getExtensionEntry(id))
+  ipcMain.handle(channels.registry.getEntry, (_, id: string) =>
+    apiWrapper(() => registryService.getExtensionEntry(id))
   )
 }
 

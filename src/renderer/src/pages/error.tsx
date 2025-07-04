@@ -15,13 +15,17 @@ export function ErrorPage({ code, message }: ErrorProps): React.JSX.Element {
   const errorMessage = errorMessages[code] || 'Unknown Error'
 
   return (
-    <div className="flex min-h-[60vh] w-full flex-col items-center justify-center space-y-4">
+    <div className="flex h-full w-full flex-col items-center justify-center">
       <div className="text-center">
         <h1 className="text-destructive text-3xl font-bold">
           {code} - {errorMessage}
         </h1>
-        {message && <p className="text-muted-foreground mt-2">{message}</p>}
-        <Button variant="outline" className="mt-4" onClick={() => window.history.back()}>
+        {message && <p className="text-muted-foreground">{message}</p>}
+        <Button
+          variant="outline"
+          className="mt-4 cursor-pointer"
+          onClick={() => window.history.back()}
+        >
           Go Back
         </Button>
       </div>

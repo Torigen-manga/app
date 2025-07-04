@@ -8,9 +8,9 @@ export default function BaseLayout(): React.JSX.Element {
     <SidebarProvider className="flex">
       <AppSidebar />
 
-      <div className="bg-sidebar relative h-screen w-full overflow-hidden pb-10">
+      <div className="bg-sidebar relative h-screen w-full overflow-hidden md:pb-10">
         <TitleBar />
-        <main className="bg-background relative mt-8 h-full overflow-y-scroll border shadow shadow-black/20 md:mr-2 md:rounded-lg">
+        <main className="bg-background relative mt-8 h-full overflow-hidden border shadow shadow-black/20 md:mr-2 md:rounded-lg">
           <Outlet />
         </main>
       </div>

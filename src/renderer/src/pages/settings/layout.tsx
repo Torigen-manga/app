@@ -4,17 +4,22 @@ import { SettingRenderer } from '@renderer/components/settings/renderer'
 import { Paintbrush } from 'lucide-react'
 import { usePreferences } from '@renderer/hooks/preferences/use-preferences'
 import { useTheme } from '@renderer/hooks/preferences/use-theme'
+import type { Theme, PreferDarkMode } from '@common/src/types'
 
 export default function LayoutPreferences() {
   const { layoutPreferences, updateLayoutPreferences } = usePreferences()
-  const { setTheme } = useTheme()
+  const { setTheme, setPreferDarkMode } = useTheme()
 
   if (!layoutPreferences) {
-    console.log('Layout preferences not loaded yet')
     return <div>Loading...</div>
   }
 
-  const handleChangeTheme = (value: 'light' | 'dark' | 'system') => {
+  const handlePreferDarkTheme = (value: PreferDarkMode) => {
+    updateLayoutPreferences({ preferDarkMode: value })
+    setPreferDarkMode(value)
+  }
+
+  const handleChangeTheme = (value: Theme) => {
     updateLayoutPreferences({ theme: value })
     setTheme(value)
   }
@@ -56,17 +61,36 @@ export default function LayoutPreferences() {
               }}
             />
           </SettingItem>
-          <SettingItem title="Theme" description="Choose the overall theme for the app">
+
+          <SettingItem title="Theme Mode" description="Choose between light, dark, or system theme">
             <SettingRenderer
               setting={{
-                key: 'theme',
-                title: 'Theme',
-                description: 'Choose the overall theme for the app.',
+                key: 'theme_mode',
+                title: 'Theme Mode',
+                description: 'Choose between light, dark, or system theme.',
                 type: 'select',
                 options: [
                   { value: 'light', label: 'Light' },
                   { value: 'dark', label: 'Dark' },
                   { value: 'system', label: 'System' }
+                ]
+              }}
+              value={layoutPreferences.preferDarkMode}
+              onChange={handlePreferDarkTheme}
+            />
+          </SettingItem>
+
+          <SettingItem title="App Theme" description="Select the visual theme for the app">
+            <SettingRenderer
+              setting={{
+                key: 'app_theme',
+                title: 'App Theme',
+                description: 'Select the visual theme for the app.',
+                type: 'select',
+                options: [
+                  { value: 'default', label: 'Default' },
+                  { value: 'strawberryRush', label: 'Strawberry Rush' },
+                  { value: 'blueberryBreeze', label: 'Blueberry Breeze' }
                 ]
               }}
               value={layoutPreferences.theme}

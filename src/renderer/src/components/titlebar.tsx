@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Minus, Square, X } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 import { Button } from './ui/button'
+import { cn } from '@renderer/lib/utils'
 
 export function TitleBar() {
   const { state, isMobile } = useSidebar()
@@ -97,14 +98,20 @@ export function TitleBar() {
       <div className="flex gap-1" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
         <button
           onClick={handleMinimize}
-          className="dark:hover:bg-sidebar-border flex size-8 items-center justify-center transition-colors hover:bg-black/10"
+          className={cn(
+            'flex size-8 items-center justify-center transition-colors hover:bg-black/10',
+            'blueberry-dark:hover:bg-white/10 strawberry-night:hover:bg-white/10 dark:hover:bg-white/10'
+          )}
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           <Minus size={14} />
         </button>
         <button
           onClick={handleToggleMaximize}
-          className="dark:hover:bg-sidebar-border flex size-8 items-center justify-center transition-colors hover:bg-black/10"
+          className={cn(
+            'flex size-8 items-center justify-center transition-colors hover:bg-black/10',
+            'blueberry-dark:hover:bg-white/10 strawberry-night:hover:bg-white/10 dark:hover:bg-white/10'
+          )}
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           <Square size={14} />
