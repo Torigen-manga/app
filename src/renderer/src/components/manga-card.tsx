@@ -10,6 +10,23 @@ interface MangaCardProps {
   property?: 'default' | 'shadow' | 'rounded' | 'border'
 }
 
+interface LibraryCardProps extends MangaCardProps {
+  unreadCount?: number
+}
+
+export function LibraryCard({ url, title, image, property, unreadCount }: LibraryCardProps) {
+  return (
+    <div className="relative">
+      <MangaCard url={url} title={title} image={image} property={property} />
+      {unreadCount !== undefined && unreadCount > 0 && (
+        <div className="absolute -top-1 -right-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-red-500 p-1 text-white">
+          <p className="text-sm">{unreadCount}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function MangaCard({ url, title, image, property }: MangaCardProps): React.JSX.Element {
   const [imageError, setImageError] = React.useState(false)
   const [imageLoaded, setImageLoaded] = React.useState(false)

@@ -18,7 +18,7 @@ export default function Explore(): React.JSX.Element {
       <div className="flex h-full w-full flex-col items-center justify-center">
         <h1 className="mb-4 text-4xl font-bold">Select a extension</h1>
         {data.map((ext) => (
-          <Link to={`/explore/${ext.id}`}>
+          <Link key={ext.id} to={`/explore/${ext.id}`}>
             <Button variant="outline" className="cursor-pointer px-2" key={ext.id}>
               <img src={ext.iconUrl} alt="" className="size-8" />
               {ext.name}

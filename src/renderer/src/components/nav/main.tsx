@@ -10,7 +10,6 @@ import {
 import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../ui/sidebar'
 import { Link, useLocation } from 'react-router'
 import { cn } from '@renderer/lib/utils'
-import { link } from 'fs'
 
 export function NavMain() {
   const { pathname } = useLocation()

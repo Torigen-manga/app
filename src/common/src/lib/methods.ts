@@ -28,14 +28,19 @@ const channels = {
   },
   library: {
     get: 'library:get',
+    clearLibrary: 'library:clear-library',
     addEntry: 'library:add-entry',
     removeEntry: 'library:remove-entry',
-    addCategoryToEntry: 'library:add-category-to-entry',
-    removeCategoryFromEntry: 'library:remove-category-from-entry',
-    addCategory: 'library:add-category',
-    removeCategory: 'library:remove-category',
-    reorder: 'library:reorder',
-    getEntryId: 'library:get-entry-id'
+    getEntries: 'library:get-entries',
+    getEntriesByCategory: 'library:get-entries-by-category',
+    hasEntry: 'library:has-entry',
+    updateEntryMetadata: 'library:update-entry-metadata'
+  },
+  category: {
+    addCategory: 'category:add-category',
+    removeCategory: 'category:remove-category',
+    addCategoryToEntry: 'category:add-category-to-entry',
+    removeCategoryFromEntry: 'category:remove-category-from-entry',
   }
 }
 

@@ -1,7 +1,7 @@
 import { writeFile, access, readFile } from 'fs/promises'
 import { defaultPreferences } from './default'
 import { type AppPreferences, appPreferencesSchema } from '@common/index'
-import { paths } from '../paths'
+import { paths } from '../../paths'
 
 class PreferencesService {
   private readonly preferencesFile = paths.preferencesFilePath

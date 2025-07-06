@@ -7,9 +7,10 @@ import {
   createExtensionHandlers,
   createLibraryHandlers,
   ensureDirectoriesExist,
-  ensureServicesFiles,
-  directories
-} from './src'
+  createCategoryHandlers,
+  directories,
+  ensureExtensionService
+} from './src/index'
 import { join } from 'path'
 import { createReadStream, existsSync } from 'fs'
 
@@ -109,7 +110,6 @@ app.whenReady().then(async () => {
   })
 
   await ensureDirectoriesExist()
-  await ensureServicesFiles()
 
   protocol.handle('cover', async (req) => {
     const url = new URL(req.url)
@@ -136,7 +136,10 @@ app.whenReady().then(async () => {
     })
   })
 
+  ensureExtensionService()
+
   createLibraryHandlers()
+  createCategoryHandlers()
   createExtensionsHandlers()
   createPreferencesHandlers()
   createExtensionHandlers()

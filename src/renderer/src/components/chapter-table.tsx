@@ -21,7 +21,6 @@ import {
   ChevronsRightIcon,
   PlusIcon,
   ArrowUp,
-  Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -234,47 +233,42 @@ export function ChapterTable({
           )}
         >
           <Table>
-            {isLoading ? (
-              <>
-                <div className="flex flex-col items-center justify-center gap-4">
-                  <h1 className="text-lg">Loading...</h1>
-                  <Loader2 className="size-4 animate-spin" />
-                </div>
-              </>
-            ) : (
-              <>
-                <TableHeader className="bg-muted sticky top-0 z-10">
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        return (
-                          <TableHead key={header.id} colSpan={header.colSpan}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(header.column.columnDef.header, header.getContext())}
-                          </TableHead>
-                        )
-                      })}
-                    </TableRow>
+            <TableHeader className="bg-muted sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody className="**:data-[slot=table-cell]:first:w-8">
+              {table.getRowModel().rows?.length ? (
+                <>
+                  {table.getRowModel().rows.map((row) => (
+                    <ChapterRow key={row.id} row={row} />
                   ))}
-                </TableHeader>
-                <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                  {table.getRowModel().rows?.length ? (
-                    <>
-                      {table.getRowModel().rows.map((row) => (
-                        <ChapterRow key={row.id} row={row} />
-                      ))}
-                    </>
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="h-24 text-left">
-                        No results.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </>
-            )}
+                </>
+              ) : isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No chapters found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
           </Table>
         </div>
         <div className="flex items-center justify-between px-4">

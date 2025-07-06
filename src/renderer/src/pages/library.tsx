@@ -7,8 +7,8 @@ import {
 } from '@renderer/components/ui/collapsible'
 import { cn } from '@renderer/lib/utils'
 import { CircleAlert, ChevronDown, Menu } from 'lucide-react'
-import { useGetLibrary, useReorderCategories } from '@renderer/hooks/library'
-import { MangaCard } from '@renderer/components/manga-card'
+import { useGetLibrary, useGetEntriesByCategory } from '@renderer/hooks/library'
+import { LibraryCard } from '@renderer/components/manga-card'
 
 import {
   DndContext,
@@ -18,12 +18,14 @@ import {
   useSensors,
   DragEndEvent
 } from '@dnd-kit/core'
+
 import {
   SortableContext,
   useSortable,
   arrayMove,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
+
 import { CSS } from '@dnd-kit/utilities'
 import LoadingPage from './loading'
 import { ErrorPage } from './error'
@@ -54,7 +56,11 @@ function CategoryCard({
 
   return (
     <div ref={draggable ? setNodeRef : undefined} style={draggable ? style : undefined}>
-      <Collapsible open={open} onOpenChange={setOpen} className="w-full rounded-lg border">
+      <Collapsible
+        open={open}
+        onOpenChange={setOpen}
+        className="w-full rounded-lg border transition-all"
+      >
         <CollapsibleTrigger
           className={cn(
             'bg-sidebar hover:bg-sidebar/70 flex w-full items-center justify-between rounded-t-lg p-2 transition-colors',
@@ -73,15 +79,17 @@ function CategoryCard({
             )}
             <h1 className="text-2xl font-semibold capitalize">{title}</h1>
           </div>
-          <ChevronDown className="transition-transform" />
+          <ChevronDown className={cn('transition-transform', open && 'rotate-180')} />
         </CollapsibleTrigger>
         <CollapsibleContent
           className={cn(
             'bg-accent/25 min-h-40',
-            children ? 'grid grid-cols-8 p-2' : 'flex items-center justify-center gap-2'
+            React.Children.count(children) > 0
+              ? 'grid grid-cols-8 gap-4 p-2'
+              : 'flex items-center justify-center gap-2'
           )}
         >
-          {children ? (
+          {React.Children.count(children) > 0 ? (
             <>{children}</>
           ) : (
             <>
@@ -95,17 +103,58 @@ function CategoryCard({
   )
 }
 
-export default function Library(): React.JSX.Element {
-  const { data, isLoading } = useGetLibrary()
-  const reorderCategories = useReorderCategories()
+interface CategorySectionProps {
+  categoryId: string
+  categoryName: string
+  draggable?: boolean
+}
 
+function CategorySection({ categoryId, categoryName, draggable }: CategorySectionProps) {
+  const { data: entries, isLoading } = useGetEntriesByCategory(categoryId)
+
+  if (isLoading) {
+    return (
+      <CategoryCard id={categoryId} title={categoryName} draggable={draggable}>
+        <div className="col-span-8 flex items-center justify-center p-4">
+          <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
+        </div>
+      </CategoryCard>
+    )
+  }
+
+  return (
+    <CategoryCard id={categoryId} title={categoryName} draggable={draggable}>
+      {entries?.map((entry) => {
+        const [sourceId, mangaId] = entry.id.split('-', 2)
+        const url = `/manga/${sourceId}/${mangaId}`
+
+        return (
+          <LibraryCard
+            property="shadow"
+            image={entry.cover}
+            key={entry.id}
+            url={url}
+            title={entry.title}
+            unreadCount={entry.cachedTotalChapters || 0}
+          />
+        )
+      })}
+    </CategoryCard>
+  )
+}
+
+export default function Library(): React.JSX.Element {
+  const { data, isLoading, error } = useGetLibrary()
   const [categories, setCategories] = React.useState(() => data?.categories ?? [])
 
   const sensors = useSensors(useSensor(PointerSensor))
 
   React.useEffect(() => {
     if (data?.categories) {
-      setCategories(data.categories)
+      const sortedCategories = [...data.categories].sort((a, b) => {
+        return a.name.localeCompare(b.name)
+      })
+      setCategories(sortedCategories)
     }
   }, [data?.categories])
 
@@ -120,50 +169,59 @@ export default function Library(): React.JSX.Element {
     const newOrder = arrayMove(categories, oldIndex, newIndex)
     setCategories(newOrder)
 
-    reorderCategories.mutate(newOrder.map((c) => c.id))
+    // TODO: Implement Zustand action to persist category order
+    // updateCategoryOrder(newOrder.map((cat, index) => ({ id: cat.id, order: index })))
   }
 
   if (isLoading) {
     return <LoadingPage />
   }
 
-  if (!data) {
+  if (error) {
     return <ErrorPage code={500} message="Failed to load library data" />
   }
 
+  if (!data) {
+    return <ErrorPage code={500} message="No library data available" />
+  }
+
   return (
-    <main className="flex h-full w-full flex-col pb-4">
-      <header className="sticky mb-4 flex h-12 w-full items-center border-b px-2">
+    <main className="flex h-full w-full flex-col">
+      <header className="sticky flex h-12 w-full items-center px-2">
         <Menubar className="w-64">
           <MenubarLabel className="text-base font-bold select-none">Library</MenubarLabel>
         </Menubar>
       </header>
-      <div className="flex h-full w-full flex-1 flex-col gap-4 overflow-y-scroll px-2">
+      <div className="flex h-full w-full flex-1 flex-col gap-4 overflow-y-scroll px-2 py-4">
         <CategoryCard defaultOpen id="all-entries" title="All Entries">
-          {(data.entries?.length ?? 0) > 0 &&
-            data.entries.map((entry) => {
-              const [sourceId, mangaId] = entry.id.split('-', 2)
-              const url = `/manga/${sourceId}/${mangaId}`
+          {data.entries?.map((entry) => {
+            const [sourceId, mangaId] = entry.id.split('-', 2)
+            const url = `/manga/${sourceId}/${mangaId}`
 
-              return (
-                <MangaCard
-                  property="shadow"
-                  image={entry.cover}
-                  key={entry.id}
-                  url={url}
-                  title={entry.title}
-                />
-              )
-            })}
+            return (
+              <LibraryCard
+                property="shadow"
+                image={entry.cover}
+                key={entry.id}
+                url={url}
+                title={entry.title}
+                unreadCount={entry.cachedTotalChapters || 0}
+              />
+            )
+          })}
         </CategoryCard>
-
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
             items={categories.map((c) => c.id)}
             strategy={verticalListSortingStrategy}
           >
             {categories.map((category) => (
-              <CategoryCard key={category.id} id={category.id} title={category.name} draggable />
+              <CategorySection
+                key={category.id}
+                categoryId={category.id}
+                categoryName={category.name}
+                draggable
+              />
             ))}
           </SortableContext>
         </DndContext>

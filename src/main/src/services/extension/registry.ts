@@ -2,7 +2,7 @@ import { access, writeFile, readFile, readdir } from 'fs/promises'
 import type { SourceInfo, SourceProvider } from '@torigen/mounter'
 import type { Registry, RegistryEntry } from '@common/index'
 import { pathToFileURL } from 'url'
-import { directories, paths } from '../paths'
+import { directories, paths } from '../../paths'
 import path from 'path'
 
 interface ExtensionSyncResult {

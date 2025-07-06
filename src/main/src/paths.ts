@@ -10,12 +10,11 @@ const coverCacheDir = join(localDir, 'cover-cache')
 const downloadsDir = join(localDir, 'downloads')
 
 // File Paths
-const dataFilePath = join(localDir, 'manga.json')
 const preferencesFilePath = join(userDir, 'preferences.json')
 const registryFilePath = join(extensionsDir, 'registry.json')
-const libraryFilePath = join(localDir, 'library.json')
-const historyFilePath = join(localDir, 'history.json')
-const recentReadFilePath = join(localDir, 'recent-read.json')
+
+const databasePath = join(userDir, 'main.db')
+const devDatabasePath = join(process.cwd(), 'dev.db')
 
 const directories = {
   userDir,
@@ -26,12 +25,10 @@ const directories = {
 }
 
 const paths = {
-  dataFilePath,
   preferencesFilePath,
   registryFilePath,
-  libraryFilePath,
-  historyFilePath,
-  recentReadFilePath
+  databasePath,
+  devDatabasePath
 }
 
 async function ensureDirectoriesExist() {

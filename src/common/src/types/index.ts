@@ -1,6 +1,6 @@
 export * from './extensions'
 export * from './preferences'
-export * from './local'
+export * from './services'
 
 export * from './api'
 export * from './ipcResponse'
