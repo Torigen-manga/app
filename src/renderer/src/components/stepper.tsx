@@ -19,13 +19,19 @@ export function Stepper({
 }: StepperProps) {
 	const isControlled = value !== undefined;
 	const [internalValue, setInternalValue] = React.useState(value);
-	const currentValue = isControlled ? value! : internalValue;
+	const currentValue = isControlled ? value : internalValue;
 
 	const setValueSafely = (newValue: number) => {
-		if (min !== undefined && newValue < min) return;
-		if (max !== undefined && newValue > max) return;
+		if (min !== undefined && newValue < min) {
+			return;
+		}
+		if (max !== undefined && newValue > max) {
+			return;
+		}
 
-		if (!isControlled) setInternalValue(newValue);
+		if (!isControlled) {
+			setInternalValue(newValue);
+		}
 		onChange?.(newValue);
 	};
 

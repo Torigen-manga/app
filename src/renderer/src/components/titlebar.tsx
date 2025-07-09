@@ -5,21 +5,8 @@ import { Button } from "./ui/button";
 import { SidebarTrigger, useSidebar } from "./ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-export function TitleBar() {
-	const { state, isMobile } = useSidebar();
+function NavigationButtons() {
 	const navigate = useNavigate();
-
-	function handleMinimize(): void {
-		window.electron.ipcRenderer.invoke("window:minimize");
-	}
-
-	function handleToggleMaximize(): void {
-		window.electron.ipcRenderer.invoke("window:maximize");
-	}
-
-	function handleClose(): void {
-		window.electron.ipcRenderer.invoke("window:close");
-	}
 
 	const handleBack = () => {
 		navigate(-1);
@@ -29,18 +16,7 @@ export function TitleBar() {
 		navigate(1);
 	};
 
-	const getLeftOffset = () => {
-		if (isMobile) {
-			return "0px";
-		}
-
-		if (state === "expanded") {
-			return "16rem";
-		}
-		return "3rem";
-	};
-
-	const NavigationButtons = () => (
+	return (
 		<div className="flex items-center gap-1">
 			<Tooltip>
 				<TooltipTrigger asChild>
@@ -77,6 +53,33 @@ export function TitleBar() {
 			</Tooltip>
 		</div>
 	);
+}
+
+export function TitleBar() {
+	const { state, isMobile } = useSidebar();
+
+	function handleMinimize(): void {
+		window.electron.ipcRenderer.invoke("window:minimize");
+	}
+
+	function handleToggleMaximize(): void {
+		window.electron.ipcRenderer.invoke("window:maximize");
+	}
+
+	function handleClose(): void {
+		window.electron.ipcRenderer.invoke("window:close");
+	}
+
+	const getLeftOffset = () => {
+		if (isMobile) {
+			return "0px";
+		}
+
+		if (state === "expanded") {
+			return "16rem";
+		}
+		return "3rem";
+	};
 
 	return (
 		<header
@@ -108,6 +111,7 @@ export function TitleBar() {
 					)}
 					onClick={handleMinimize}
 					style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+					type="button"
 				>
 					<Minus size={14} />
 				</button>
@@ -118,6 +122,7 @@ export function TitleBar() {
 					)}
 					onClick={handleToggleMaximize}
 					style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+					type="button"
 				>
 					<Square size={14} />
 				</button>
@@ -125,6 +130,7 @@ export function TitleBar() {
 					className="flex size-8 items-center justify-center transition-colors hover:bg-red-400 hover:text-white"
 					onClick={handleClose}
 					style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+					type="button"
 				>
 					<X size={16} />
 				</button>

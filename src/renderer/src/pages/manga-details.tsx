@@ -92,14 +92,11 @@ function MangaAddToLibrary({
 		}
 
 		try {
-			// First, add the manga to the library
 			await addMangaToLibrary.mutateAsync(manga);
 
-			// Generate the library entry ID that the backend will use
 			const libraryEntryId = `${manga.sourceId}__${manga.mangaId}`;
 
 			if (selectValue === "new-ct") {
-				// Create new category and add manga to it
 				const newCategoryId = await addCategory.mutateAsync(
 					newCategoryName.trim()
 				);
@@ -108,17 +105,14 @@ function MangaAddToLibrary({
 					libraryEntryId,
 				});
 			} else if (selectValue !== "default") {
-				// Add manga to existing category
 				await addCategoryToEntry.mutateAsync({
 					categoryId: selectValue,
 					libraryEntryId,
 				});
 			}
-			// If 'default' is selected, just adding to library is enough
 
 			reset();
-		} catch (error) {
-			console.error("Error adding manga to library:", error);
+		} catch {
 			setFormError("Failed to add manga to library. Please try again.");
 		}
 	};
@@ -220,14 +214,9 @@ function MangaRemoveFromLibrary({
 	const [isOpen, setIsOpen] = useState(false);
 
 	async function handleRemove() {
-		try {
-			// Use the same ID format as the backend expects
-			const libraryEntryId = `${sourceId}__${mangaId}`;
-			await removeManga.mutateAsync(libraryEntryId);
-			setIsOpen(false);
-		} catch (error) {
-			console.error("Error removing manga from library:", error);
-		}
+		const libraryEntryId = `${sourceId}__${mangaId}`;
+		await removeManga.mutateAsync(libraryEntryId);
+		setIsOpen(false);
 	}
 
 	return (
@@ -258,6 +247,57 @@ function MangaRemoveFromLibrary({
 	);
 }
 
+interface CategoryHandlerProps {
+	isInLibrary: boolean | undefined;
+	manga: AppManga;
+}
+
+function CategoryHandler({ isInLibrary, manga }: CategoryHandlerProps) {
+	if (!isInLibrary) {
+		return (
+			<MangaAddToLibrary manga={manga}>
+				<Button className="cursor-pointer" variant="outline">
+					Add to Library
+				</Button>
+			</MangaAddToLibrary>
+		);
+	}
+
+	return (
+		<MangaRemoveFromLibrary
+			mangaId={manga.mangaId}
+			sourceId={manga.sourceId}
+			title={manga.title}
+		>
+			<Button className="cursor-pointer" variant="outline">
+				Remove from Library
+			</Button>
+		</MangaRemoveFromLibrary>
+	);
+}
+
+interface DetailCampProps {
+	title: string;
+	textContent?: string;
+	children?: React.ReactNode;
+	className?: string;
+}
+
+function DetailCamp({
+	title,
+	textContent,
+	children,
+	className,
+}: DetailCampProps) {
+	return (
+		<div className={cn("flex flex-col", className)}>
+			<h2 className="font-bold text-primary">{title}</h2>
+			{textContent && <p className="text-sm">{textContent}</p>}
+			{children}
+		</div>
+	);
+}
+
 export default function MangaDetail(): React.JSX.Element {
 	const { mangaId, source } = useParams<{
 		mangaId: string;
@@ -274,8 +314,7 @@ export default function MangaDetail(): React.JSX.Element {
 	const [isOverflow, setIsOverflow] = useState(false);
 	const descRef = useRef<HTMLParagraphElement>(null);
 
-	// Check if manga exists in library
-	const { data: isInLibrary } = useHasEntry(source!, mangaId!);
+	const { data: hasEntry } = useHasEntry(source, mangaId);
 
 	useEffect(() => {
 		const element = descRef.current;
@@ -287,7 +326,7 @@ export default function MangaDetail(): React.JSX.Element {
 				setIsOverflow(true);
 			}
 		}
-	}, [manga?.description]);
+	}, []);
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -301,28 +340,8 @@ export default function MangaDetail(): React.JSX.Element {
 		return <ErrorPage code={404} message="Manga not found" />;
 	}
 
-	if (!manga) return <></>;
-
-	interface DetailCampProps {
-		title: string;
-		textContent?: string;
-		children?: React.ReactNode;
-		className?: string;
-	}
-
-	function DetailCamp({
-		title,
-		textContent,
-		children,
-		className,
-	}: DetailCampProps) {
-		return (
-			<div className={cn("flex flex-col", className)}>
-				<h2 className="font-bold text-primary">{title}</h2>
-				{textContent && <p className="text-sm">{textContent}</p>}
-				{children}
-			</div>
-		);
+	if (!manga) {
+		return <ErrorPage code={500} message="Failed to load manga details" />;
 	}
 
 	const appManga: AppManga = {
@@ -337,34 +356,6 @@ export default function MangaDetail(): React.JSX.Element {
 		status: manga.status,
 	};
 
-	function CategoryHandler({
-		isInLibrary,
-	}: {
-		isInLibrary: boolean | undefined;
-	}) {
-		if (!isInLibrary) {
-			return (
-				<MangaAddToLibrary manga={appManga}>
-					<Button className="cursor-pointer" variant="outline">
-						Add to Library
-					</Button>
-				</MangaAddToLibrary>
-			);
-		}
-
-		return (
-			<MangaRemoveFromLibrary
-				mangaId={mangaId!}
-				sourceId={source!}
-				title={manga?.title}
-			>
-				<Button className="cursor-pointer" variant="outline">
-					Remove from Library
-				</Button>
-			</MangaRemoveFromLibrary>
-		);
-	}
-
 	return (
 		<main className="flex h-full w-full flex-col items-center overflow-y-auto p-4">
 			<div className="flex w-full flex-col gap-2 sm:max-w-2xl md:max-w-4xl md:flex-row">
@@ -378,7 +369,7 @@ export default function MangaDetail(): React.JSX.Element {
 				<div className="max-w-2xl">
 					<div className="flex w-full items-start justify-between">
 						<h1 className="font-bold text-2xl">{manga.title}</h1>
-						<CategoryHandler isInLibrary={isInLibrary} />
+						<CategoryHandler isInLibrary={hasEntry} manga={appManga} />
 					</div>
 					<div className="flex flex-col space-y-2">
 						<DetailCamp title="Genres">

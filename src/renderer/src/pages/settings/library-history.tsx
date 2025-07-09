@@ -8,7 +8,9 @@ export default function LibraryHistory() {
 	const { libraryHistoryPreferences, updateLibraryHistoryPreferences } =
 		usePreferences();
 
-	if (!libraryHistoryPreferences) return <div>Loading...</div>;
+	if (!libraryHistoryPreferences) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<div className="max-w-2xl">

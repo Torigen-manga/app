@@ -1,5 +1,5 @@
 import type { PreferDarkMode, Theme } from "@common/src/types";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { usePreferences } from "./use-preferences";
 
 function resolveThemeClasses(
@@ -26,12 +26,15 @@ function resolveThemeClasses(
 	const isSystemDark = window.matchMedia(
 		"(prefers-color-scheme: dark)"
 	).matches;
-	const effectiveMode =
-		preferDarkMode === "system"
-			? isSystemDark
-				? "dark"
-				: "light"
-			: preferDarkMode;
+
+	function correctEffectiveMode() {
+		if (preferDarkMode === "system") {
+			return isSystemDark ? "dark" : "light";
+		}
+		return preferDarkMode;
+	}
+
+	const effectiveMode = correctEffectiveMode();
 
 	return themeMap[theme][effectiveMode];
 }
@@ -44,32 +47,38 @@ export function useTheme() {
 	const preferDarkMode: PreferDarkMode =
 		(layoutPreferences?.preferDarkMode as PreferDarkMode) || "system";
 
-	const applyTheme = (newTheme: Theme, newPreferDarkMode: PreferDarkMode) => {
-		const root = document.documentElement;
+	const applyTheme = useCallback(
+		(newTheme: Theme, newPreferDarkMode: PreferDarkMode) => {
+			const root = document.documentElement;
 
-		// Remove all theme classes
-		root.classList.remove(
-			"dark",
-			"blueberry-breeze",
-			"blueberry-dark",
-			"strawberry-rush",
-			"strawberry-night"
-		);
+			root.classList.remove(
+				"dark",
+				"blueberry-breeze",
+				"blueberry-dark",
+				"strawberry-rush",
+				"strawberry-night"
+			);
 
-		// Add the resolved classes (could be multiple)
-		const resolvedClasses = resolveThemeClasses(newTheme, newPreferDarkMode);
-		resolvedClasses.forEach((className) => {
-			root.classList.add(className);
-		});
-	};
+			const resolvedClasses = resolveThemeClasses(newTheme, newPreferDarkMode);
+
+			for (const className of resolvedClasses) {
+				root.classList.add(className);
+			}
+		},
+		[]
+	);
 
 	useEffect(() => {
-		if (loading || isUpdating) return;
+		if (loading || isUpdating) {
+			return;
+		}
 		applyTheme(theme, preferDarkMode);
-	}, [theme, preferDarkMode, loading, isUpdating]);
+	}, [theme, preferDarkMode, loading, isUpdating, applyTheme]);
 
 	useEffect(() => {
-		if (preferDarkMode !== "system") return;
+		if (preferDarkMode !== "system") {
+			return;
+		}
 
 		const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 		const handleChange = () => {
@@ -78,7 +87,7 @@ export function useTheme() {
 
 		mediaQuery.addEventListener("change", handleChange);
 		return () => mediaQuery.removeEventListener("change", handleChange);
-	}, [theme, preferDarkMode]);
+	}, [theme, preferDarkMode, applyTheme]);
 
 	const setTheme = (newTheme: Theme) => {
 		updateLayoutPreferences({ theme: newTheme });

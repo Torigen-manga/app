@@ -8,7 +8,9 @@ export default function SystemBehaviorPreferences() {
 	const { systemBehaviorPreferences, updateSystemBehaviorPreferences } =
 		usePreferences();
 
-	if (!systemBehaviorPreferences) return <div>Loading...</div>;
+	if (!systemBehaviorPreferences) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<div className="max-w-2xl">

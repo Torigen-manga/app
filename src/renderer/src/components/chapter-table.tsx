@@ -159,6 +159,34 @@ function ChapterRow({ row }: { row: Row<ChapterEntry> }) {
 	);
 }
 
+const renderRows = (
+	rows: Row<ChapterEntry>[],
+	isLoading: boolean,
+	cols: ColumnDef<ChapterEntry>[]
+) => {
+	if (rows.length > 0) {
+		return rows.map((row) => <ChapterRow key={row.id} row={row} />);
+	}
+
+	if (isLoading) {
+		return (
+			<TableRow>
+				<TableCell className="h-24 text-center" colSpan={cols.length}>
+					Loading...
+				</TableCell>
+			</TableRow>
+		);
+	}
+
+	return (
+		<TableRow>
+			<TableCell className="h-24 text-center" colSpan={columns.length}>
+				No chapters found.
+			</TableCell>
+		</TableRow>
+	);
+};
+
 export function ChapterTable({
 	data: initialData,
 	isLoading,
@@ -208,167 +236,141 @@ export function ChapterTable({
 	});
 
 	return (
-		<>
-			<div className="mt-8 w-full max-w-4xl">
-				<div className="flex items-center">
-					<h2 className="font-semibold text-xl">Chapters</h2>
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<Button
-									className="ml-auto size-8"
-									onClick={() => {
-										setInverted(!inverted);
-									}}
-									size="icon"
-									variant="outline"
-								>
-									<ArrowUp
-										className={cn(
-											"size-4 transition-all",
-											inverted && "rotate-180"
-										)}
-									/>
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent className="pointer-events-none">
-								Invert list
-							</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
-				</div>
-				<div
-					className={cn(
-						"my-4 rounded-lg bg-muted p-8 text-center",
-						isLoading && "flex items-center justify-center"
-					)}
-				>
-					<Table>
-						<TableHeader className="sticky top-0 z-10 bg-muted">
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id}>
-									{headerGroup.headers.map((header) => {
-										return (
-											<TableHead colSpan={header.colSpan} key={header.id}>
-												{header.isPlaceholder
-													? null
-													: flexRender(
-															header.column.columnDef.header,
-															header.getContext()
-														)}
-											</TableHead>
-										);
-									})}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody className="**:data-[slot=table-cell]:first:w-8">
-							{table.getRowModel().rows?.length ? (
-								<>
-									{table.getRowModel().rows.map((row) => (
-										<ChapterRow key={row.id} row={row} />
-									))}
-								</>
-							) : isLoading ? (
-								<TableRow>
-									<TableCell
-										className="h-24 text-center"
-										colSpan={columns.length}
-									>
-										Loading...
-									</TableCell>
-								</TableRow>
-							) : (
-								<TableRow>
-									<TableCell
-										className="h-24 text-center"
-										colSpan={columns.length}
-									>
-										No chapters found.
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</div>
-				<div className="flex items-center justify-between px-4">
-					<div className="hidden flex-1 text-muted-foreground text-sm lg:flex">
-						{table.getFilteredSelectedRowModel().rows.length} of{" "}
-						{table.getFilteredRowModel().rows.length} row(s) selected.
-					</div>
-					<div className="flex w-full items-center gap-8 lg:w-fit">
-						<div className="hidden items-center gap-2 lg:flex">
-							<Label className="font-medium text-sm" htmlFor="rows-per-page">
-								Rows per page
-							</Label>
-							<Select
-								onValueChange={(value) => {
-									table.setPageSize(Number(value));
+		<div className="mt-8 w-full max-w-4xl">
+			<div className="flex items-center">
+				<h2 className="font-semibold text-xl">Chapters</h2>
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								className="ml-auto size-8"
+								onClick={() => {
+									setInverted(!inverted);
 								}}
-								value={`${table.getState().pagination.pageSize}`}
-							>
-								<SelectTrigger className="w-20" id="rows-per-page">
-									<SelectValue
-										placeholder={table.getState().pagination.pageSize}
-									/>
-								</SelectTrigger>
-								<SelectContent side="top">
-									{[10, 20, 30, 40, 50, data.length].map((pageSize) => (
-										<SelectItem key={pageSize} value={`${pageSize}`}>
-											{pageSize === data.length ? "All" : pageSize}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-						<div className="flex w-fit items-center justify-center font-medium text-sm">
-							Page {table.getState().pagination.pageIndex + 1} of{" "}
-							{table.getPageCount()}
-						</div>
-						<div className="ml-auto flex items-center gap-2 lg:ml-0">
-							<Button
-								className="hidden h-8 w-8 p-0 lg:flex"
-								disabled={!table.getCanPreviousPage()}
-								onClick={() => table.setPageIndex(0)}
-								variant="outline"
-							>
-								<span className="sr-only">Go to first page</span>
-								<ChevronsLeftIcon />
-							</Button>
-							<Button
-								className="size-8"
-								disabled={!table.getCanPreviousPage()}
-								onClick={() => table.previousPage()}
 								size="icon"
 								variant="outline"
 							>
-								<span className="sr-only">Go to previous page</span>
-								<ChevronLeftIcon />
+								<ArrowUp
+									className={cn(
+										"size-4 transition-all",
+										inverted && "rotate-180"
+									)}
+								/>
 							</Button>
-							<Button
-								className="size-8"
-								disabled={!table.getCanNextPage()}
-								onClick={() => table.nextPage()}
-								size="icon"
-								variant="outline"
-							>
-								<span className="sr-only">Go to next page</span>
-								<ChevronRightIcon />
-							</Button>
-							<Button
-								className="hidden size-8 lg:flex"
-								disabled={!table.getCanNextPage()}
-								onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-								size="icon"
-								variant="outline"
-							>
-								<span className="sr-only">Go to last page</span>
-								<ChevronsRightIcon />
-							</Button>
-						</div>
+						</TooltipTrigger>
+						<TooltipContent className="pointer-events-none">
+							Invert list
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			</div>
+			<div
+				className={cn(
+					"my-4 rounded-lg bg-muted p-8 text-center",
+					isLoading && "flex items-center justify-center"
+				)}
+			>
+				<Table>
+					<TableHeader className="sticky top-0 z-10 bg-muted">
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow key={headerGroup.id}>
+								{headerGroup.headers.map((header) => {
+									return (
+										<TableHead colSpan={header.colSpan} key={header.id}>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef.header,
+														header.getContext()
+													)}
+										</TableHead>
+									);
+								})}
+							</TableRow>
+						))}
+					</TableHeader>
+					<TableBody className="**:data-[slot=table-cell]:first:w-8">
+						{renderRows(table.getRowModel().rows, isLoading, columns)}
+					</TableBody>
+				</Table>
+			</div>
+			<div className="flex items-center justify-between px-4">
+				<div className="hidden flex-1 text-muted-foreground text-sm lg:flex">
+					{table.getFilteredSelectedRowModel().rows.length} of{" "}
+					{table.getFilteredRowModel().rows.length} row(s) selected.
+				</div>
+				<div className="flex w-full items-center gap-8 lg:w-fit">
+					<div className="hidden items-center gap-2 lg:flex">
+						<Label className="font-medium text-sm" htmlFor="rows-per-page">
+							Rows per page
+						</Label>
+						<Select
+							onValueChange={(value) => {
+								table.setPageSize(Number(value));
+							}}
+							value={`${table.getState().pagination.pageSize}`}
+						>
+							<SelectTrigger className="w-20" id="rows-per-page">
+								<SelectValue
+									placeholder={table.getState().pagination.pageSize}
+								/>
+							</SelectTrigger>
+							<SelectContent side="top">
+								{[10, 20, 30, 40, 50, data.length].map((pageSize) => (
+									<SelectItem key={pageSize} value={`${pageSize}`}>
+										{pageSize === data.length ? "All" : pageSize}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					<div className="flex w-fit items-center justify-center font-medium text-sm">
+						Page {table.getState().pagination.pageIndex + 1} of{" "}
+						{table.getPageCount()}
+					</div>
+					<div className="ml-auto flex items-center gap-2 lg:ml-0">
+						<Button
+							className="hidden h-8 w-8 p-0 lg:flex"
+							disabled={!table.getCanPreviousPage()}
+							onClick={() => table.setPageIndex(0)}
+							variant="outline"
+						>
+							<span className="sr-only">Go to first page</span>
+							<ChevronsLeftIcon />
+						</Button>
+						<Button
+							className="size-8"
+							disabled={!table.getCanPreviousPage()}
+							onClick={() => table.previousPage()}
+							size="icon"
+							variant="outline"
+						>
+							<span className="sr-only">Go to previous page</span>
+							<ChevronLeftIcon />
+						</Button>
+						<Button
+							className="size-8"
+							disabled={!table.getCanNextPage()}
+							onClick={() => table.nextPage()}
+							size="icon"
+							variant="outline"
+						>
+							<span className="sr-only">Go to next page</span>
+							<ChevronRightIcon />
+						</Button>
+						<Button
+							className="hidden size-8 lg:flex"
+							disabled={!table.getCanNextPage()}
+							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+							size="icon"
+							variant="outline"
+						>
+							<span className="sr-only">Go to last page</span>
+							<ChevronsRightIcon />
+						</Button>
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }

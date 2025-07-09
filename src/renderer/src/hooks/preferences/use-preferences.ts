@@ -8,7 +8,7 @@ import {
 	type ReaderPreferences,
 	type SystemBehaviorPreferences,
 } from "@common/index";
-import { invoke } from "@renderer/lib/ipcMethods";
+import { invoke } from "@renderer/lib/ipc-methods";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 

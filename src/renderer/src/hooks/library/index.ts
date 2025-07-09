@@ -5,10 +5,8 @@ import type {
 	LibraryEntryTable,
 } from "@common/index";
 import { channels } from "@common/index";
-import { invoke } from "@renderer/lib/ipcMethods";
+import { invoke } from "@renderer/lib/ipc-methods";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-// Queries
 
 const useGetLibrary = () =>
 	useQuery({
@@ -58,7 +56,10 @@ const useGetEntriesByCategory = (categoryId: string) =>
 		enabled: !!categoryId,
 	});
 
-const useHasEntry = (sourceId: string, mangaId: string) =>
+const useHasEntry = (
+	sourceId: string | undefined,
+	mangaId: string | undefined
+) =>
 	useQuery({
 		queryKey: ["library", "has-entry", sourceId, mangaId],
 		queryFn: async () => {

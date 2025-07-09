@@ -74,6 +74,7 @@ export function MangaCard({
 						No Image
 					</div>
 				) : (
+					// biome-ignore lint/nursery/noNoninteractiveElementInteractions: This is an image element that handles loading and error states.
 					<img
 						alt={title}
 						className={cn(

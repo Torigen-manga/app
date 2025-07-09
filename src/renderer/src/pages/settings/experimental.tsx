@@ -9,7 +9,9 @@ export default function ExperimentalPreferences() {
 	const { experimentalPreferences, updateExperimentalPreferences } =
 		usePreferences();
 
-	if (!experimentalPreferences) return <div>Loading...</div>;
+	if (!experimentalPreferences) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<div className="max-w-2xl">

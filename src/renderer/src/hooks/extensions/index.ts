@@ -1,5 +1,5 @@
-import { type APIResponse, channels } from "@common/index";
-import { invoke } from "@renderer/lib/ipcMethods";
+import { type APIResponse, channels, type Maybe } from "@common/index";
+import { invoke } from "@renderer/lib/ipc-methods";
 import { useQuery } from "@tanstack/react-query";
 import type {
 	Chapter,
@@ -9,8 +9,6 @@ import type {
 	SourceFieldsMetadata,
 	SourceInfo,
 } from "@torigen/mounter";
-
-type Maybe<T> = T | undefined;
 
 function useSourceInfo(id: Maybe<string>) {
 	return useQuery({

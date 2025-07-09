@@ -14,7 +14,9 @@ import { FolderOpen } from "lucide-react";
 
 interface SettingRendererProps {
 	setting: Preferences;
+	//  biome-ignore lint/suspicious/noExplicitAny: This is a generic
 	value: any;
+	//  biome-ignore lint/suspicious/noExplicitAny: This is a generic
 	onChange: (value: any) => void;
 }
 

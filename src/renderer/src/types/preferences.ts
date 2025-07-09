@@ -24,6 +24,7 @@ interface Preferences {
 	max?: number;
 	step?: number;
 	placeholder?: string;
+	// biome-ignore lint/suspicious/noExplicitAny: This is a generic type for default values
 	defaultValue?: any;
 	storeKey?: string;
 }

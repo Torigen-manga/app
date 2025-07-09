@@ -15,7 +15,7 @@ const coverVariant = cva("transition-all duration-200", {
 });
 
 const gridMap = (grid: number): string => {
-	const gridMap = {
+	const map = {
 		4: "grid-cols-4",
 		6: "grid-cols-6",
 		8: "grid-cols-8",
@@ -23,7 +23,7 @@ const gridMap = (grid: number): string => {
 		12: "grid-cols-12",
 	};
 
-	return gridMap[grid as keyof typeof gridMap] || "grid-cols-4";
+	return map[grid as keyof typeof map] || "grid-cols-4";
 };
 
 export { coverVariant, gridMap };

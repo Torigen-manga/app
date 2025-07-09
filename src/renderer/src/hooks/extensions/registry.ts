@@ -1,7 +1,7 @@
 // import type { Section, SourceProvider } from '@torigen/mounter'
 
 import { type APIResponse, channels, type RegistryEntry } from "@common/index";
-import { invoke } from "@renderer/lib/ipcMethods";
+import { invoke } from "@renderer/lib/ipc-methods";
 import { useQuery } from "@tanstack/react-query";
 import type { SourceInfo } from "@torigen/mounter";
 

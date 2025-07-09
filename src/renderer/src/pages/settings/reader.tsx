@@ -9,7 +9,9 @@ export default function ReaderPreferences() {
 	const { readerDisplayPreferences, updateReaderPreferences } =
 		usePreferences();
 
-	if (!readerDisplayPreferences) return <div>Loading...</div>;
+	if (!readerDisplayPreferences) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<div className="max-w-2xl">

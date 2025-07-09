@@ -15,10 +15,12 @@ interface SettingsSectionProps {
 }
 
 export function SettingsSection({ section }: SettingsSectionProps) {
+	//  biome-ignore lint/suspicious/noExplicitAny: This is a generic settings section
 	const [values, setValues] = useState<Record<string, any>>(() =>
 		Object.fromEntries(section.settings.map((s) => [s.key, s.defaultValue]))
 	);
 
+	//  biome-ignore lint/suspicious/noExplicitAny: This is a generic settings section
 	function handleChange(key: string, value: any) {
 		setValues((prev) => ({ ...prev, [key]: value }));
 	}

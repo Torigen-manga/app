@@ -47,7 +47,15 @@ function CategoryCard({
 }: CategoryCardProps): React.JSX.Element {
 	const sortable = useSortable({ id });
 	const { attributes, listeners, setNodeRef, transform, transition } = sortable;
-	const [open, setOpen] = React.useState(defaultOpen ? true : false);
+
+	function isDefaultOpen() {
+		if (typeof defaultOpen === "undefined") {
+			return false;
+		}
+		return defaultOpen;
+	}
+
+	const [open, setOpen] = React.useState(isDefaultOpen());
 	const [isEditing, setIsEditing] = React.useState(false);
 	const [editValue, setEditValue] = React.useState(title);
 
@@ -176,6 +184,7 @@ function CategoryCard({
 					)}
 				>
 					{React.Children.count(children) > 0 ? (
+						//biome-ignore lint/complexity/noUselessFragments: Render children if any entries are present
 						<>{children}</>
 					) : (
 						<>

@@ -6,6 +6,7 @@ import { appRoutes } from "./route";
 import "./style/globals.css";
 import { Providers } from "./providers";
 
+// biome-ignore lint/style/noNonNullAssertion: The root element is guaranteed to exist in the HTML.
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<Providers>

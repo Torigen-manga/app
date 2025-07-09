@@ -1,8 +1,8 @@
 "use client";
 
-import * as SliderPrimitive from "@radix-ui/react-slider";
+import { Range, Root, Thumb, Track } from "@radix-ui/react-slider";
 import { cn } from "@renderer/lib/utils";
-import * as React from "react";
+import { useMemo } from "react";
 
 function Slider({
 	className,
@@ -11,19 +11,19 @@ function Slider({
 	min = 0,
 	max = 100,
 	...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
-	const _values = React.useMemo(
-		() =>
-			Array.isArray(value)
-				? value
-				: Array.isArray(defaultValue)
-					? defaultValue
-					: [min, max],
-		[value, defaultValue, min, max]
-	);
+}: React.ComponentProps<typeof Root>) {
+	const _values = useMemo(() => {
+		if (Array.isArray(value)) {
+			return value;
+		}
+		if (Array.isArray(defaultValue)) {
+			return defaultValue;
+		}
+		return [min, max];
+	}, [value, defaultValue, min, max]);
 
 	return (
-		<SliderPrimitive.Root
+		<Root
 			className={cn(
 				"relative flex w-full touch-none select-none items-center data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col data-[disabled]:opacity-50",
 				className
@@ -35,27 +35,28 @@ function Slider({
 			value={value}
 			{...props}
 		>
-			<SliderPrimitive.Track
+			<Track
 				className={cn(
 					"relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-1.5"
 				)}
 				data-slot="slider-track"
 			>
-				<SliderPrimitive.Range
+				<Range
 					className={cn(
 						"absolute bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
 					)}
 					data-slot="slider-range"
 				/>
-			</SliderPrimitive.Track>
+			</Track>
 			{Array.from({ length: _values.length }, (_, index) => (
-				<SliderPrimitive.Thumb
+				<Thumb
 					className="block size-4 shrink-0 rounded-full border border-primary bg-background shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:outline-hidden focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50"
 					data-slot="slider-thumb"
+					// biome-ignore lint/suspicious/noArrayIndexKey: Shad/cn thing
 					key={index}
 				/>
 			))}
-		</SliderPrimitive.Root>
+		</Root>
 	);
 }
 

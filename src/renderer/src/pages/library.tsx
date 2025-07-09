@@ -66,7 +66,9 @@ export default function Library(): React.JSX.Element {
 	const handleDragEnd = async (event: DragEndEvent) => {
 		const { active, over } = event;
 
-		if (!over || active.id === over.id) return;
+		if (!over || active.id === over.id) {
+			return;
+		}
 
 		const oldIndex = categories.findIndex((cat) => cat.id === active.id);
 		const newIndex = categories.findIndex((cat) => cat.id === over.id);
@@ -77,7 +79,7 @@ export default function Library(): React.JSX.Element {
 		try {
 			await useReorder.mutateAsync(newOrder.map((cat) => cat.id));
 			toast.success("Categories reordered successfully");
-		} catch (error) {
+		} catch {
 			toast.error("Failed to reorder categories. Please try again.");
 		}
 	};
@@ -86,7 +88,7 @@ export default function Library(): React.JSX.Element {
 		try {
 			await renameCategory.mutateAsync({ id: categoryId, name: newName });
 			toast.success("Category renamed successfully");
-		} catch (error) {
+		} catch {
 			toast.error("Failed to rename category. Please try again.");
 		}
 	};
@@ -106,7 +108,7 @@ export default function Library(): React.JSX.Element {
 		try {
 			await deleteCategory.mutateAsync(categoryId);
 			toast.success("Category deleted successfully");
-		} catch (error) {
+		} catch {
 			toast.error("Failed to delete category. Please try again.");
 		}
 	};

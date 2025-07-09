@@ -1,10 +1,8 @@
 import { SidebarHeader, useSidebar } from "@renderer/components/ui/sidebar";
 import { cn } from "@renderer/lib/utils";
 
-export function NavHeader() {
-	const { state, isMobile } = useSidebar();
-
-	const AppTitle = ({ abbreviated = false }: { abbreviated?: boolean }) => (
+function AppTitle({ abbreviated = false }: { abbreviated?: boolean }) {
+	return (
 		<h1
 			className={cn("font-bold transition-all duration-200")}
 			title={abbreviated ? "Torigen" : undefined}
@@ -12,6 +10,10 @@ export function NavHeader() {
 			{abbreviated ? "TG" : "Torigen"}
 		</h1>
 	);
+}
+
+export function NavHeader() {
+	const { state, isMobile } = useSidebar();
 
 	if (isMobile) {
 		return (

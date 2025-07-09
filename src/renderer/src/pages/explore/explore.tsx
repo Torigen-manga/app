@@ -28,7 +28,7 @@ export default function Explore(): React.JSX.Element {
 							key={ext.id}
 							variant="outline"
 						>
-							<img alt="" className="size-8" src={ext.iconUrl} />
+							<img alt="" className="size-8" loading="lazy" src={ext.iconUrl} />
 							{ext.name}
 						</Button>
 					</Link>
@@ -37,5 +37,5 @@ export default function Explore(): React.JSX.Element {
 		);
 	}
 
-	return <>test</>;
+	return <span>test</span>;
 }

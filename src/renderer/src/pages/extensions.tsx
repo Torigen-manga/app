@@ -25,5 +25,5 @@ export default function Extensions(): React.JSX.Element {
 		);
 	}
 
-	return <>test</>;
+	return <span>Test</span>;
 }
