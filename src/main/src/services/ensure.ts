@@ -1,8 +1,8 @@
-import { extensionService, registryService } from './extension'
+import { extensionService, registryService } from "./extension";
 
 async function ensureExtensionService(): Promise<void> {
-  await Promise.allSettled([extensionService.init(), registryService.init()])
+	await Promise.allSettled([extensionService.init(), registryService.init()]);
 }
 async function ensureDatabase(): Promise<void> {}
 
-export { ensureDatabase, ensureExtensionService }
+export { ensureDatabase, ensureExtensionService };

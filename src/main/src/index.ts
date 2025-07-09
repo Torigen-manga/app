@@ -1,3 +1,3 @@
-export * from './db'
-export * from './services'
-export * from './paths'
+export * from "./db";
+export * from "./paths";
+export * from "./services";

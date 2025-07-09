@@ -1,19 +1,19 @@
-import { Outlet } from 'react-router'
-import { SidebarProvider } from '../components/ui/sidebar'
-import { AppSidebar } from '@renderer/components/nav'
-import { TitleBar } from '@renderer/components/titlebar'
+import { AppSidebar } from "@renderer/components/nav";
+import { TitleBar } from "@renderer/components/titlebar";
+import { Outlet } from "react-router";
+import { SidebarProvider } from "../components/ui/sidebar";
 
 export default function BaseLayout(): React.JSX.Element {
-  return (
-    <SidebarProvider className="flex">
-      <AppSidebar />
+	return (
+		<SidebarProvider className="flex">
+			<AppSidebar />
 
-      <div className="bg-sidebar relative h-screen w-full overflow-hidden md:pb-10">
-        <TitleBar />
-        <main className="bg-background relative mt-8 h-full overflow-hidden border shadow shadow-black/20 md:mr-2 md:rounded-lg">
-          <Outlet />
-        </main>
-      </div>
-    </SidebarProvider>
-  )
+			<div className="relative h-screen w-full overflow-hidden bg-sidebar md:pb-10">
+				<TitleBar />
+				<main className="relative mt-8 h-full overflow-hidden border bg-background shadow shadow-black/20 md:mr-2 md:rounded-lg">
+					<Outlet />
+				</main>
+			</div>
+		</SidebarProvider>
+	);
 }

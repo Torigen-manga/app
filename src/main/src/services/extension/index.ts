@@ -1,3 +1,3 @@
-export * from './ipc'
-export * from './registry'
-export * from './instance'
+export * from "./instance";
+export * from "./ipc";
+export * from "./registry";

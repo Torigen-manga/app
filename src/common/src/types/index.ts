@@ -1,6 +1,5 @@
-export * from './extensions'
-export * from './preferences'
-export * from './services'
-
-export * from './api'
-export * from './ipcResponse'
+export * from "./api";
+export * from "./extensions";
+export * from "./ipcResponse";
+export * from "./preferences";
+export * from "./services";

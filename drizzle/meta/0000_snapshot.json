@@ -75,10 +75,7 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "app_manga_source_id_manga_id_pk": {
-          "columns": [
-            "source_id",
-            "manga_id"
-          ],
+          "columns": ["source_id", "manga_id"],
           "name": "app_manga_source_id_manga_id_pk"
         }
       },
@@ -106,9 +103,7 @@
       "indexes": {
         "category_name_unique": {
           "name": "category_name_unique",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": true
         }
       },
@@ -174,10 +169,7 @@
       "indexes": {
         "library_unique": {
           "name": "library_unique",
-          "columns": [
-            "manga_id",
-            "source_id"
-          ],
+          "columns": ["manga_id", "source_id"],
           "isUnique": true
         }
       },
@@ -210,12 +202,8 @@
           "name": "library_entry_with_category_library_entry_id_library_entry_id_fk",
           "tableFrom": "library_entry_with_category",
           "tableTo": "library_entry",
-          "columnsFrom": [
-            "library_entry_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["library_entry_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -223,22 +211,15 @@
           "name": "library_entry_with_category_category_id_category_id_fk",
           "tableFrom": "library_entry_with_category",
           "tableTo": "category",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "library_category_pk": {
-          "columns": [
-            "library_entry_id",
-            "category_id"
-          ],
+          "columns": ["library_entry_id", "category_id"],
           "name": "library_category_pk"
         }
       },
