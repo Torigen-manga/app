@@ -3,12 +3,13 @@ import type {
 	Chapter,
 	ChapterEntry,
 	Manga,
+	MangaEntry,
 	PagedResults,
 	RequestManager,
+	SearchMetadata,
 	SearchRequest,
 	Section,
 	SourceCapabilities,
-	SourceFieldsMetadata,
 	SourceInfo,
 	SourceProvider,
 	Tag,
@@ -72,14 +73,16 @@ class ExtensionService {
 		return ext.info;
 	}
 
-	async getMetadata(id: string): Promise<SourceFieldsMetadata> {
+	async getSearchMetadata(id: string): Promise<SearchMetadata> {
 		const ext = await this.getExtension(id);
 
-		if (!ext.fieldsMetadata) {
-			throw new Error(`Extension ${id} does not implement getMetadata method`);
+		if (!ext.searchMetadata) {
+			throw new Error(
+				`Extension ${id} does not implement getSearchMetadata method`
+			);
 		}
 
-		return ext.fieldsMetadata;
+		return ext.searchMetadata;
 	}
 
 	async getCapabilities(id: string): Promise<SourceCapabilities> {
@@ -128,10 +131,26 @@ class ExtensionService {
 		return ext.getChapters(mangaId);
 	}
 
+	async getViewMore(
+		id: string,
+		sectionId: string,
+		page: number
+	): Promise<PagedResults<MangaEntry>> {
+		const ext = await this.getExtension(id);
+
+		if (!ext.getViewMoreItems) {
+			throw new Error(
+				`Extension ${id} does not implement getViewMoreItems method`
+			);
+		}
+
+		return ext.getViewMoreItems(sectionId, page);
+	}
+
 	async getMangaSearch(
 		id: string,
 		query: SearchRequest
-	): Promise<PagedResults> {
+	): Promise<PagedResults<MangaEntry>> {
 		const ext = await this.getExtension(id);
 
 		if (!ext.getSearchResults) {

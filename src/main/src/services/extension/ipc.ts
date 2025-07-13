@@ -35,6 +35,7 @@ const createExtensionHandlers = () => {
 	ipcMain.handle(channels.extension.homepage, async (_, id: string) =>
 		apiWrapper(() => extensionService.getHomepage(id))
 	);
+
 	ipcMain.handle(
 		channels.extension.mangaDetails,
 		async (_, id: string, mangaId: string) =>
@@ -53,6 +54,12 @@ const createExtensionHandlers = () => {
 			apiWrapper(() =>
 				extensionService.getChapterDetails(id, mangaId, chapterId)
 			)
+	);
+
+	ipcMain.handle(
+		channels.extension.viewMore,
+		async (_, id: string, sectionId: string, metadata) =>
+			apiWrapper(() => extensionService.getViewMore(id, sectionId, metadata))
 	);
 };
 

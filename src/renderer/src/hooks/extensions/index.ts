@@ -5,8 +5,10 @@ import type {
 	Chapter,
 	ChapterEntry,
 	Manga,
+	MangaEntry,
+	PagedResults,
+	SearchMetadata,
 	Section,
-	SourceFieldsMetadata,
 	SourceInfo,
 } from "@torigen/mounter";
 
@@ -31,11 +33,11 @@ function useSourceInfo(id: Maybe<string>) {
 	});
 }
 
-function useSourceMetadata(id: Maybe<string>) {
+function useSearchMetadata(id: Maybe<string>) {
 	return useQuery({
 		queryKey: ["extension", id, "metadata"],
 		queryFn: async () => {
-			const res: APIResponse<SourceFieldsMetadata> = await invoke(
+			const res: APIResponse<SearchMetadata> = await invoke(
 				channels.extension.metadata,
 				id
 			);
@@ -95,6 +97,33 @@ function useMangaDetails(id: Maybe<string>, mangaId: Maybe<string>) {
 	});
 }
 
+function useViewMore(
+	id: Maybe<string>,
+	sectionId: Maybe<string>,
+	page: Maybe<number>
+) {
+	return useQuery({
+		queryKey: ["extension", id, "viewMore", sectionId, page],
+		queryFn: async () => {
+			const res: APIResponse<PagedResults<MangaEntry>> = await invoke(
+				channels.extension.viewMore,
+				id,
+				sectionId,
+				page
+			);
+
+			if (!res.success) {
+				throw new Error(
+					`Failed to load view more items for ${sectionId}: ${res.error}`
+				);
+			}
+
+			return res.data;
+		},
+		enabled: Boolean(id && sectionId && page),
+	});
+}
+
 function useMangaChapters(id: Maybe<string>, mangaId: Maybe<string>) {
 	return useQuery({
 		queryKey: ["extension", id, "mangaChapters", mangaId],
@@ -146,9 +175,10 @@ function useChapterDetails(
 
 const extensionMethods = {
 	useSourceInfo,
-	useSourceMetadata,
+	useSearchMetadata,
 
 	useHomepage,
+	useViewMore,
 	useMangaDetails,
 	useMangaChapters,
 	useChapterDetails,
