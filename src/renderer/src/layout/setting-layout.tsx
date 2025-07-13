@@ -19,7 +19,7 @@ interface SettingNavigation {
 const settingsNavigation: SettingNavigation[] = [
   {
     title: "Layout & Appearance",
-    href: "/settings/layout-appearance",
+    href: "/settings",
     icon: Paintbrush,
   },
   {

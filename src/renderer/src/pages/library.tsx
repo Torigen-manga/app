@@ -164,20 +164,17 @@ export default function Library(): React.JSX.Element {
       </header>
       <div className="flex h-full w-full flex-1 flex-col gap-4 overflow-y-scroll px-2 py-4">
         <CategoryCard defaultOpen id="all-entries" title="All Entries">
-          {data.entries?.map((entry) => {
-            const url = `/manga/${entry.sourceId}/${entry.mangaId}`;
-
-            return (
-              <LibraryCard
-                image={entry.cover}
-                key={entry.id}
-                property="shadow"
-                title={entry.title}
-                unreadCount={entry.cachedTotalChapters || 0}
-                url={url}
-              />
-            );
-          })}
+          {data.entries?.map((entry) => (
+            <LibraryCard
+              image={entry.cover}
+              key={entry.id}
+              mangaId={entry.mangaId}
+              property="shadow"
+              source={entry.sourceId}
+              title={entry.title}
+              unreadCount={entry.cachedTotalChapters || 0}
+            />
+          ))}
         </CategoryCard>
 
         <DndContext

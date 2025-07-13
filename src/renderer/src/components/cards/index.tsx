@@ -1,12 +1,14 @@
 import { cn } from "@renderer/lib/utils";
+import { mangaDetailRoute } from "@renderer/routes";
 import { coverVariant } from "@renderer/style/layout-options";
 import { Link } from "@tanstack/react-router";
 import React from "react";
 
 interface MangaCardProps {
-  url: string;
   title: string;
   image: string;
+  source: string;
+  mangaId: string;
   property?: "default" | "shadow" | "rounded" | "border";
 }
 
@@ -15,15 +17,22 @@ interface LibraryCardProps extends MangaCardProps {
 }
 
 export function LibraryCard({
-  url,
   title,
   image,
   property,
   unreadCount,
+  source,
+  mangaId,
 }: LibraryCardProps) {
   return (
     <div className="relative">
-      <MangaCard image={image} property={property} title={title} url={url} />
+      <MangaCard
+        image={image}
+        mangaId={mangaId}
+        property={property}
+        source={source}
+        title={title}
+      />
       {unreadCount !== undefined && unreadCount > 0 && (
         <div className="-top-1 -right-1 absolute flex size-6 shrink-0 items-center justify-center rounded-full bg-red-500 p-1 text-white">
           <p className="text-sm">{unreadCount}</p>
@@ -34,10 +43,11 @@ export function LibraryCard({
 }
 
 export function MangaCard({
-  url,
   title,
   image,
   property,
+  source,
+  mangaId,
 }: MangaCardProps): React.JSX.Element {
   const [imageError, setImageError] = React.useState(false);
   const [imageLoaded, setImageLoaded] = React.useState(false);
@@ -57,7 +67,8 @@ export function MangaCard({
         "block h-full rounded-lg bg-sidebar p-2 transition-all duration-200 hover:bg-primary/40 focus:bg-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/50",
         coverVariant({ property })
       )}
-      to={url}
+      params={{ source, mangaId }}
+      to={mangaDetailRoute.to}
     >
       <div className="relative overflow-hidden">
         {!(imageLoaded || imageError) && (

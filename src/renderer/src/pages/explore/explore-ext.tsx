@@ -3,17 +3,16 @@ import { Button } from "@renderer/components/ui/button";
 import { extensionMethods } from "@renderer/hooks/extensions";
 import { useLayout } from "@renderer/hooks/preferences/use-layout";
 import { cn } from "@renderer/lib/utils";
+import { exploreExtensionRoute, exploreViewMoreRoute } from "@renderer/routes";
 import { gridMap } from "@renderer/style/layout-options";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import type React from "react";
 import { ErrorPage } from "../error";
 import { LoadingPage } from "../loading";
 
 export default function ExploreExt(): React.JSX.Element {
-  const { sourceId } = useParams({
-    from: "/explore/$sourceId",
-  });
+  const { sourceId } = exploreExtensionRoute.useParams();
   const { grid, coverStyle } = useLayout();
 
   const {
@@ -51,7 +50,10 @@ export default function ExploreExt(): React.JSX.Element {
               <h1 className="my-3 font-semibold text-3xl">{section.title}</h1>
               {section.containsMoreItems && (
                 <Button asChild className="ml-auto" variant="outline">
-                  <Link to={`/explore/${sourceId}/${section.id}`}>
+                  <Link
+                    params={{ sourceId, sectionId: section.id }}
+                    to={exploreViewMoreRoute.to}
+                  >
                     View More <ArrowRight />
                   </Link>
                 </Button>
@@ -62,9 +64,10 @@ export default function ExploreExt(): React.JSX.Element {
                 <MangaCard
                   image={item.image}
                   key={item.id}
+                  mangaId={item.id}
                   property={coverStyle}
+                  source={sourceId}
                   title={item.title}
-                  url={`/manga/${sourceId}/${item.id}`}
                 />
               ))}
             </div>

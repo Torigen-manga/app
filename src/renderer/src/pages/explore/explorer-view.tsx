@@ -85,8 +85,9 @@ export default function ExploreView(): React.JSX.Element {
           <MangaCard
             image={result.image}
             key={result.id}
+            mangaId={result.id}
+            source={sourceId}
             title={result.title}
-            url={`/manga/${sourceId}/${result.id}`}
           />
         ))}
       </div>

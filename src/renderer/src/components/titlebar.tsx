@@ -1,19 +1,19 @@
 import { cn } from "@renderer/lib/utils";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Minus, Square, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { SidebarTrigger, useSidebar } from "./ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 function NavigationButtons() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleBack = () => {
-    navigate(-1);
+    router.history.back();
   };
 
   const handleForward = () => {
-    navigate(1);
+    router.history.forward();
   };
 
   return (
