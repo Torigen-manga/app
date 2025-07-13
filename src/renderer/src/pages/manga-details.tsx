@@ -11,6 +11,7 @@ import {
 } from "@renderer/components/ui/alert-dialog";
 import { Badge } from "@renderer/components/ui/badge";
 import { Button } from "@renderer/components/ui/button";
+import { Checkbox } from "@renderer/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -69,6 +70,7 @@ function MangaAddToLibrary({
   const [newCategoryName, setNewCategoryName] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [addToCategory, setAddToCategory] = useState(false);
   const addCategory = useAddCategory();
   const addMangaToLibrary = useAddMangaToLibrary();
   const addCategoryToEntry = useAddCategoryToEntry();
@@ -81,6 +83,16 @@ function MangaAddToLibrary({
   }
 
   const handleAdd = async () => {
+    if (!addToCategory) {
+      try {
+        await addMangaToLibrary.mutateAsync(manga);
+        reset();
+      } catch {
+        setFormError("Failed to add manga to library. Please try again.");
+      }
+      return;
+    }
+
     const validationResult = categorySchema.safeParse({
       name: selectValue,
       newName: selectValue === "new-ct" ? newCategoryName : undefined,
@@ -104,7 +116,7 @@ function MangaAddToLibrary({
           categoryId: newCategoryId,
           libraryEntryId,
         });
-      } else if (selectValue !== "default") {
+      } else {
         await addCategoryToEntry.mutateAsync({
           categoryId: selectValue,
           libraryEntryId,
@@ -118,26 +130,20 @@ function MangaAddToLibrary({
   };
 
   const isAddDisabled =
-    selectValue === "" ||
-    selectValue === undefined ||
-    (selectValue === "new-ct" && newCategoryName.trim().length === 0) ||
     addMangaToLibrary.isPending ||
     addCategory.isPending ||
-    addCategoryToEntry.isPending;
+    addCategoryToEntry.isPending ||
+    (addToCategory &&
+      (selectValue === "" ||
+        (selectValue === "new-ct" && newCategoryName.trim().length === 0)));
 
   const CategoryList = useMemo(() => {
     if (!library?.categories.length) {
-      return (
-        <>
-          <SelectItem value="default">Default</SelectItem>
-          <SelectItem value="new-ct">New Category</SelectItem>
-        </>
-      );
+      return <SelectItem value="new-ct">New Category</SelectItem>;
     }
 
     return (
       <>
-        <SelectItem value="default">Default</SelectItem>
         {library.categories.map((category) => (
           <SelectItem key={category.id} value={category.id}>
             {category.name}
@@ -159,29 +165,41 @@ function MangaAddToLibrary({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <div>
-            <Label htmlFor="category-select">Category</Label>
-            <Select onValueChange={setSelectValue} value={selectValue}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>{CategoryList}</SelectContent>
-            </Select>
+          {/* Checkbox to add manga to a category */}
+          <div className="flex items-center gap-2">
+            <Checkbox
+              checked={addToCategory}
+              id="add-to-category"
+              onCheckedChange={(checked) => setAddToCategory(checked === true)}
+            />
+            <p className="text-sm">Add to category</p>
           </div>
 
-          {selectValue === "new-ct" && (
-            <div>
-              <Label htmlFor="new-category">New Category Name</Label>
-              <Input
-                id="new-category"
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Enter new category name"
-                value={newCategoryName}
-              />
+          {addToCategory && (
+            <div className="space-y-2">
+              <Label htmlFor="category-select">Category</Label>
+              <Select onValueChange={setSelectValue} value={selectValue}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>{CategoryList}</SelectContent>
+              </Select>
+
+              {selectValue === "new-ct" && (
+                <div className="space-y-2">
+                  <Label htmlFor="new-category">New Category Name</Label>
+                  <Input
+                    id="new-category"
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Enter new category name"
+                    value={newCategoryName}
+                  />
+                </div>
+              )}
             </div>
           )}
 
-          {formError && <p className="text-red-500 text-sm">{formError}</p>}
+          {formError && <p className="text-red-500">{formError}</p>}
         </div>
 
         <DialogFooter>
@@ -189,7 +207,7 @@ function MangaAddToLibrary({
             Cancel
           </Button>
           <Button disabled={isAddDisabled} onClick={handleAdd}>
-            {isAddDisabled ? "Adding..." : "Add"}
+            Add
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -237,7 +255,6 @@ function MangaRemoveFromLibrary({
           <Button
             disabled={removeManga.isPending}
             onClick={handleRemove}
-            variant="destructive"
           >
             {removeManga.isPending ? "Removing..." : "Remove"}
           </Button>
