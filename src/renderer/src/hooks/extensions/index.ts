@@ -1,6 +1,6 @@
 import { type APIResponse, channels, type Maybe } from "@common/index";
 import { invoke } from "@renderer/lib/ipc-methods";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
 	Chapter,
 	ChapterEntry,
@@ -8,8 +8,10 @@ import type {
 	MangaEntry,
 	PagedResults,
 	SearchMetadata,
+	SearchRequest,
 	Section,
 	SourceInfo,
+	Tag,
 } from "@torigen/mounter";
 
 function useSourceInfo(id: Maybe<string>) {
@@ -33,7 +35,7 @@ function useSourceInfo(id: Maybe<string>) {
 	});
 }
 
-function useSearchMetadata(id: Maybe<string>) {
+function useSearchMetadata(id: string | null) {
 	return useQuery({
 		queryKey: ["extension", id, "metadata"],
 		queryFn: async () => {
@@ -173,12 +175,60 @@ function useChapterDetails(
 	});
 }
 
+function useGetTags(id: string | null) {
+	return useQuery({
+		queryKey: ["extension", id, "searchTags"],
+		queryFn: async () => {
+			const res: APIResponse<Tag[]> = await invoke(
+				channels.extension.searchTags,
+				id
+			);
+
+			if (!res.success) {
+				throw new Error(
+					`Failed to load search tags for extension ${id}: ${res.error}`
+				);
+			}
+
+			return res.data;
+		},
+		enabled: Boolean(id),
+	});
+}
+
+function useSearchRequest(id: string | null) {
+	return useMutation({
+		mutationKey: ["extension", "search", id ?? "unknown"],
+		mutationFn: async (query: SearchRequest) => {
+			if (!id) {
+				throw new Error("Extension ID is required for search requests");
+			}
+
+			const res: APIResponse<PagedResults<MangaEntry>> = await invoke(
+				channels.extension.searchResults,
+				id,
+				query
+			);
+
+			if (!res.success) {
+				throw new Error(
+					`Failed to load search results for ${query.title}: ${res.error}`
+				);
+			}
+
+			return res.data;
+		},
+	});
+}
+
 const extensionMethods = {
 	useSourceInfo,
 	useSearchMetadata,
+	useGetTags,
 
 	useHomepage,
 	useViewMore,
+	useSearchRequest,
 	useMangaDetails,
 	useMangaChapters,
 	useChapterDetails,

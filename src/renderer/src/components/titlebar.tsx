@@ -2,7 +2,7 @@ import { cn } from "@renderer/lib/utils";
 import { useRouter } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Minus, Square, X } from "lucide-react";
 import { Button } from "./ui/button";
-import { SidebarTrigger, useSidebar } from "./ui/sidebar";
+import { SidebarTrigger } from "./ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 function NavigationButtons() {
@@ -56,8 +56,6 @@ function NavigationButtons() {
 }
 
 export function TitleBar() {
-  const { state, isMobile } = useSidebar();
-
   function handleMinimize(): void {
     window.electron.ipcRenderer.invoke("window:minimize");
   }
@@ -70,24 +68,11 @@ export function TitleBar() {
     window.electron.ipcRenderer.invoke("window:close");
   }
 
-  const getLeftOffset = () => {
-    if (isMobile) {
-      return "0px";
-    }
-
-    if (state === "expanded") {
-      return "16rem";
-    }
-    return "3rem";
-  };
-
   return (
     <header
-      className="items-center-2 fixed top-0 right-0 z-50 flex h-8 items-center justify-between bg-sidebar pl-2 transition-[left,width] duration-200 ease-linear"
+      className="items-center-2 sticky top-0 right-0 z-50 flex h-8 w-full items-center justify-between bg-sidebar pl-2 transition-[left,width] duration-200 ease-linear"
       style={
         {
-          left: getLeftOffset(),
-          width: `calc(100% - ${getLeftOffset()})`,
           WebkitAppRegion: "drag",
         } as React.CSSProperties
       }

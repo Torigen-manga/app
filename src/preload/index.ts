@@ -1,10 +1,8 @@
 import { electronAPI } from "@electron-toolkit/preload";
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge } from "electron";
 
 // Custom APIs for renderer
 const api = {
-	proxyFetch: (url: string, options?: RequestInit) =>
-		ipcRenderer.invoke("proxy-fetch", url, options),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

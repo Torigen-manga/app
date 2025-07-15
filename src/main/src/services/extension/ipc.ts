@@ -1,4 +1,5 @@
 import { apiWrapper, channels } from "@common/index";
+import type { SearchRequest } from "@torigen/mounter";
 import { ipcMain } from "electron";
 import { extensionService } from "./instance";
 import { registryService } from "./registry";
@@ -32,8 +33,18 @@ const createExtensionHandlers = () => {
 		apiWrapper(() => extensionService.getExtensionInfo(id))
 	);
 
+	ipcMain.handle(channels.extension.metadata, async (_, id: string) =>
+		apiWrapper(() => extensionService.getSearchMetadata(id))
+	);
+
 	ipcMain.handle(channels.extension.homepage, async (_, id: string) =>
 		apiWrapper(() => extensionService.getHomepage(id))
+	);
+
+	ipcMain.handle(
+		channels.extension.searchResults,
+		async (_, id: string, query: SearchRequest) =>
+			apiWrapper(() => extensionService.getMangaSearch(id, query))
 	);
 
 	ipcMain.handle(
@@ -60,6 +71,10 @@ const createExtensionHandlers = () => {
 		channels.extension.viewMore,
 		async (_, id: string, sectionId: string, metadata) =>
 			apiWrapper(() => extensionService.getViewMore(id, sectionId, metadata))
+	);
+
+	ipcMain.handle(channels.extension.searchTags, async (_, id: string) =>
+		apiWrapper(() => extensionService.getTags(id))
 	);
 };
 
