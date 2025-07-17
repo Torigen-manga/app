@@ -21,6 +21,7 @@ const channels = {
 		chapterDetails: "extension:chapter-details",
 		viewMore: "extension:view-more",
 		searchResults: "extension:search-results",
+		multiSearchResults: "extension:multi-search-results",
 		searchTags: "extension:search-tags",
 		info: "extension:info",
 		metadata: "extension:metadata",

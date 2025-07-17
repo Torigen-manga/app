@@ -21,7 +21,7 @@ function ExploreSidebar({ sources }: { sources: SourceInfo[] }) {
   const isActive = (linkPath: string) => location.pathname === linkPath;
 
   return (
-    <div className="sticky z-10 h-full w-64 shrink-0 border-r bg-muted p-2 pt-4">
+    <div className="sticky z-10 h-full w-54 shrink-0 border-r bg-muted p-2 pt-4">
       <div className="inline-flex">
         <h1 className="mb-2 ml-2 font-bold text-2xl">Explore</h1>
       </div>
@@ -79,7 +79,7 @@ export default function ExploreLayout(): React.JSX.Element {
 
   return (
     <div className="relative flex h-full rounded-t-lg">
-      <ExploreSidebar sources={data} />
+      <ExploreSidebar sources={data.map((ext) => ext.info)} />
 
       <div className="h-full w-full flex-1 overflow-y-auto">
         <Outlet />

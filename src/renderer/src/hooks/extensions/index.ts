@@ -6,13 +6,14 @@ import type {
 	ChapterEntry,
 	Manga,
 	MangaEntry,
+	MetadataProvider,
 	PagedResults,
-	SearchMetadata,
 	SearchRequest,
 	Section,
 	SourceInfo,
 	Tag,
 } from "@torigen/mounter";
+import { toast } from "sonner";
 
 function useSourceInfo(id: Maybe<string>) {
 	return useQuery({
@@ -35,11 +36,11 @@ function useSourceInfo(id: Maybe<string>) {
 	});
 }
 
-function useSearchMetadata(id: string | null) {
+function useMetadata(id: string | null) {
 	return useQuery({
 		queryKey: ["extension", id, "metadata"],
 		queryFn: async () => {
-			const res: APIResponse<SearchMetadata> = await invoke(
+			const res: APIResponse<MetadataProvider> = await invoke(
 				channels.extension.metadata,
 				id
 			);
@@ -221,17 +222,59 @@ function useSearchRequest(id: string | null) {
 	});
 }
 
-const extensionMethods = {
-	useSourceInfo,
-	useSearchMetadata,
-	useGetTags,
+function useMultiSearch() {
+	return useMutation({
+		mutationKey: ["extension", "multiSearch"],
+		mutationFn: async (data: {
+			sources: string[];
+			title: string;
+			limit?: number;
+		}) => {
+			const { sources, title, limit = 6 } = data;
 
-	useHomepage,
-	useViewMore,
-	useSearchRequest,
-	useMangaDetails,
-	useMangaChapters,
-	useChapterDetails,
+			if (sources.length === 0) {
+				throw new Error("At least one source is required for multi-search");
+			}
+
+			const res: APIResponse<Record<string, MangaEntry[]>> = await invoke(
+				channels.extension.multiSearchResults,
+				sources,
+				title,
+				limit
+			);
+
+			if (!res.success) {
+				throw new Error(
+					`Failed to load multi-search results for ${title}: ${res.error}`
+				);
+			}
+
+			return res.data;
+		},
+		onError: (error) => {
+			toast.error(`Multi-search failed: ${error.message}`, {
+				description: "Please try again later.",
+			});
+		},
+	});
+}
+
+const extensionMethods = {
+	QUERIES: {
+		useHomepage,
+		useViewMore,
+		useMangaDetails,
+		useMangaChapters,
+		useChapterDetails,
+		useSourceInfo,
+		useMetadata,
+		useGetTags,
+	},
+
+	MUTATIONS: {
+		useSearchRequest,
+		useMultiSearch,
+	},
 };
 
 type ExtensionMethods = typeof extensionMethods;

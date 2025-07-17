@@ -49,19 +49,39 @@ export default function Extensions(): React.JSX.Element {
     return <ErrorPage code={404} message="Extensions not found" />;
   }
 
+  const capabilityLabels: Record<string, string> = {
+    supportsHomepage: "Supports Homepage",
+    supportsSearch: "Supports Search",
+    supportsViewMore: "Supports View More",
+    supportIncludeTags: "Supports Include Tags",
+    supportExcludeTags: "Supports Exclude Tags",
+    supportPagination: "Supports Pagination",
+  };
+
   return (
     <main className="p-4">
       <h1 className="ml-4 font-semibold text-3xl">Extensions</h1>
       <div className="grid grid-cols-4 gap-4 p-4">
         {data.map((extension) => (
-          <Card key={extension.id}>
+          <Card key={extension.info.id}>
             <CardHeader>
-              <CardTitle>{extension.name}</CardTitle>
+              <CardTitle>{extension.info.name}</CardTitle>
               <CardDescription>
-                <button type="button">{extension.id}</button>
+                <button type="button">{extension.info.id}</button>
               </CardDescription>
             </CardHeader>
-            <CardContent />
+
+            <CardContent>
+              <ul>
+                {Object.entries(extension.capabilities)
+                  .filter(([_, value]) => value)
+                  .map(([key]) => (
+                    <li className="list-disc text-sm" key={key}>
+                      {capabilityLabels[key]}
+                    </li>
+                  ))}
+              </ul>
+            </CardContent>
           </Card>
         ))}
       </div>

@@ -2,11 +2,18 @@ import { access, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Registry, RegistryEntry } from "@common/index";
-import type { SourceInfo, SourceProvider } from "@torigen/mounter";
+import type {
+	SourceCapabilities,
+	SourceInfo,
+	SourceProvider,
+} from "@torigen/mounter";
 import { directories, paths } from "../../paths";
 
 interface ExtensionSyncResult {
-	loaded: SourceInfo[];
+	loaded: Array<{
+		info: SourceInfo;
+		capabilities: SourceCapabilities;
+	}>;
 	failed: Array<{ path: string; error: Error }>;
 	removed: string[];
 }
@@ -68,7 +75,10 @@ class RegistryService {
 			const requestInstance = {};
 			const sourceInstance = new SourceClass(requestInstance);
 
-			return { fileName, info: sourceInstance.info as SourceInfo };
+			return {
+				info: sourceInstance.info as SourceInfo,
+				capabilities: sourceInstance.capabilities,
+			};
 		} catch (err) {
 			throw new Error(
 				`Failed to load extension from ${fileName}: ${(err as Error).message}`
@@ -102,15 +112,16 @@ class RegistryService {
 		for (const fileName of currentFiles) {
 			try {
 				// biome-ignore lint/nursery/noAwaitInLoop: Must await each extension load to ensure proper error handling
-				const { info } = await this.loadExtension(fileName);
+				const { info, capabilities } = await this.loadExtension(fileName);
 
 				updatedRegistry[info.id] = {
 					name: info.name,
 					path: fileName,
 					dependencies: info.dependencies?.map((dep) => dep.name) || [],
+					capabilities,
 				};
 
-				result.loaded.push(info);
+				result.loaded.push({ info, capabilities });
 			} catch (err) {
 				result.failed.push({ path: fileName, error: err as Error });
 			}
@@ -130,7 +141,9 @@ class RegistryService {
 		return result;
 	}
 
-	async loadExtensions(): Promise<SourceInfo[]> {
+	async loadExtensions(): Promise<
+		{ info: SourceInfo; capabilities: SourceCapabilities }[]
+	> {
 		try {
 			const syncResult = await this.syncRegistryWithFilesystem();
 

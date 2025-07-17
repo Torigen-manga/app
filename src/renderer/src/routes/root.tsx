@@ -19,9 +19,36 @@ export const homeRoute = createRoute({
   component: Home,
 });
 
+export interface SearchPageSearch {
+  query?: string;
+  source?: string;
+  includedTags?: string[];
+  excludedTags?: string[];
+  parameters?: Record<string, string | number | boolean | string[]>;
+}
+
 export const searchRoute = createRoute({
   path: "/search",
   getParentRoute: () => rootRoute,
+  validateSearch: (search: Record<string, unknown>): SearchPageSearch => {
+    return {
+      query: typeof search.query === "string" ? search.query : "",
+      source: typeof search.source === "string" ? search.source : "",
+      includedTags: Array.isArray(search.includedTags)
+        ? search.includedTags.filter((x): x is string => typeof x === "string")
+        : [],
+      excludedTags: Array.isArray(search.excludedTags)
+        ? search.excludedTags.filter((x): x is string => typeof x === "string")
+        : [],
+      parameters:
+        typeof search.parameters === "object" && search.parameters !== null
+          ? (search.parameters as Record<
+              string,
+              string | number | boolean | string[]
+            >)
+          : {},
+    };
+  },
   component: Search,
 });
 

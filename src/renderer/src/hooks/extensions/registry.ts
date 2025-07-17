@@ -3,15 +3,15 @@
 import { type APIResponse, channels, type RegistryEntry } from "@common/index";
 import { invoke } from "@renderer/lib/ipc-methods";
 import { useQuery } from "@tanstack/react-query";
-import type { SourceInfo } from "@torigen/mounter";
+import type { SourceCapabilities, SourceInfo } from "@torigen/mounter";
 
 function useLoadExtensions() {
 	return useQuery({
 		queryKey: ["extensions", "load"],
 		queryFn: async () => {
-			const res: APIResponse<SourceInfo[]> = await invoke(
-				channels.registry.loadAll
-			);
+			const res: APIResponse<
+				{ info: SourceInfo; capabilities: SourceCapabilities }[]
+			> = await invoke(channels.registry.loadAll);
 
 			if (!res.success) {
 				throw new Error(`Failed to load extensions: ${res.error}`);

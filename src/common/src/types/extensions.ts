@@ -1,15 +1,12 @@
-import { z } from "zod";
+import type { SourceCapabilities } from "@torigen/mounter";
 
-const registryEntrySchema = z.object({
-	name: z.string(),
-	path: z.string(),
-	dependencies: z.array(z.string()).optional(),
-});
+interface RegistryEntry {
+	name: string;
+	path: string;
+	capabilities: SourceCapabilities;
+	dependencies?: string[];
+}
 
-const registrySchema = z.record(registryEntrySchema);
-
-type RegistryEntry = z.infer<typeof registryEntrySchema>;
-type Registry = z.infer<typeof registrySchema>;
+type Registry = Record<string, RegistryEntry>;
 
 export type { RegistryEntry, Registry };
-export { registryEntrySchema, registrySchema };

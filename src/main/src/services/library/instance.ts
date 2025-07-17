@@ -57,10 +57,8 @@ class LibraryService {
 
 	async addMangaToLibrary(data: AppManga): Promise<void> {
 		const { sourceId, mangaId, cover, title } = data;
-		// Use consistent ID format: sourceId__mangaId
 		const id = `${sourceId}__${mangaId}`;
 
-		// Check if entry already exists
 		const existing = await db
 			.select()
 			.from(libraryEntryTable)
@@ -68,7 +66,6 @@ class LibraryService {
 			.limit(1)
 			.then((r) => r[0]);
 
-		// If entry already exists, don't add it again
 		if (existing) {
 			return;
 		}
@@ -92,7 +89,6 @@ class LibraryService {
 			cachedTotalChapters: 0,
 		});
 
-		// Add to AppManga service if not exists
 		const manga = await this.appMangaService.getMangaById(sourceId, mangaId);
 		if (!manga) {
 			await this.appMangaService.addManga(data);

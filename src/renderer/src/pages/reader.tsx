@@ -8,7 +8,7 @@ export default function Reader(): React.JSX.Element {
     from: "/manga/$source/$mangaId/chapter/$chapterId",
   });
 
-  const { data } = extensionMethods.useChapterDetails(
+  const { data } = extensionMethods.QUERIES.useChapterDetails(
     source,
     mangaId,
     chapterId

@@ -1,5 +1,8 @@
 import { ParameterComp } from "@renderer/components/search/parameter-area";
-import { SearchResults } from "@renderer/components/search/results";
+import {
+  MultiSearchResults,
+  SearchResults,
+} from "@renderer/components/search/results";
 import { SearchCamp } from "@renderer/components/search/search-camp";
 import { extensionMethods } from "@renderer/hooks/extensions";
 import { useLoadExtensions } from "@renderer/hooks/extensions/registry";
@@ -17,16 +20,19 @@ import { toast } from "sonner";
 export default function Search(): React.JSX.Element {
   const [source, setSource] = useState<string | null>(null);
 
-  const { data: searchParamsMetadata } =
-    extensionMethods.useSearchMetadata(source);
-  const { data: tags } = extensionMethods.useGetTags(source);
-  const searchMutation = extensionMethods.useSearchRequest(source);
+  const { data: metadata } = extensionMethods.QUERIES.useMetadata(source);
+  const { data: tags } = extensionMethods.QUERIES.useGetTags(source);
+  const searchMutation = extensionMethods.MUTATIONS.useSearchRequest(source);
+  const multiSearchMutation = extensionMethods.MUTATIONS.useMultiSearch();
   const { data: extensions } = useLoadExtensions();
 
   const [includedTags, setIncludedTags] = useState<Tag[]>([]);
   const [excludedTags, setExcludedTags] = useState<Tag[]>([]);
 
   const [result, setResult] = useState<PagedResults<MangaEntry> | undefined>();
+  const [multiSearchResult, setMultiSearchResult] = useState<
+    Record<string, MangaEntry[]> | undefined
+  >();
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -60,9 +66,18 @@ export default function Search(): React.JSX.Element {
 
   async function handleSearch() {
     try {
-      const res = await searchMutation.mutateAsync(searchRequest);
-
-      setResult(res);
+      if (source) {
+        setResult(await searchMutation.mutateAsync(searchRequest));
+      } else if (extensions && extensions.length > 0) {
+        const sources = extensions
+          .filter((ext) => ext.capabilities.supportsSearch)
+          .map((ext) => ext.info.id);
+        const multiSearchResults = await multiSearchMutation.mutateAsync({
+          sources,
+          title: searchQuery,
+        });
+        setMultiSearchResult(multiSearchResults);
+      }
     } catch {
       toast.error("Something went wrong while searching", {
         description: "Please try again later.",
@@ -98,24 +113,26 @@ export default function Search(): React.JSX.Element {
         transition={{ duration: 1 }}
       >
         {!source &&
-          extensions?.map((ext) => (
-            <button
-              className="rounded-lg border px-3 py-1 text-sm hover:bg-muted"
-              key={ext.id}
-              onClick={() => setSource(ext.id)}
-              type="button"
-            >
-              <h2 className="font-semibold">{ext.name}</h2>
-            </button>
-          ))}
+          extensions
+            ?.filter((ext) => ext.capabilities.supportsSearch)
+            .map((ext) => (
+              <button
+                className="rounded-lg border px-3 py-1 text-sm hover:bg-muted"
+                key={ext.info.id}
+                onClick={() => setSource(ext.info.id)}
+                type="button"
+              >
+                <h2 className="font-semibold">{ext.info.name}</h2>
+              </button>
+            ))}
       </motion.div>
-      {!result && source && searchParamsMetadata && (
+      {!result && source && metadata?.search && (
         <ParameterComp
           excludedTags={excludedTags}
           includedTags={includedTags}
           onChange={handleParamChange}
           parameters={parameters}
-          searchParamsMetadata={searchParamsMetadata.params}
+          searchParamsMetadata={metadata.search}
           setExcludedTags={setExcludedTags}
           setIncludedTags={setIncludedTags}
           source={source}
@@ -125,6 +142,10 @@ export default function Search(): React.JSX.Element {
 
       {source && result && result.results?.length > 0 && (
         <SearchResults entries={result.results} source={source} />
+      )}
+
+      {!source && multiSearchResult && (
+        <MultiSearchResults entries={multiSearchResult} />
       )}
     </motion.main>
   );

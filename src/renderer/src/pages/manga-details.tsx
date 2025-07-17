@@ -318,16 +318,16 @@ function DetailCamp({
 export default function MangaDetail(): React.JSX.Element {
   const { mangaId, source } = useParams({ from: "/manga/$source/$mangaId" });
 
-  const { data: manga, isLoading } = extensionMethods.useMangaDetails(
+  const { data: manga, isLoading } = extensionMethods.QUERIES.useMangaDetails(
     source,
     mangaId
   );
+  
   const { data: chapters, isLoading: chaptersLoading } =
-    extensionMethods.useMangaChapters(source, mangaId);
+    extensionMethods.QUERIES.useMangaChapters(source, mangaId);
   const [expanded, setExpanded] = useState(false);
   const [isOverflow, setIsOverflow] = useState(false);
   const descRef = useRef<HTMLParagraphElement>(null);
-
   const { data: hasEntry } = useHasEntry(source, mangaId);
 
   useEffect(() => {

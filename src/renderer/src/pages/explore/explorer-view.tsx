@@ -12,7 +12,7 @@ export default function ExploreView(): React.JSX.Element {
   });
   const [page, setPage] = useState(1);
   const [results, setResults] = useState<MangaEntry[]>([]);
-  const { data, isLoading, isError } = extensionMethods.useViewMore(
+  const { data, isLoading, isError } = extensionMethods.QUERIES.useViewMore(
     sourceId,
     sectionId,
     page

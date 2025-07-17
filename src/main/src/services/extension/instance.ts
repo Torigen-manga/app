@@ -4,9 +4,9 @@ import type {
 	ChapterEntry,
 	Manga,
 	MangaEntry,
+	MetadataProvider,
 	PagedResults,
 	RequestManager,
-	SearchMetadata,
 	SearchRequest,
 	Section,
 	SourceCapabilities,
@@ -73,16 +73,14 @@ class ExtensionService {
 		return ext.info;
 	}
 
-	async getSearchMetadata(id: string): Promise<SearchMetadata> {
+	async getMetadata(id: string): Promise<MetadataProvider> {
 		const ext = await this.getExtension(id);
 
-		if (!ext.searchMetadata) {
-			throw new Error(
-				`Extension ${id} does not implement getSearchMetadata method`
-			);
+		if (!ext.metadata) {
+			throw new Error(`Extension ${id} does not implement getMetadata method`);
 		}
 
-		return ext.searchMetadata;
+		return ext.metadata;
 	}
 
 	async getCapabilities(id: string): Promise<SourceCapabilities> {
@@ -95,6 +93,24 @@ class ExtensionService {
 		}
 
 		return ext.capabilities;
+	}
+
+	async getMultiCapabilities(sources: string[]): Promise<SourceCapabilities[]> {
+		const capabilities: SourceCapabilities[] = [];
+
+		await Promise.all(
+			sources.map(async (id) => {
+				try {
+					const caps = await this.getCapabilities(id);
+					capabilities.push(caps);
+				} catch (err) {
+					// biome-ignore lint/suspicious/noConsole: debugging
+					console.warn(`Failed to get capabilities for source ${id}`, err);
+				}
+			})
+		);
+
+		return capabilities;
 	}
 
 	async getHomepage(id: string): Promise<Section[]> {
@@ -160,6 +176,31 @@ class ExtensionService {
 		}
 
 		return ext.getSearchResults(query);
+	}
+
+	async getMultiSearch(sources: string[], title: string, limit = 6) {
+		const results: Record<string, MangaEntry[]> = {};
+
+		await Promise.all(
+			sources.map(async (id) =>
+				this.getMangaSearch(id, {
+					title,
+					includedTags: [],
+					excludedTags: [],
+					parameters: {},
+				})
+					.then((res) => {
+						results[id] = res.results.slice(0, limit);
+					})
+					.catch((err) => {
+						// biome-ignore lint/suspicious/noConsole: debugging
+						console.warn(`Search failed for source ${id}`, err);
+						results[id] = [];
+					})
+			)
+		);
+
+		return results;
 	}
 
 	async getChapterDetails(

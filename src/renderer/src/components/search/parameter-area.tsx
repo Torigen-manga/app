@@ -1,4 +1,4 @@
-import type { Tag } from "@torigen/mounter";
+import type { SearchParams, Tag } from "@torigen/mounter";
 import { motion } from "motion/react";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
@@ -7,16 +7,7 @@ import { ParamBadge, TagBadge, type TagSelectMMode } from "./badges";
 interface ParametersCompProps {
   onChange: (key: string, value: string | number | boolean) => void;
   parameters: Record<string, string | number | boolean | string[]>;
-  searchParamsMetadata: Record<
-    string,
-    {
-      title: string;
-      type: "string" | "number" | "boolean" | "select";
-      options?: string[];
-      min?: number;
-      max?: number;
-    }
-  >;
+  searchParamsMetadata: Record<string, SearchParams>;
   includedTags: Tag[];
   excludedTags: Tag[];
   setIncludedTags: React.Dispatch<React.SetStateAction<Tag[]>>;

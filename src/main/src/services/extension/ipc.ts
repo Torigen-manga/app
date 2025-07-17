@@ -34,7 +34,7 @@ const createExtensionHandlers = () => {
 	);
 
 	ipcMain.handle(channels.extension.metadata, async (_, id: string) =>
-		apiWrapper(() => extensionService.getSearchMetadata(id))
+		apiWrapper(() => extensionService.getMetadata(id))
 	);
 
 	ipcMain.handle(channels.extension.homepage, async (_, id: string) =>
@@ -69,12 +69,22 @@ const createExtensionHandlers = () => {
 
 	ipcMain.handle(
 		channels.extension.viewMore,
-		async (_, id: string, sectionId: string, metadata) =>
-			apiWrapper(() => extensionService.getViewMore(id, sectionId, metadata))
+		async (_, id: string, sectionId: string, page: number) =>
+			apiWrapper(() => extensionService.getViewMore(id, sectionId, page))
 	);
 
 	ipcMain.handle(channels.extension.searchTags, async (_, id: string) =>
 		apiWrapper(() => extensionService.getTags(id))
+	);
+
+	ipcMain.handle(
+		channels.extension.multiSearchResults,
+		async (_, sources: string[], title: string, limit = 6) =>
+			apiWrapper(() => extensionService.getMultiSearch(sources, title, limit))
+	);
+
+	ipcMain.handle(channels.extension.capabilities, async (_, id: string) =>
+		apiWrapper(() => extensionService.getCapabilities(id))
 	);
 };
 

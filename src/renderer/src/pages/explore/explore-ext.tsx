@@ -20,7 +20,7 @@ export default function ExploreExt(): React.JSX.Element {
     isLoading,
     isError,
     error,
-  } = extensionMethods.useHomepage(sourceId);
+  } = extensionMethods.QUERIES.useHomepage(sourceId);
 
   if (!sourceId) {
     return <ErrorPage code={400} message="Extension ID is required" />;
