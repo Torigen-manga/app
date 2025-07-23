@@ -26,6 +26,15 @@ function SearchCamp({
   setResult,
   searchInputRef,
 }: SearchCampProps) {
+  function handleReturn() {
+    if (searchInputRef.current) {
+      searchInputRef.current.value = "";
+    }
+    setSearchQuery("");
+    setResult(undefined);
+    setSource(null);
+  }
+
   return (
     <motion.div
       className={cn(
@@ -36,8 +45,8 @@ function SearchCamp({
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
       <div className="flex items-center gap-2">
-        {source && (
-          <Button onClick={() => setSource(null)} size="icon" variant="outline">
+        {(source || searchQuery) && (
+          <Button onClick={handleReturn} size="icon" variant="outline">
             <ArrowLeft />
           </Button>
         )}
