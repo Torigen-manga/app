@@ -252,10 +252,7 @@ function MangaRemoveFromLibrary({
           <Button onClick={() => setIsOpen(false)} variant="outline">
             Cancel
           </Button>
-          <Button
-            disabled={removeManga.isPending}
-            onClick={handleRemove}
-          >
+          <Button disabled={removeManga.isPending} onClick={handleRemove}>
             {removeManga.isPending ? "Removing..." : "Remove"}
           </Button>
         </AlertDialogFooter>
@@ -322,7 +319,7 @@ export default function MangaDetail(): React.JSX.Element {
     source,
     mangaId
   );
-  
+
   const { data: chapters, isLoading: chaptersLoading } =
     extensionMethods.QUERIES.useMangaChapters(source, mangaId);
   const [expanded, setExpanded] = useState(false);
@@ -341,6 +338,10 @@ export default function MangaDetail(): React.JSX.Element {
       }
     }
   }, []);
+
+  const chapterSorted = useMemo(() => {
+    return chapters?.sort((a, b) => a.number - b.number);
+  }, [chapters]);
 
   if (isLoading) {
     return <LoadingPage />;
@@ -433,7 +434,7 @@ export default function MangaDetail(): React.JSX.Element {
           </div>
         </div>
       </div>
-      <ChapterTable data={chapters ?? []} isLoading={chaptersLoading} />
+      <ChapterTable data={chapterSorted ?? []} isLoading={chaptersLoading} />
     </main>
   );
 }

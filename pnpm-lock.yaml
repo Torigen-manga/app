@@ -87,8 +87,8 @@ importers:
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@torigen/mounter':
-        specifier: 1.0.0
-        version: 1.0.0(typescript@5.8.3)
+        specifier: 1.0.1
+        version: 1.0.1(typescript@5.8.3)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1582,8 +1582,8 @@ packages:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
 
-  '@torigen/mounter@1.0.0':
-    resolution: {integrity: sha512-7L2IoQRXGiPJd+6bmQeTHRsBuIpsUA0xbyx9wHDXPv20ZYsj7KnRmOhbiUyErqyTbKQBxnbhlv2nf25I7QfagA==}
+  '@torigen/mounter@1.0.1':
+    resolution: {integrity: sha512-YiUVOosbHig/KVuGGfHXQxjlekA7GrQvR/pT/LMqjhTA8PflZz8VY0liqo3BhyYxRuyenDQ8uKus6mtrS+gDZQ==}
     peerDependencies:
       typescript: ^5
 
@@ -4950,7 +4950,7 @@ snapshots:
 
   '@tootallnate/once@2.0.0': {}
 
-  '@torigen/mounter@1.0.0(typescript@5.8.3)':
+  '@torigen/mounter@1.0.1(typescript@5.8.3)':
     dependencies:
       typescript: 5.8.3
 

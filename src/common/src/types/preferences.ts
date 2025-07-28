@@ -26,11 +26,12 @@ const pageLayoutEnum = z
 const zoomBehaviorEnum = z
 	.enum(["fit-width", "fit-height", "actual-size", "manual"])
 	.default("fit-width");
+const readingDirectionEnum = z.enum(["ltr", "rtl"]).default("ltr");
 
 const readerPreferencesSchema = z.object({
 	pageLayout: pageLayoutEnum,
 	zoomBehavior: zoomBehaviorEnum,
-	readingDirection: z.enum(["ltr", "rtl"]).default("ltr"),
+	readingDirection: readingDirectionEnum,
 	zoomLevel: z.number().min(0).max(5).optional(),
 	rememberZoom: z.boolean().default(true),
 });
@@ -77,6 +78,7 @@ type PreferDarkMode = z.infer<typeof preferDarkModeEnum>;
 type CoverStyle = z.infer<typeof coverStyleEnum>;
 
 type PageLayout = z.infer<typeof pageLayoutEnum>;
+type ReadingDir = z.infer<typeof readingDirectionEnum>;
 type ZoomBehavior = z.infer<typeof zoomBehaviorEnum>;
 
 export {
@@ -102,4 +104,5 @@ export type {
 	CoverStyle,
 	PageLayout,
 	ZoomBehavior,
+	ReadingDir,
 };

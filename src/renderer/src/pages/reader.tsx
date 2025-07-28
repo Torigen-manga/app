@@ -1,126 +1,18 @@
-import type { PageLayout } from "@common/index";
-import { Button } from "@renderer/components/ui/button";
+import type { PageLayout, ReadingDir } from "@common/index";
+import { ReaderMenu } from "@renderer/components/reader/reader-menu";
 import { Card } from "@renderer/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@renderer/components/ui/dropdown-menu";
 import { extensionMethods } from "@renderer/hooks/extensions";
 import { usePreferences } from "@renderer/hooks/preferences/use-preferences";
-import { cn } from "@renderer/lib/utils";
-import { useParams } from "@tanstack/react-router";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsDown,
-  ChevronsLeft,
-  ChevronsRight,
-  ChevronsUp,
-  ChevronUp,
-  Menu,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LoadingPage } from "./loading";
-
-interface ReaderMenuProps {
-  pageLayout: PageLayout;
-  onToggle: (value: PageLayout) => void;
-  onNext: () => void;
-  onPrevious: () => void;
-  onFirst: () => void;
-  onLast: () => void;
-}
-
-function ReaderMenu({
-  pageLayout,
-  onToggle,
-  onNext,
-  onPrevious,
-  onFirst,
-  onLast,
-}: ReaderMenuProps) {
-  const isVertical = pageLayout === "vertical-scroll";
-
-  return (
-    <div
-      className={cn(
-        "right-5 bottom-5 flex gap-4 rounded-lg border bg-background p-2 shadow-lg",
-        isVertical ? "fixed flex-col" : "absolute flex-row"
-      )}
-    >
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon" variant="outline">
-            <Menu />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuRadioGroup value={pageLayout}>
-            <DropdownMenuRadioItem
-              onSelect={() => onToggle("single-page")}
-              value="single-page"
-            >
-              Single Page
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              onSelect={() => onToggle("double-page")}
-              value="double-page"
-            >
-              Double Page
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              onSelect={() => onToggle("vertical-scroll")}
-              value="vertical-scroll"
-            >
-              Vertical Scroll
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <div className={cn("flex gap-2", isVertical && "flex-col")}>
-        <Button onClick={onFirst} size="icon" variant="outline">
-          {isVertical ? (
-            <ChevronsUp className="size-4" />
-          ) : (
-            <ChevronsLeft className="size-4" />
-          )}
-        </Button>
-        <Button onClick={onPrevious} size="icon" variant="outline">
-          {isVertical ? (
-            <ChevronUp className="size-4" />
-          ) : (
-            <ChevronLeft className="size-4" />
-          )}
-        </Button>
-      </div>
-      <div className={cn("flex gap-2", isVertical && "flex-col")}>
-        <Button onClick={onNext} size="icon" variant="outline">
-          {isVertical ? (
-            <ChevronDown className="size-4" />
-          ) : (
-            <ChevronRight className="size-4" />
-          )}
-        </Button>
-        <Button onClick={onLast} size="icon" variant="outline">
-          {isVertical ? (
-            <ChevronsDown className="size-4" />
-          ) : (
-            <ChevronsRight className="size-4" />
-          )}
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 export default function Reader(): React.JSX.Element {
   const { source, mangaId, chapterId } = useParams({
     from: "/manga/$source/$mangaId/chapter/$chapterId",
   });
+
+  const navigate = useNavigate();
 
   const { readerDisplayPreferences, updateReaderPreferences } =
     usePreferences();
@@ -131,10 +23,36 @@ export default function Reader(): React.JSX.Element {
     chapterId
   );
 
+  const { data: chapters } = extensionMethods.QUERIES.useMangaChapters(
+    source,
+    mangaId
+  );
+
+  const currentChapter = chapters?.find((ch) => ch.id === chapterId);
+
+  const nextChapter = chapters?.find(
+    (ch) => ch.number === (currentChapter?.number ?? 0) + 1
+  );
+  const previousChapter = chapters?.find(
+    (ch) => ch.number === (currentChapter?.number ?? 0) - 1
+  );
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(data?.pages.length || 0);
   const mainRef = useRef<HTMLDivElement>(null);
   const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
+
+  const handlePreviousChapter = useCallback(() => {
+    return navigate({
+      to: `/manga/${source}/${mangaId}/chapter/${previousChapter?.id}`,
+    });
+  }, [mangaId, source, previousChapter, navigate]);
+
+  const handleNextChapter = useCallback(() => {
+    return navigate({
+      to: `/manga/${source}/${mangaId}/chapter/${nextChapter?.id}`,
+    });
+  }, [mangaId, source, nextChapter, navigate]);
 
   useEffect(() => {
     if (data?.pages.length) {
@@ -153,9 +71,21 @@ export default function Reader(): React.JSX.Element {
       const readingDirection =
         readerDisplayPreferences?.readingDirection || "ltr";
 
-      const goPrev = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-      const goNext = () =>
-        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+      const goPrev = () => {
+        if (currentPage === 1 && previousChapter) {
+          handlePreviousChapter();
+        } else {
+          setCurrentPage((prev) => Math.max(prev - 1, 1));
+        }
+      };
+
+      const goNext = () => {
+        if (currentPage === totalPages && nextChapter) {
+          handleNextChapter();
+        } else {
+          setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+        }
+      };
 
       const verticalKeys = {
         ArrowUp: goPrev,
@@ -188,6 +118,11 @@ export default function Reader(): React.JSX.Element {
     readerDisplayPreferences?.readingDirection,
     readerDisplayPreferences?.pageLayout,
     totalPages,
+    currentPage,
+    handleNextChapter,
+    handlePreviousChapter,
+    nextChapter,
+    previousChapter,
   ]);
 
   useEffect(() => {
@@ -248,9 +183,15 @@ export default function Reader(): React.JSX.Element {
     return <LoadingPage />;
   }
 
-  function handleToggle(options: PageLayout) {
+  function handlePageLayoutChange(options: PageLayout) {
     updateReaderPreferences({
       pageLayout: options,
+    });
+  }
+
+  function handleReadingDirectionChange(options: ReadingDir) {
+    updateReaderPreferences({
+      readingDirection: options,
     });
   }
 
@@ -264,7 +205,7 @@ export default function Reader(): React.JSX.Element {
           data.pages.map((src, index) => (
             <img
               alt={`Page ${index + 1}`}
-              className="m-0 block max-w-full"
+              className="m-0 block max-w-full select-none"
               key={src}
               ref={(el) => {
                 imageRefs.current[index] = el;
@@ -288,9 +229,13 @@ export default function Reader(): React.JSX.Element {
         onFirst={() => setCurrentPage(1)}
         onLast={() => setCurrentPage(totalPages)}
         onNext={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+        onNextChapter={handleNextChapter}
+        onPageLayoutChange={handlePageLayoutChange}
         onPrevious={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-        onToggle={handleToggle}
+        onPreviousChapter={handlePreviousChapter}
+        onReadingDirectionChange={handleReadingDirectionChange}
         pageLayout={readerDisplayPreferences.pageLayout}
+        readingDirectory={readerDisplayPreferences.readingDirection}
       />
     </main>
   );
