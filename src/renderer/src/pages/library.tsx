@@ -1,13 +1,5 @@
+import { closestCenter, DndContext } from "@dnd-kit/core";
 import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -23,94 +15,56 @@ import {
 import { Button } from "@renderer/components/ui/button";
 import { Menubar, MenubarLabel } from "@renderer/components/ui/menubar";
 import {
-  useGetLibrary,
-  useRemoveCategory,
-  useRenameCategory,
-  useReorderCategories,
-} from "@renderer/hooks/library";
-import React from "react";
-import { toast } from "sonner";
+  useCategoryManagement,
+  useCategoryReorder,
+  useDragAndDrop,
+  useLibraryData,
+  useLibraryDialogs,
+} from "@renderer/hooks/pages/library";
+import type React from "react";
 import { ErrorPage } from "./error";
 import { LoadingPage } from "./loading";
 
 export default function Library(): React.JSX.Element {
-  const { data, isLoading, error } = useGetLibrary();
-  const [categories, setCategories] = React.useState(
-    () => data?.categories ?? []
-  );
-  const [addCategoryDialogOpen, setAddCategoryDialogOpen] =
-    React.useState(false);
-  const [categoryAlertDialogOpen, setCategoryAlertDialogOpen] =
-    React.useState(false);
-  const [deleteCategoryData, setDeleteCategoryData] = React.useState<{
-    title: string;
-    categoryId: string;
-  }>({ title: "", categoryId: "" });
-  const [reorderMode, setReorderMode] = React.useState(false);
+  const { data, isLoading, error, hasData } = useLibraryData();
 
-  const useReorder = useReorderCategories();
-  const renameCategory = useRenameCategory();
-  const deleteCategory = useRemoveCategory();
+  const {
+    categories,
+    reorderMode,
+    isReordering,
+    handleDragEnd,
+    toggleReorderMode,
+  } = useCategoryReorder(data?.categories);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const {
+    deleteCategoryData,
+    handleRenameCategory,
+    handleDeleteCategoryClick,
+    handleDeleteCategory,
+  } = useCategoryManagement(categories);
 
-  React.useEffect(() => {
-    if (data?.categories) {
-      const sortedCategories = [...data.categories].sort((a, b) => {
-        return a.order - b.order;
-      });
-      setCategories(sortedCategories);
-    }
-  }, [data?.categories]);
+  const {
+    addCategoryDialogOpen,
+    setAddCategoryDialogOpen,
+    openAddCategoryDialog,
+    categoryAlertDialogOpen,
+    setCategoryAlertDialogOpen,
+    openDeleteDialog,
+    closeDeleteDialog,
+  } = useLibraryDialogs();
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+  const { sensors } = useDragAndDrop();
 
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    const oldIndex = categories.findIndex((cat) => cat.id === active.id);
-    const newIndex = categories.findIndex((cat) => cat.id === over.id);
-
-    const newOrder = arrayMove(categories, oldIndex, newIndex);
-    setCategories(newOrder);
-
-    try {
-      await useReorder.mutateAsync(newOrder.map((cat) => cat.id));
-      toast.success("Categories reordered successfully");
-    } catch {
-      toast.error("Failed to reorder categories. Please try again.");
+  const handleDeleteClick = (categoryId: string) => {
+    const shouldOpenDialog = handleDeleteCategoryClick(categoryId);
+    if (shouldOpenDialog) {
+      openDeleteDialog();
     }
   };
 
-  const handleRenameCategory = async (categoryId: string, newName: string) => {
-    try {
-      await renameCategory.mutateAsync({ id: categoryId, name: newName });
-      toast.success("Category renamed successfully");
-    } catch {
-      toast.error("Failed to rename category. Please try again.");
-    }
-  };
-
-  const handleDeleteCategoryClick = (categoryId: string) => {
-    const category = categories.find((cat) => cat.id === categoryId);
-    if (category) {
-      setDeleteCategoryData({
-        title: category.name,
-        categoryId,
-      });
-      setCategoryAlertDialogOpen(true);
-    }
-  };
-
-  const handleDeleteCategory = async (categoryId: string) => {
-    try {
-      await deleteCategory.mutateAsync(categoryId);
-      toast.success("Category deleted successfully");
-    } catch {
-      toast.error("Failed to delete category. Please try again.");
-    }
+  const handleConfirmDelete = async (categoryId: string) => {
+    await handleDeleteCategory(categoryId);
+    closeDeleteDialog();
   };
 
   if (isLoading) {
@@ -121,7 +75,7 @@ export default function Library(): React.JSX.Element {
     return <ErrorPage code={500} message="Failed to load library data" />;
   }
 
-  if (!data) {
+  if (!(hasData && data)) {
     return <ErrorPage code={500} message="No library data available" />;
   }
 
@@ -132,13 +86,13 @@ export default function Library(): React.JSX.Element {
         open={addCategoryDialogOpen}
       />
       <CategoryAlertDialog
-        categoryId={deleteCategoryData.categoryId}
-        confirmDelete={handleDeleteCategory}
+        categoryId={deleteCategoryData.id}
+        confirmDelete={handleConfirmDelete}
         onOpenChange={setCategoryAlertDialogOpen}
         open={categoryAlertDialogOpen}
-        title={deleteCategoryData.title}
+        title={deleteCategoryData.name}
       />
-      <header className="sticky flex h-12 w-full items-center px-2">
+      <header className="sticky flex h-12 w-full items-center border-b px-2">
         <Menubar>
           <MenubarLabel className="select-none font-bold text-base">
             Library
@@ -146,7 +100,7 @@ export default function Library(): React.JSX.Element {
 
           <Button
             className="h-full rounded-sm px-2"
-            onClick={() => setAddCategoryDialogOpen(true)}
+            onClick={openAddCategoryDialog}
             size="sm"
             variant="ghost"
           >
@@ -154,7 +108,8 @@ export default function Library(): React.JSX.Element {
           </Button>
           <Button
             className="h-full rounded-sm px-2"
-            onClick={() => setReorderMode(!reorderMode)}
+            disabled={isReordering}
+            onClick={toggleReorderMode}
             size="sm"
             variant={reorderMode ? "default" : "ghost"}
           >
@@ -164,7 +119,7 @@ export default function Library(): React.JSX.Element {
       </header>
       <div className="flex h-full w-full flex-1 flex-col gap-4 overflow-y-scroll px-2 py-4">
         <CategoryCard defaultOpen id="all-entries" title="All Entries">
-          {data.entries?.map((entry) => (
+          {data.entries.map((entry) => (
             <LibraryCard
               image={entry.cover}
               key={entry.id}
@@ -192,7 +147,7 @@ export default function Library(): React.JSX.Element {
                 categoryName={category.name}
                 draggable={reorderMode}
                 key={category.id}
-                onDelete={handleDeleteCategoryClick}
+                onDelete={handleDeleteClick}
                 onRename={handleRenameCategory}
               />
             ))}

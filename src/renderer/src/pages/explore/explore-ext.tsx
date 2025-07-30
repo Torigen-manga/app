@@ -1,7 +1,7 @@
 import { MangaCard } from "@renderer/components/cards";
 import { Button } from "@renderer/components/ui/button";
-import { extensionMethods } from "@renderer/hooks/extensions";
-import { useLayout } from "@renderer/hooks/preferences/use-layout";
+import { extensionMethods } from "@renderer/hooks/services/extensions";
+import { useLayout } from "@renderer/hooks/services/preferences/use-layout";
 import { cn } from "@renderer/lib/utils";
 import { exploreExtensionRoute, exploreViewMoreRoute } from "@renderer/routes";
 import { gridMap } from "@renderer/style/layout-options";

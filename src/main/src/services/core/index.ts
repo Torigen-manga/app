@@ -1,6 +1,6 @@
 import type { AppManga } from "@common/index";
 import { mangaTable } from "@common/index";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { db } from "../../db";
 
 class AppMangaService {
@@ -36,6 +36,28 @@ class AppMangaService {
 			.then((r) => r[0]);
 
 		return existingManga;
+	}
+
+	async getManyByKeys(keys: { sourceId: string; mangaId: string }[]) {
+		if (keys.length === 0) {
+			return [];
+		}
+
+		const metadataList = await db
+			.select()
+			.from(mangaTable)
+			.where(
+				or(
+					...keys.map((k) =>
+						and(
+							eq(mangaTable.sourceId, k.sourceId),
+							eq(mangaTable.mangaId, k.mangaId)
+						)
+					)
+				)
+			);
+
+		return metadataList;
 	}
 }
 

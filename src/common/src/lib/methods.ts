@@ -45,6 +45,16 @@ const channels = {
 		removeCategoryFromEntry: "category:remove-category-from-entry",
 		reorder: "category:reorder",
 	},
+	history: {
+		markAsRead: "history:mark-as-read",
+		unmarkAsRead: "history:unmark-as-read",
+		clearManga: "history:clear-manga",
+		clearSource: "history:clear-source",
+		clearAll: "history:clear-all",
+		getMangaReadEntry: "history:get-manga-read-entry",
+		getHistoryEntries: "history:get-history-entries",
+		getReadEntries: "history:get-read-entries",
+	},
 };
 
 const events = {};

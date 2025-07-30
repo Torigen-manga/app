@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { libraryEntryTable } from "./library";
 
 const mangaTable = sqliteTable(
@@ -17,7 +17,10 @@ const mangaTable = sqliteTable(
 			enum: ["Ongoing", "Completed", "Hiatus", "Cancelled", "Unknown"],
 		}).notNull(),
 	},
-	(t) => [primaryKey({ columns: [t.sourceId, t.mangaId] })]
+	(t) => [
+		primaryKey({ columns: [t.sourceId, t.mangaId] }),
+		index("idx_manga_title").on(t.title),
+	]
 );
 
 type AppManga = typeof mangaTable.$inferSelect;

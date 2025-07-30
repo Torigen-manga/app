@@ -12,6 +12,7 @@ const appReadEntryTable = sqliteTable("app_read_entry", {
 		string[]
 	>(),
 	lastReadChapterId: text("last_read_chapter_id"),
+	lastReadAt: integer("last_read_at", { mode: "timestamp" }).notNull(),
 });
 
 const readLogs = sqliteTable(
@@ -25,4 +26,8 @@ const readLogs = sqliteTable(
 	(t) => [primaryKey({ columns: [t.sourceId, t.mangaId, t.chapterId] })]
 );
 
+type AppReadEntry = typeof appReadEntryTable.$inferSelect;
+type ReadLog = typeof readLogs.$inferSelect;
+
 export { appReadEntryTable, readLogs };
+export type { AppReadEntry, ReadLog };

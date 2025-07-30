@@ -1,5 +1,5 @@
 import { Separator } from "@renderer/components/ui/separator";
-import { useLoadExtensions } from "@renderer/hooks/extensions/registry";
+import { useLoadExtensions } from "@renderer/hooks/services/extensions/registry";
 import { cn } from "@renderer/lib/utils";
 import { ErrorPage } from "@renderer/pages/error";
 import { LoadingPage } from "@renderer/pages/loading";

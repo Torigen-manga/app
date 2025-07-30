@@ -1,6 +1,7 @@
 import BaseLayout from "@renderer/layout/base-layout";
 import { ErrorPage } from "@renderer/pages/error";
 import Extensions from "@renderer/pages/extensions";
+import History from "@renderer/pages/history";
 import Home from "@renderer/pages/home";
 import Library from "@renderer/pages/library";
 import MangaDetail from "@renderer/pages/manga-details";
@@ -58,6 +59,12 @@ export const extensionsRoute = createRoute({
   component: Extensions,
 });
 
+export const historyPage = createRoute({
+  path: "/history",
+  getParentRoute: () => rootRoute,
+  component: History,
+});
+
 export const libraryRoute = createRoute({
   path: "/library",
   getParentRoute: () => rootRoute,
@@ -80,6 +87,7 @@ export const baseRoutes = [
   homeRoute,
   searchRoute,
   extensionsRoute,
+  historyPage,
   libraryRoute,
   mangaDetailRoute,
   readerRoute,

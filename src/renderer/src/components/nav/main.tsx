@@ -2,6 +2,7 @@ import { cn } from "@renderer/lib/utils";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   Compass,
+  History,
   House,
   LibraryBig,
   type LucideIcon,
@@ -50,6 +51,11 @@ export function NavMain() {
         name: "Explore",
         path: "/explore",
         icon: Compass,
+      },
+      {
+        name: "History",
+        path: "/history",
+        icon: History,
       },
       {
         name: "Extensions",

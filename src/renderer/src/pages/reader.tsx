@@ -1,18 +1,24 @@
 import type { PageLayout, ReadingDir } from "@common/index";
 import { ReaderMenu } from "@renderer/components/reader/reader-menu";
 import { Card } from "@renderer/components/ui/card";
-import { extensionMethods } from "@renderer/hooks/extensions";
-import { usePreferences } from "@renderer/hooks/preferences/use-preferences";
-import { useNavigate, useParams } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useChapterNavigation,
+  useIntersectionObserver,
+  useKeyboardNavigation,
+  usePageNavigation,
+  usePagePreloading,
+  useReadingProgress,
+} from "@renderer/hooks/pages/reader";
+import { extensionMethods } from "@renderer/hooks/services/extensions";
+import { usePreferences } from "@renderer/hooks/services/preferences/use-preferences";
+import { useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { LoadingPage } from "./loading";
 
 export default function Reader(): React.JSX.Element {
   const { source, mangaId, chapterId } = useParams({
     from: "/manga/$source/$mangaId/chapter/$chapterId",
   });
-
-  const navigate = useNavigate();
 
   const { readerDisplayPreferences, updateReaderPreferences } =
     usePreferences();
@@ -22,164 +28,66 @@ export default function Reader(): React.JSX.Element {
     mangaId,
     chapterId
   );
-
+  const { data: manga } = extensionMethods.QUERIES.useMangaDetails(
+    source,
+    mangaId
+  );
   const { data: chapters } = extensionMethods.QUERIES.useMangaChapters(
     source,
     mangaId
   );
 
-  const currentChapter = chapters?.find((ch) => ch.id === chapterId);
-
-  const nextChapter = chapters?.find(
-    (ch) => ch.number === (currentChapter?.number ?? 0) + 1
-  );
-  const previousChapter = chapters?.find(
-    (ch) => ch.number === (currentChapter?.number ?? 0) - 1
-  );
-
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(data?.pages.length || 0);
-  const mainRef = useRef<HTMLDivElement>(null);
-  const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
 
-  const handlePreviousChapter = useCallback(() => {
-    return navigate({
-      to: `/manga/${source}/${mangaId}/chapter/${previousChapter?.id}`,
-    });
-  }, [mangaId, source, previousChapter, navigate]);
+  const {
+    nextChapter,
+    previousChapter,
+    handleNextChapter,
+    handlePreviousChapter,
+  } = useChapterNavigation(source, mangaId, chapters, chapterId);
 
-  const handleNextChapter = useCallback(() => {
-    return navigate({
-      to: `/manga/${source}/${mangaId}/chapter/${nextChapter?.id}`,
-    });
-  }, [mangaId, source, nextChapter, navigate]);
+  const {
+    currentPage,
+    setCurrentPage,
+    goToFirst,
+    goToLast,
+    goToNext,
+    goToPrevious,
+  } = usePageNavigation(totalPages, chapterId);
+
+  useKeyboardNavigation({
+    pageLayout: readerDisplayPreferences?.pageLayout,
+    readingDirection: readerDisplayPreferences?.readingDirection,
+    currentPage,
+    totalPages,
+    onPrevious: goToPrevious,
+    onNext: goToNext,
+    onPreviousChapter: handlePreviousChapter,
+    onNextChapter: handleNextChapter,
+    hasNextChapter: !!nextChapter,
+    hasPreviousChapter: !!previousChapter,
+  });
+
+  usePagePreloading(data?.pages, currentPage);
+
+  const imageRefs = useIntersectionObserver(data?.pages, setCurrentPage);
+
+  useReadingProgress(
+    manga,
+    mangaId,
+    source,
+    chapterId,
+    currentPage,
+    !!nextChapter
+  );
 
   useEffect(() => {
     if (data?.pages.length) {
       setTotalPages(data.pages.length);
-      setCurrentPage(1);
-      imageRefs.current = new Array(data.pages.length).fill(null);
     }
   }, [data?.pages.length]);
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      const key = event.key;
-      const isVertical =
-        readerDisplayPreferences?.pageLayout === "vertical-scroll";
-
-      const readingDirection =
-        readerDisplayPreferences?.readingDirection || "ltr";
-
-      const goPrev = () => {
-        if (currentPage === 1 && previousChapter) {
-          handlePreviousChapter();
-        } else {
-          setCurrentPage((prev) => Math.max(prev - 1, 1));
-        }
-      };
-
-      const goNext = () => {
-        if (currentPage === totalPages && nextChapter) {
-          handleNextChapter();
-        } else {
-          setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-        }
-      };
-
-      const verticalKeys = {
-        ArrowUp: goPrev,
-        ArrowDown: goNext,
-      };
-
-      const horizontalKeys =
-        readingDirection === "ltr"
-          ? {
-              ArrowLeft: goPrev,
-              ArrowRight: goNext,
-            }
-          : {
-              ArrowRight: goPrev,
-              ArrowLeft: goNext,
-            };
-
-      const actions = isVertical ? verticalKeys : horizontalKeys;
-
-      if (key in actions) {
-        actions[key]();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [
-    readerDisplayPreferences?.readingDirection,
-    readerDisplayPreferences?.pageLayout,
-    totalPages,
-    currentPage,
-    handleNextChapter,
-    handlePreviousChapter,
-    nextChapter,
-    previousChapter,
-  ]);
-
-  useEffect(() => {
-    if (!data?.pages || currentPage >= data.pages.length) {
-      return;
-    }
-
-    const nextPageUrl = data.pages[currentPage];
-    const preloadImg = new Image();
-    preloadImg.src = nextPageUrl;
-  }, [currentPage, data?.pages]);
-
-  useEffect(() => {
-    if (!data?.pages.length) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            // biome-ignore lint/nursery/useIndexOf: false positive
-            const index = imageRefs.current.findIndex(
-              (img) => img === entry.target
-            );
-            if (index !== -1) {
-              setCurrentPage(index + 1);
-            }
-          }
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    const timeout = setTimeout(() => {
-      for (const img of imageRefs.current) {
-        if (img) {
-          observer.observe(img);
-        }
-      }
-    }, 100);
-
-    return () => {
-      clearTimeout(timeout);
-      for (const img of imageRefs.current) {
-        if (img) {
-          observer.unobserve(img);
-        }
-      }
-    };
-  }, [data?.pages.length]);
-
-  if (!data) {
-    return <LoadingPage />;
-  }
-
-  if (!readerDisplayPreferences) {
+  if (!(data && readerDisplayPreferences)) {
     return <LoadingPage />;
   }
 
@@ -200,7 +108,7 @@ export default function Reader(): React.JSX.Element {
       <Card className="fixed top-10 right-10 z-10 p-2">
         Page {currentPage} of {totalPages}
       </Card>
-      <div className="flex max-w-3xl flex-col gap-0" ref={mainRef}>
+      <div className="flex max-w-3xl flex-col gap-0">
         {readerDisplayPreferences.pageLayout === "vertical-scroll" ? (
           data.pages.map((src, index) => (
             <img
@@ -226,12 +134,12 @@ export default function Reader(): React.JSX.Element {
         )}
       </div>
       <ReaderMenu
-        onFirst={() => setCurrentPage(1)}
-        onLast={() => setCurrentPage(totalPages)}
-        onNext={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+        onFirst={goToFirst}
+        onLast={goToLast}
+        onNext={goToNext}
         onNextChapter={handleNextChapter}
         onPageLayoutChange={handlePageLayoutChange}
-        onPrevious={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+        onPrevious={goToPrevious}
         onPreviousChapter={handlePreviousChapter}
         onReadingDirectionChange={handleReadingDirectionChange}
         pageLayout={readerDisplayPreferences.pageLayout}

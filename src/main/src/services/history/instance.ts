@@ -1,14 +1,25 @@
-import { appReadEntryTable, readLogs } from "@common/index";
-import { and, eq } from "drizzle-orm";
+import { type AppManga, appReadEntryTable, readLogs } from "@common/index";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../db";
+import { type AppMangaService, appMangaService } from "../core";
 
 class HistoryService {
-	async markChapterAsRead(
-		sourceId: string,
-		mangaId: string,
-		chapterId: string
-	) {
+	readonly appService: AppMangaService;
+
+	constructor(appService: AppMangaService) {
+		this.appService = appService;
+	}
+
+	async markChapterAsRead(data: AppManga, chapterId: string): Promise<void> {
+		const { sourceId, mangaId } = data;
+
 		const now = new Date();
+
+		const existing = await this.appService.getMangaById(sourceId, mangaId);
+
+		if (!existing) {
+			await this.appService.addManga(data);
+		}
 
 		const [entry] = await db
 			.select()
@@ -47,6 +58,7 @@ class HistoryService {
 				mangaId,
 				readChaptersIds: [chapterId],
 				lastReadChapterId: chapterId,
+				lastReadAt: now,
 			});
 		}
 
@@ -75,8 +87,68 @@ class HistoryService {
 		});
 	}
 
+	async getReadEntries() {
+		const entries = await db
+			.select()
+			.from(appReadEntryTable)
+			.orderBy(desc(appReadEntryTable.lastReadAt));
+
+		if (entries.length === 0) {
+			return [];
+		}
+
+		const keys = entries.map((e) => ({
+			sourceId: e.sourceId,
+			mangaId: e.mangaId,
+		}));
+
+		const metadataList = await this.appService.getManyByKeys(keys);
+
+		const metadataMap = new Map(
+			metadataList.map((m) => [`${m.sourceId}_${m.mangaId}`, m])
+		);
+
+		return entries.map((e) => ({
+			log: e,
+			data: metadataMap.get(`${e.sourceId}_${e.mangaId}`) ?? null,
+		}));
+	}
+
+	async getHistoryEntries() {
+		const logs = await db
+			.select()
+			.from(readLogs)
+			.orderBy(desc(readLogs.readAt));
+
+		if (logs.length === 0) {
+			return [];
+		}
+
+		const uniqueKeys = new Map<string, { sourceId: string; mangaId: string }>();
+
+		for (const l of logs) {
+			const key = `${l.sourceId}_${l.mangaId}`;
+			if (!uniqueKeys.has(key)) {
+				uniqueKeys.set(key, { sourceId: l.sourceId, mangaId: l.mangaId });
+			}
+		}
+
+		const metadataList = await this.appService.getManyByKeys([
+			...uniqueKeys.values(),
+		]);
+
+		const metadataMap = new Map(
+			metadataList.map((m) => [`${m.sourceId}_${m.mangaId}`, m])
+		);
+
+		return logs.map((l) => ({
+			log: l,
+			data: metadataMap.get(`${l.sourceId}_${l.mangaId}`) ?? null,
+		}));
+	}
+
 	async getMangaReadEntry(sourceId: string, mangaId: string) {
-		const [entry] = await db
+		const log = await db
 			.select()
 			.from(appReadEntryTable)
 			.where(
@@ -84,8 +156,14 @@ class HistoryService {
 					eq(appReadEntryTable.sourceId, sourceId),
 					eq(appReadEntryTable.mangaId, mangaId)
 				)
-			);
-		return entry ?? null;
+			)
+			.then((r) => r[0]);
+
+		if (!log) {
+			return null;
+		}
+
+		return log;
 	}
 
 	async unmarkChapterAsRead(
@@ -167,6 +245,6 @@ class HistoryService {
 	}
 }
 
-const historyService = new HistoryService();
+const historyService = new HistoryService(appMangaService);
 
 export { historyService };

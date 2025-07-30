@@ -7,8 +7,7 @@ import {
 import { ipcMain } from "electron";
 import { categoryService, libraryService } from "./instance";
 
-const createLibraryHandlers = () => {
-	//
+function createLibraryHandlers() {
 	ipcMain.handle(channels.library.get, async () =>
 		apiWrapper(() => libraryService.getLibrary())
 	);
@@ -34,9 +33,9 @@ const createLibraryHandlers = () => {
 		async (_, sourceId: string, mangaId: string) =>
 			apiWrapper(() => libraryService.hasEntry(sourceId, mangaId))
 	);
-};
+}
 
-const createCategoryHandlers = () => {
+function createCategoryHandlers() {
 	ipcMain.handle(channels.category.addCategory, async (_, name: string) =>
 		apiWrapper(() => categoryService.addCategory(name))
 	);
@@ -63,6 +62,6 @@ const createCategoryHandlers = () => {
 		async (_, id: string, name: string) =>
 			apiWrapper(() => categoryService.renameCategory(id, name))
 	);
-};
+}
 
 export { createLibraryHandlers, createCategoryHandlers };

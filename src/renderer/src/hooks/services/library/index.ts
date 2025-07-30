@@ -8,8 +8,8 @@ import { channels } from "@common/index";
 import { invoke } from "@renderer/lib/ipc-methods";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-const useGetLibrary = () =>
-	useQuery({
+function useGetLibrary() {
+	return useQuery({
 		queryKey: ["library", "get-library"],
 		queryFn: async () => {
 			const res: APIResponse<AppLibrary> = await invoke(channels.library.get);
@@ -21,9 +21,10 @@ const useGetLibrary = () =>
 			return res.data;
 		},
 	});
+}
 
-const useGetEntries = () =>
-	useQuery({
+function useGetEntries() {
+	return useQuery({
 		queryKey: ["library", "get-entries"],
 		queryFn: async () => {
 			const res: APIResponse<LibraryEntryTable[]> = await invoke(
@@ -37,9 +38,10 @@ const useGetEntries = () =>
 			return res.data;
 		},
 	});
+}
 
-const useGetEntriesByCategory = (categoryId: string) =>
-	useQuery({
+function useGetEntriesByCategory(categoryId: string) {
+	return useQuery({
 		queryKey: ["library", "get-entries-by-category", categoryId],
 		queryFn: async () => {
 			const res: APIResponse<LibraryEntryTable[]> = await invoke(
@@ -55,12 +57,13 @@ const useGetEntriesByCategory = (categoryId: string) =>
 		},
 		enabled: !!categoryId,
 	});
+}
 
-const useHasEntry = (
+function useHasEntry(
 	sourceId: string | undefined,
 	mangaId: string | undefined
-) =>
-	useQuery({
+) {
+	return useQuery({
 		queryKey: ["library", "has-entry", sourceId, mangaId],
 		queryFn: async () => {
 			const res: APIResponse<boolean> = await invoke(
@@ -77,9 +80,7 @@ const useHasEntry = (
 		},
 		enabled: !!sourceId && !!mangaId,
 	});
-
-// Mutations
-// These mutations will automatically invalidate the library query to ensure the UI is up-to-date.
+}
 
 function useAddMangaToLibrary() {
 	const queryClient = useQueryClient();
@@ -172,8 +173,6 @@ function useUpdateMangaMetadata() {
 		},
 	});
 }
-
-// Category mutations
 
 const useAddCategory = () => {
 	const queryClient = useQueryClient();
@@ -319,19 +318,31 @@ function useRenameCategory() {
 	});
 }
 
-export {
-	useGetLibrary,
-	useGetEntries,
-	useGetEntriesByCategory,
-	useHasEntry,
-	useAddMangaToLibrary,
-	useRemoveMangaFromLibrary,
-	useClearLibrary,
-	useUpdateMangaMetadata,
-	useAddCategory,
-	useRemoveCategory,
-	useAddCategoryToEntry,
-	useRemoveCategoryFromEntry,
-	useReorderCategories,
-	useRenameCategory,
+const libraryMethods = {
+	QUERIES: {
+		useGetLibrary,
+		useGetEntries,
+		useGetEntriesByCategory,
+		useHasEntry,
+	},
+	MUTATIONS: {
+		useAddMangaToLibrary,
+		useRemoveMangaFromLibrary,
+		useClearLibrary,
+		useUpdateMangaMetadata,
+	},
 };
+
+const categoryMethods = {
+	QUERIES: {},
+	MUTATIONS: {
+		useAddCategory,
+		useRemoveCategory,
+		useAddCategoryToEntry,
+		useRemoveCategoryFromEntry,
+		useReorderCategories,
+		useRenameCategory,
+	},
+};
+
+export { libraryMethods, categoryMethods };

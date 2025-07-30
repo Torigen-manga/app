@@ -4,8 +4,8 @@ import {
   SearchResults,
 } from "@renderer/components/search/results";
 import { SearchCamp } from "@renderer/components/search/search-camp";
-import { extensionMethods } from "@renderer/hooks/extensions";
-import { useLoadExtensions } from "@renderer/hooks/extensions/registry";
+import { extensionMethods } from "@renderer/hooks/services/extensions";
+import { useLoadExtensions } from "@renderer/hooks/services/extensions/registry";
 import { cn } from "@renderer/lib/utils";
 import type {
   MangaEntry,

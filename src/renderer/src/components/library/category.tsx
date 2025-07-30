@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@renderer/components/ui/dropdown-menu";
-import { useGetEntriesByCategory } from "@renderer/hooks/library";
+import { libraryMethods } from "@renderer/hooks/services/library";
 import { cn } from "@renderer/lib/utils";
 import {
   ChevronDown,
@@ -213,7 +213,8 @@ function CategorySection({
   onRename,
   onDelete,
 }: CategorySectionProps) {
-  const { data: entries, isLoading } = useGetEntriesByCategory(categoryId);
+  const { data: entries, isLoading } =
+    libraryMethods.QUERIES.useGetEntriesByCategory(categoryId);
 
   if (isLoading) {
     return (

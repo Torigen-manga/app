@@ -4,7 +4,7 @@ import { ipcMain } from "electron";
 import { extensionService } from "./instance";
 import { registryService } from "./registry";
 
-const createExtensionsHandlers = () => {
+function createExtensionsHandlers() {
 	ipcMain.handle(channels.registry.loadAll, async () =>
 		apiWrapper(() => registryService.loadExtensions())
 	);
@@ -26,9 +26,9 @@ const createExtensionsHandlers = () => {
 	ipcMain.handle(channels.registry.getEntry, (_, id: string) =>
 		apiWrapper(() => registryService.getExtensionEntry(id))
 	);
-};
+}
 
-const createExtensionHandlers = () => {
+function createExtensionHandlers() {
 	ipcMain.handle(channels.extension.info, async (_, id: string) =>
 		apiWrapper(() => extensionService.getExtensionInfo(id))
 	);
@@ -86,6 +86,6 @@ const createExtensionHandlers = () => {
 	ipcMain.handle(channels.extension.capabilities, async (_, id: string) =>
 		apiWrapper(() => extensionService.getCapabilities(id))
 	);
-};
+}
 
 export { createExtensionsHandlers, createExtensionHandlers };

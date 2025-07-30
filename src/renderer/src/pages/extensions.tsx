@@ -6,8 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@renderer/components/ui/card";
-import { useLoadExtensions } from "@renderer/hooks/extensions/registry";
-import { usePreferences } from "@renderer/hooks/preferences/use-preferences";
+import { useLoadExtensions } from "@renderer/hooks/services/extensions/registry";
+import { usePreferences } from "@renderer/hooks/services/preferences/use-preferences";
 
 import { Link } from "@tanstack/react-router";
 import { ErrorPage } from "./error";

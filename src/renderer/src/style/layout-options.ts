@@ -3,10 +3,10 @@ import { cva } from "class-variance-authority";
 const coverVariant = cva("transition-all duration-200", {
 	variants: {
 		property: {
-			default: "rounded-lg",
+			default: "rounded",
 			shadow: "rounded-lg shadow-lg hover:shadow-xl dark:shadow-white/10",
 			rounded: "rounded-2xl",
-			border: "rounded-lg border-2 border-primary hover:border-primary/80",
+			border: "rounded-none border border-primary/50 hover:border-primary",
 		},
 	},
 	defaultVariants: {

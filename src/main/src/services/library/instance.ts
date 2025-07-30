@@ -13,11 +13,10 @@ import { type AppMangaService, appMangaService } from "../core";
 import { downloadCover } from "./download";
 
 class LibraryService {
-	readonly appMangaService: AppMangaService;
+	readonly appService: AppMangaService;
 
-	// biome-ignore lint/nursery/noShadow: Constructor parameter injection pattern
-	constructor(appMangaService: AppMangaService) {
-		this.appMangaService = appMangaService;
+	constructor(appService: AppMangaService) {
+		this.appService = appService;
 	}
 
 	async getLibrary(): Promise<AppLibrary> {
@@ -89,9 +88,9 @@ class LibraryService {
 			cachedTotalChapters: 0,
 		});
 
-		const manga = await this.appMangaService.getMangaById(sourceId, mangaId);
+		const manga = await this.appService.getMangaById(sourceId, mangaId);
 		if (!manga) {
-			await this.appMangaService.addManga(data);
+			await this.appService.addManga(data);
 		}
 	}
 

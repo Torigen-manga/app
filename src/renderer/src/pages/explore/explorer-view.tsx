@@ -1,5 +1,5 @@
 import { MangaCard } from "@renderer/components/cards";
-import { extensionMethods } from "@renderer/hooks/extensions";
+import { extensionMethods } from "@renderer/hooks/services/extensions";
 import { useParams } from "@tanstack/react-router";
 import type { MangaEntry } from "@torigen/mounter";
 import { useEffect, useRef, useState } from "react";

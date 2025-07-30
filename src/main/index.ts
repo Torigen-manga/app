@@ -7,6 +7,7 @@ import {
 	createCategoryHandlers,
 	createExtensionHandlers,
 	createExtensionsHandlers,
+	createHistoryHandlers,
 	createLibraryHandlers,
 	createPreferencesHandlers,
 	directories,
@@ -147,6 +148,7 @@ app.whenReady().then(async () => {
 	createExtensionsHandlers();
 	createPreferencesHandlers();
 	createExtensionHandlers();
+	createHistoryHandlers();
 
 	createWindow();
 

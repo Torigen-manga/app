@@ -2,7 +2,7 @@ import { type AppPreferences, apiWrapper, channels } from "@common/index";
 import { ipcMain } from "electron";
 import { preferencesService } from "./instance";
 
-const createPreferencesHandlers = () => {
+function createPreferencesHandlers() {
 	ipcMain.handle(channels.preferences.load, async () =>
 		apiWrapper<AppPreferences>(() => preferencesService.loadPreferences())
 	);
@@ -16,6 +16,6 @@ const createPreferencesHandlers = () => {
 	ipcMain.handle(channels.preferences.reset, async () =>
 		apiWrapper<void>(() => preferencesService.resetPreferences())
 	);
-};
+}
 
 export { createPreferencesHandlers };
