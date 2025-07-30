@@ -1,7 +1,7 @@
 import { MangaCard } from "@renderer/components/cards";
 import { Button } from "@renderer/components/ui/button";
 import { extensionMethods } from "@renderer/hooks/services/extensions";
-import { useLayout } from "@renderer/hooks/services/preferences/use-layout";
+import { useLayoutSettings } from "@renderer/hooks/services/preferences/helpers";
 import { cn } from "@renderer/lib/utils";
 import { exploreExtensionRoute, exploreViewMoreRoute } from "@renderer/routes";
 import { gridMap } from "@renderer/style/layout-options";
@@ -13,7 +13,7 @@ import { LoadingPage } from "../loading";
 
 export default function ExploreExt(): React.JSX.Element {
   const { sourceId } = exploreExtensionRoute.useParams();
-  const { grid, coverStyle } = useLayout();
+  const { layoutPreferences } = useLayoutSettings();
 
   const {
     data: homepage,
@@ -59,13 +59,18 @@ export default function ExploreExt(): React.JSX.Element {
                 </Button>
               )}
             </div>
-            <div className={cn("grid w-full gap-4", gridMap(grid))}>
+            <div
+              className={cn(
+                "grid w-full gap-4",
+                gridMap(layoutPreferences?.gridSize || 8)
+              )}
+            >
               {section.items.map((item) => (
                 <MangaCard
                   image={item.image}
                   key={item.id}
                   mangaId={item.id}
-                  property={coverStyle}
+                  property={layoutPreferences?.coverStyle}
                   source={sourceId}
                   title={item.title}
                 />

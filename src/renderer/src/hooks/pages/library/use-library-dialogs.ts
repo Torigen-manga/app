@@ -11,13 +11,11 @@ export function useLibraryDialogs() {
 	const closeDeleteDialog = () => setCategoryAlertDialogOpen(false);
 
 	return {
-		// Add Category Dialog
 		addCategoryDialogOpen,
 		setAddCategoryDialogOpen,
 		openAddCategoryDialog,
 		closeAddCategoryDialog,
 
-		// Delete Category Dialog
 		categoryAlertDialogOpen,
 		setCategoryAlertDialogOpen,
 		openDeleteDialog,

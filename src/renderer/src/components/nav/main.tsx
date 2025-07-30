@@ -17,7 +17,7 @@ import {
   SidebarMenuItem,
 } from "../ui/sidebar";
 
-export function NavMain() {
+function NavMainData() {
   const { pathname } = useLocation();
 
   type SidebarPath = {
@@ -62,16 +62,17 @@ export function NavMain() {
         path: "/extensions",
         icon: Package,
       },
-      {
-        name: "Settings",
-        path: "/settings",
-        icon: SlidersHorizontal,
-      },
     ],
   };
 
   const isActive = (linkPath: string): boolean =>
     linkPath === "/" ? pathname === "/" : pathname.startsWith(linkPath);
+
+  return { navLinks, isActive };
+}
+
+export function NavMain() {
+  const { navLinks, isActive } = NavMainData();
 
   return (
     <SidebarGroup>
@@ -98,6 +99,12 @@ export function NavMain() {
             </SidebarMenuItem>
           );
         })}
+        <SidebarMenuItem>
+          <SidebarMenuButton className="cursor-pointer">
+            <SlidersHorizontal />
+            Settings
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   );

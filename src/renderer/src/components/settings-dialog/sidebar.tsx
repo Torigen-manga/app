@@ -6,45 +6,41 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarProvider,
 } from "@renderer/components/ui/sidebar";
-import { Home, type LucideIcon } from "lucide-react";
+import type { SettingsRoutes, SidebarData } from "./custom-hook";
 
-type SettingsRoutes =
-  | "Layout and Appearance"
-  | "Reader Preferences"
-  | "Library and History"
-  | "System and Behavior"
-  | "Experimental Features";
-
-interface SidebarData {
-  name: SettingsRoutes;
-  icon: LucideIcon;
+interface SidebarProps {
+  data: SidebarData[];
+  currentRoute: SettingsRoutes;
+  onRouteChange: (route: SettingsRoutes) => void;
 }
 
-const sidebarData: SidebarData[] = [
-  {
-    name: "Layout and Appearance",
-    icon: Home,
-  },
-  {
-    name: "Reader Preferences",
-    icon: Home,
-  },
-  {
-    name: "Library and History",
-    icon: Home,
-  },
-  {
-    name: "System and Behavior",
-    icon: Home,
-  },
-  {
-    name: "Experimental Features",
-    icon: Home,
-  },
-];
-
-export function SettingsSidebar() {
-  return;
+export function SettingsSidebar({
+  data,
+  currentRoute,
+  onRouteChange,
+}: SidebarProps) {
+  return (
+    <Sidebar className="hidden md:flex" collapsible="none">
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {data.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton
+                    isActive={item.name === currentRoute}
+                    onClick={() => onRouteChange(item.name)}
+                  >
+                    <item.icon />
+                    {item.name}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
 }
