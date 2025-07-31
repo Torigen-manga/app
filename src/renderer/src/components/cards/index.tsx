@@ -1,3 +1,4 @@
+import { useLayoutSettings } from "@renderer/hooks/services/preferences/helpers";
 import { cn } from "@renderer/lib/utils";
 import { mangaDetailRoute } from "@renderer/routes";
 import { coverVariant } from "@renderer/style/layout-options";
@@ -9,7 +10,6 @@ interface MangaCardProps {
   image: string;
   source: string;
   mangaId: string;
-  property?: "default" | "shadow" | "rounded" | "border";
 }
 
 interface LibraryCardProps extends MangaCardProps {
@@ -19,7 +19,6 @@ interface LibraryCardProps extends MangaCardProps {
 export function LibraryCard({
   title,
   image,
-  property,
   unreadCount,
   source,
   mangaId,
@@ -29,7 +28,6 @@ export function LibraryCard({
       <MangaCard
         image={image}
         mangaId={mangaId}
-        property={property}
         source={source}
         title={title}
       />
@@ -45,12 +43,16 @@ export function LibraryCard({
 export function MangaCard({
   title,
   image,
-  property,
   source,
   mangaId,
 }: MangaCardProps): React.JSX.Element {
+  const { layoutPreferences } = useLayoutSettings();
+
   const [imageError, setImageError] = React.useState(false);
   const [imageLoaded, setImageLoaded] = React.useState(false);
+
+  const property = layoutPreferences?.coverStyle;
+  const showTitles = layoutPreferences?.showTitles;
 
   const handleImageError = React.useCallback(() => {
     setImageError(true);
@@ -64,8 +66,10 @@ export function MangaCard({
     <Link
       aria-label={`Read ${title}`}
       className={cn(
-        "block h-full rounded-lg bg-sidebar p-2 transition-all duration-200 hover:bg-primary/40 focus:bg-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/50",
-        coverVariant({ property })
+        "block h-full rounded-lg bg-sidebar transition-all duration-200 hover:bg-primary/40 focus:bg-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/50",
+        coverVariant({ property }),
+        "group relative overflow-hidden",
+        showTitles ? "p-2" : "p-0.5"
       )}
       params={{ source, mangaId }}
       to={mangaDetailRoute.to}
@@ -102,9 +106,27 @@ export function MangaCard({
         )}
       </div>
 
-      <h3 className="mt-2 line-clamp-2 font-medium text-foreground text-sm leading-tight">
-        {title}
-      </h3>
+      {showTitles && (
+        <h3 className="mt-2 line-clamp-2 font-medium text-foreground text-sm leading-tight">
+          {title}
+        </h3>
+      )}
+
+      {!showTitles && (
+        <div
+          className={cn(
+            "absolute right-0 bottom-0 left-0 z-10",
+            "translate-y-full opacity-0 transition-all duration-200",
+            "group-hover:translate-y-0 group-hover:opacity-100",
+            "border border-border bg-background/50 backdrop-blur-sm",
+            "rounded-b-lg px-2 py-1 shadow-lg"
+          )}
+        >
+          <h3 className="line-clamp-2 font-medium text-foreground text-sm leading-tight">
+            {title}
+          </h3>
+        </div>
+      )}
     </Link>
   );
 }

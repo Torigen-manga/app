@@ -2,6 +2,7 @@ import { MangaCard } from "@renderer/components/cards";
 import { extensionMethods } from "@renderer/hooks/services/extensions";
 import { useParams } from "@tanstack/react-router";
 import type { MangaEntry } from "@torigen/mounter";
+import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ErrorPage } from "../error";
 import { LoadingPage } from "../loading";
@@ -31,7 +32,6 @@ export default function ExploreView(): React.JSX.Element {
     }
   }, [data]);
 
-  // IntersectionObserver to trigger loading more
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -80,7 +80,7 @@ export default function ExploreView(): React.JSX.Element {
 
   return (
     <div className="flex flex-col items-center gap-4 p-2 ">
-      <div className="grid grid-cols-8 gap-4 p-4">
+      <div className="grid grid-cols-6 gap-4 p-4 xl:grid-cols-8">
         {results.map((result) => (
           <MangaCard
             image={result.image}
@@ -92,8 +92,8 @@ export default function ExploreView(): React.JSX.Element {
         ))}
       </div>
       {isLoading && (
-        <div>
-          <h1>Loading</h1>
+        <div className="mb-2 flex flex-col items-center gap-2 rounded-lg bg-primary px-4 py-2">
+          <Loader2 className="animate-spin" />
         </div>
       )}
       {data?.hasNextPage && <div className="h-10" ref={loaderRef} />}

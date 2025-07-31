@@ -11,7 +11,6 @@ const coverStyleEnum = z
 	.default("default");
 
 const layoutPreferencesSchema = z.object({
-	gridSize: z.number().min(4).max(12).default(6),
 	theme: themeEnum,
 	preferDarkMode: preferDarkModeEnum,
 	showTitles: z.boolean().default(true),

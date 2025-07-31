@@ -28,9 +28,9 @@ export interface UITexts {
 			camps: {
 				title: string;
 				releasedSince: string;
-                actions: {
-                    title: string;
-                }
+				actions: {
+					title: string;
+				};
 			};
 		};
 
@@ -91,7 +91,6 @@ export interface UITexts {
 			title: string;
 			description: string;
 			options: {
-				gridSize: SettingEntry;
 				themeMode: SettingEntry;
 				appTheme: SettingEntry;
 				coverStyle: SettingEntry;
@@ -145,7 +144,7 @@ export interface UITexts {
 		networkError: string;
 		unknownError: string;
 	};
-	
+
 	library: {
 		title: string;
 		menu: {

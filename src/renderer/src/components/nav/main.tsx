@@ -71,7 +71,11 @@ function NavMainData() {
   return { navLinks, isActive };
 }
 
-export function NavMain() {
+interface NavMainProps {
+  onOpenChange: (value: boolean) => void;
+}
+
+export function NavMain({ onOpenChange }: NavMainProps) {
   const { navLinks, isActive } = NavMainData();
 
   return (
@@ -100,7 +104,10 @@ export function NavMain() {
           );
         })}
         <SidebarMenuItem>
-          <SidebarMenuButton className="cursor-pointer">
+          <SidebarMenuButton
+            className="cursor-pointer"
+            onClick={() => onOpenChange(true)}
+          >
             <SlidersHorizontal />
             Settings
           </SidebarMenuButton>

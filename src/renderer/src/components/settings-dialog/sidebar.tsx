@@ -29,6 +29,7 @@ export function SettingsSidebar({
               {data.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton
+                    className="cursor-pointer"
                     isActive={item.name === currentRoute}
                     onClick={() => onRouteChange(item.name)}
                   >

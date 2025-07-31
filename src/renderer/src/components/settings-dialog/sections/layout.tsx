@@ -44,7 +44,7 @@ export function Layout() {
             description: "Select the visual theme for the app.",
             type: "select",
             options: [
-              { value: "default", label: "Default" },
+              { value: "default", label: "Default (Paper)" },
               { value: "strawberryRush", label: "Strawberry Rush" },
               { value: "blueberryBreeze", label: "Blueberry Breeze" },
             ],
@@ -65,7 +65,7 @@ export function Layout() {
             description: "Choose the visual style for manga cover images.",
             type: "select",
             options: [
-              { value: "default", label: "Default" },
+              { value: "default", label: "Default (Squared)" },
               { value: "rounded", label: "Rounded" },
               { value: "border", label: "Border" },
               { value: "shadow", label: "Shadow" },

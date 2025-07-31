@@ -21,27 +21,27 @@ function ExploreSidebar({ sources }: { sources: SourceInfo[] }) {
   const isActive = (linkPath: string) => location.pathname === linkPath;
 
   return (
-    <div className="sticky z-10 h-full w-54 shrink-0 border-r bg-muted p-2 pt-4">
+    <div className="x sticky z-10 h-full w-54 border-r bg-muted p-2 pt-4">
       <div className="inline-flex">
         <h1 className="mb-2 ml-2 font-bold text-2xl">Explore</h1>
       </div>
       <nav className="scrollbar-none flex gap-2 overflow-x-scroll md:flex-col md:overflow-y-auto">
         <Link
           className={cn(
-            "flex shrink-0 items-center gap-3 border-transparent border-b-2 px-3 py-2 font-medium text-muted-foreground text-sm transition-colors md:rounded md:border-none",
+            "flex h-8 items-center gap-3 rounded-md border-transparent border-b-2 px-2 font-medium text-muted-foreground text-sm transition-colors md:border-none [&>svg]:size-4",
             path === "/explore"
               ? "border-primary text-primary md:bg-primary md:text-primary-foreground"
               : "md:hover:bg-primary/40 md:hover:text-primary-foreground"
           )}
           to="/explore"
         >
-          <House className="size-5" /> Home
+          <House /> Home
         </Link>
         <Separator />
         {links.map((link) => (
           <Link
             className={cn(
-              "flex shrink-0 items-center gap-3 border-transparent border-b-2 px-3 py-2 font-medium text-muted-foreground text-sm transition-colors md:rounded md:border-none",
+              "flex h-8 items-center gap-3 rounded-md border-transparent border-b-2 px-2 font-medium text-muted-foreground text-sm transition-colors md:border-none [&>svg]:size-4",
               isActive(link.path)
                 ? "border-primary text-primary md:bg-primary md:text-primary-foreground"
                 : "md:hover:bg-primary/40 md:hover:text-primary-foreground"
@@ -50,9 +50,9 @@ function ExploreSidebar({ sources }: { sources: SourceInfo[] }) {
             to={link.path}
           >
             {location.pathname === link.path ? (
-              <BookOpenText className="size-5" />
+              <BookOpenText />
             ) : (
-              <BookMarked className="size-5" />
+              <BookMarked />
             )}
             {link.name}
           </Link>

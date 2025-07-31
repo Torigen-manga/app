@@ -1,12 +1,17 @@
 import { AppSidebar } from "@renderer/components/nav";
+import { SettingsDialog } from "@renderer/components/settings-dialog";
 import { TitleBar } from "@renderer/components/titlebar";
 import { Outlet } from "@tanstack/react-router";
+import { useState } from "react";
 import { SidebarProvider } from "../components/ui/sidebar";
 
 export default function BaseLayout(): React.JSX.Element {
+  const [open, setOpen] = useState(false);
+
   return (
     <SidebarProvider className="flex">
-      <AppSidebar />
+      <AppSidebar onOpenChange={setOpen} />
+      <SettingsDialog onOpenChange={setOpen} open={open} />
 
       <div className="relative h-screen w-full overflow-hidden bg-sidebar md:pb-10">
         <TitleBar />

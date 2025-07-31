@@ -31,7 +31,7 @@ interface CategoryCardProps {
   draggable?: boolean;
   defaultOpen?: boolean;
   onRename?: (categoryId: string, newName: string) => void;
-  onDelete?: (categoryId: string) => void; // Updated to pass categoryId
+  onDelete?: (categoryId: string) => void;
   isDeletable?: boolean;
 }
 
@@ -86,7 +86,7 @@ function CategoryCard({
   };
 
   const handleDelete = () => {
-    onDelete?.(id); // Pass the category ID to the parent
+    onDelete?.(id);
   };
 
   React.useEffect(() => {
@@ -140,7 +140,6 @@ function CategoryCard({
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Category actions dropdown - only show for non-system categories */}
               {id !== "all-entries" && (onRename || onDelete) && (
                 <DropdownMenu>
                   <DropdownMenuTrigger
@@ -179,7 +178,7 @@ function CategoryCard({
           className={cn(
             "min-h-40 bg-accent/25",
             React.Children.count(children) > 0
-              ? "grid grid-cols-8 gap-4 p-2"
+              ? "grid grid-cols-6 gap-4 p-2 xl:grid-cols-8"
               : "flex items-center justify-center gap-2"
           )}
         >
@@ -203,7 +202,7 @@ interface CategorySectionProps {
   categoryName: string;
   draggable?: boolean;
   onRename?: (categoryId: string, newName: string) => void;
-  onDelete?: (categoryId: string) => void; // Updated to pass categoryId
+  onDelete?: (categoryId: string) => void;
 }
 
 function CategorySection({
@@ -246,7 +245,6 @@ function CategorySection({
             image={entry.cover}
             key={entry.id}
             mangaId={entry.mangaId}
-            property="shadow"
             source={entry.sourceId}
             title={entry.title}
             unreadCount={entry.cachedTotalChapters || 0}

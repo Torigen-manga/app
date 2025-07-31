@@ -23,13 +23,6 @@ export function useLayoutSettings() {
 		[updateLayoutPreferences, setTheme]
 	);
 
-	const handleGridSizeChange = useCallback(
-		(value: string) => {
-			updateLayoutPreferences({ gridSize: Number(value) });
-		},
-		[updateLayoutPreferences]
-	);
-
 	const handleCoverStyleChange = useCallback(
 		(value: CoverStyle) => {
 			updateLayoutPreferences({ coverStyle: value });
@@ -64,7 +57,6 @@ export function useLayoutSettings() {
 		handlers: {
 			handlePreferDarkTheme,
 			handleChangeTheme,
-			handleGridSizeChange,
 			handleCoverStyleChange,
 			handleShowTitlesChange,
 			handleCompactModeChange,

@@ -12,7 +12,7 @@ export function SettingItem({
   children,
 }: SettingItemProps) {
   return (
-    <div className="flex flex-col border-border/50 border-b py-4 last:border-0 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col border-border/50 border-b py-2 last:border-0 lg:flex-row lg:items-center lg:justify-between">
       <div className="space-y-1">
         <h3 className="font-medium">{title}</h3>
         {description && (
