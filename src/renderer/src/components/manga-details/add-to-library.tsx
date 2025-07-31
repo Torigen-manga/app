@@ -63,7 +63,9 @@ export function MangaAddToLibrary({
               id="add-to-category"
               onCheckedChange={(checked) => setAddToCategory(checked === true)}
             />
-            <p className="text-sm">Add to category</p>
+            <Label className="text-sm" htmlFor="add-to-category">
+              Add to category
+            </Label>
           </div>
 
           {addToCategory && (

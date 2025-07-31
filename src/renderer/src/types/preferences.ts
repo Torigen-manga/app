@@ -14,6 +14,9 @@ interface PreferenceOption {
 	label: string;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: This is a generic type for default values
+export type Any = any;
+
 interface Preferences {
 	key: string;
 	title: string;
@@ -24,8 +27,8 @@ interface Preferences {
 	max?: number;
 	step?: number;
 	placeholder?: string;
-	// biome-ignore lint/suspicious/noExplicitAny: This is a generic type for default values
-	defaultValue?: any;
+
+	defaultValue?: Any;
 	storeKey?: string;
 }
 

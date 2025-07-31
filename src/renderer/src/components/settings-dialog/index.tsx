@@ -31,10 +31,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             onRouteChange={setActiveRoute}
           />
           <main className="relative flex h-[480px] flex-1 flex-col overflow-hidden">
-            <div className="sticky w-full p-4">
+            <div className="sticky w-full px-4 py-2">
               <h1 className="font-bold text-xl">{activeRoute}</h1>
             </div>
-            <div className="overflow-y-auto px-7 py-2">
+            <div className="overflow-y-auto px-6 py-2">
               <SettingsRender currentRoute={activeRoute} />
             </div>
           </main>
