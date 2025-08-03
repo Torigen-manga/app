@@ -1,4 +1,11 @@
-import { type AppManga, appReadEntryTable, readLogs } from "@common/index";
+import {
+	type AppManga,
+	type AppReadEntry,
+	appReadEntryTable,
+	type HistoryEntryWithData,
+	type ReadEntryWithData,
+	readLogs,
+} from "@common/index";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { type AppMangaService, appMangaService } from "../core";
@@ -10,7 +17,11 @@ class HistoryService {
 		this.appService = appService;
 	}
 
-	async markChapterAsRead(data: AppManga, chapterId: string): Promise<void> {
+	async markChapterAsRead(
+		data: AppManga,
+		chapterId: string,
+		chapterNumber: number
+	): Promise<void> {
 		const { sourceId, mangaId } = data;
 
 		const now = new Date();
@@ -32,19 +43,17 @@ class HistoryService {
 			);
 
 		const readChapters = entry?.readChaptersIds || [];
-
-		if (readChapters.includes(chapterId)) {
-			throw new Error(
-				`Chapter '${chapterId}' is already marked as read for manga '${mangaId}'`
-			);
-		}
+		const isAlreadyRead = readChapters.includes(chapterId);
 
 		if (entry) {
 			await db
 				.update(appReadEntryTable)
 				.set({
-					readChaptersIds: [...readChapters, chapterId],
+					readChaptersIds: isAlreadyRead
+						? readChapters
+						: [...readChapters, chapterId],
 					lastReadChapterId: chapterId,
+					lastReadAt: now,
 				})
 				.where(
 					and(
@@ -74,20 +83,31 @@ class HistoryService {
 			);
 
 		if (existingLog) {
-			throw new Error(
-				`Read log already exists for chapter '${chapterId}' of manga '${mangaId}'`
-			);
+			await db
+				.update(readLogs)
+				.set({
+					readAt: now,
+					chapterNumber,
+				})
+				.where(
+					and(
+						eq(readLogs.sourceId, sourceId),
+						eq(readLogs.mangaId, mangaId),
+						eq(readLogs.chapterId, chapterId)
+					)
+				);
+		} else {
+			await db.insert(readLogs).values({
+				sourceId,
+				mangaId,
+				chapterId,
+				chapterNumber,
+				readAt: now,
+			});
 		}
-
-		await db.insert(readLogs).values({
-			sourceId,
-			mangaId,
-			chapterId,
-			readAt: now,
-		});
 	}
 
-	async getReadEntries() {
+	async getReadEntries(): Promise<ReadEntryWithData[]> {
 		const entries = await db
 			.select()
 			.from(appReadEntryTable)
@@ -114,7 +134,7 @@ class HistoryService {
 		}));
 	}
 
-	async getHistoryEntries() {
+	async getHistoryEntries(): Promise<HistoryEntryWithData[]> {
 		const logs = await db
 			.select()
 			.from(readLogs)
@@ -147,7 +167,10 @@ class HistoryService {
 		}));
 	}
 
-	async getMangaReadEntry(sourceId: string, mangaId: string) {
+	async getMangaReadEntry(
+		sourceId: string,
+		mangaId: string
+	): Promise<AppReadEntry | null> {
 		const log = await db
 			.select()
 			.from(appReadEntryTable)
@@ -170,7 +193,7 @@ class HistoryService {
 		sourceId: string,
 		mangaId: string,
 		chapterId: string
-	) {
+	): Promise<void> {
 		const [entry] = await db
 			.select()
 			.from(appReadEntryTable)
@@ -214,7 +237,7 @@ class HistoryService {
 			);
 	}
 
-	async clearMangaReadEntry(sourceId: string, mangaId: string) {
+	async clearMangaReadEntry(sourceId: string, mangaId: string): Promise<void> {
 		await db
 			.delete(appReadEntryTable)
 			.where(
@@ -231,7 +254,7 @@ class HistoryService {
 			);
 	}
 
-	async clearSourceReadEntries(sourceId: string) {
+	async clearSourceReadEntries(sourceId: string): Promise<void> {
 		await db
 			.delete(appReadEntryTable)
 			.where(eq(appReadEntryTable.sourceId, sourceId));
@@ -239,7 +262,7 @@ class HistoryService {
 		await db.delete(readLogs).where(eq(readLogs.sourceId, sourceId));
 	}
 
-	async clearAllReadEntries() {
+	async clearAllReadEntries(): Promise<void> {
 		await db.delete(appReadEntryTable);
 		await db.delete(readLogs);
 	}

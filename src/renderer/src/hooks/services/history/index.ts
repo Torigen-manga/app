@@ -1,32 +1,14 @@
-import { type APIResponse, type AppManga, channels } from "@common/index";
+import {
+	type APIResponse,
+	type AppManga,
+	type AppReadEntry,
+	channels,
+	type HistoryEntryWithData,
+	type ReadEntryWithData,
+} from "@common/index";
 import { invoke } from "@renderer/lib/ipc-methods";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
-interface AppReadEntry {
-	sourceId: string;
-	mangaId: string;
-	readChaptersIds: string[] | null;
-	lastReadChapterId: string | null;
-	lastReadAt: Date;
-}
-
-interface ReadLog {
-	sourceId: string;
-	mangaId: string;
-	chapterId: string;
-	readAt: Date;
-}
-
-interface ReadEntryWithData {
-	log: AppReadEntry;
-	data: AppManga | null;
-}
-
-interface HistoryEntryWithData {
-	log: ReadLog;
-	data: AppManga | null;
-}
 
 const historyKeys = {
 	all: ["history"] as const,
@@ -96,14 +78,17 @@ function useMarkChapterAsRead() {
 		mutationFn: async ({
 			data,
 			chapterId,
+			chapterNumber,
 		}: {
 			data: AppManga;
 			chapterId: string;
+			chapterNumber: number;
 		}) => {
 			const res: APIResponse<void> = await invoke(
 				channels.history.markAsRead,
 				data,
-				chapterId
+				chapterId,
+				chapterNumber
 			);
 
 			if (!res.success) {

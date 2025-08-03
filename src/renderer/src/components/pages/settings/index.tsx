@@ -3,8 +3,8 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "../ui/dialog";
-import { SidebarProvider } from "../ui/sidebar";
+} from "../../ui/dialog";
+import { SidebarProvider } from "../../ui/sidebar";
 import { useSidebarData } from "./custom-hook";
 import { SettingsRender } from "./sections";
 import { SettingsSidebar } from "./sidebar";

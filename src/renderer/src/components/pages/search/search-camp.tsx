@@ -2,8 +2,8 @@ import { cn } from "@renderer/lib/utils";
 import type { MangaEntry, PagedResults } from "@torigen/mounter";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "../../ui/button";
+import { Input } from "../../ui/input";
 
 interface SearchCampProps {
   source: string | null;

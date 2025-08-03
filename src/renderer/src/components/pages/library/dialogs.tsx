@@ -8,15 +8,15 @@ import {
 } from "@renderer/components/ui/alert-dialog";
 import { categoryMethods } from "@renderer/hooks/services/library";
 import React from "react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogTitle,
-} from "../ui/dialog";
-import { Input } from "../ui/input";
+} from "../../ui/dialog";
+import { Input } from "../../ui/input";
 
 interface AddCategoryDialogProps {
   open: boolean;

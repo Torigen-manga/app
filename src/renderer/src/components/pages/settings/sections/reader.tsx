@@ -1,5 +1,5 @@
-import { SettingItem } from "@renderer/components/settings/item";
-import { SettingRenderer } from "@renderer/components/settings/renderer";
+import { SettingItem } from "@renderer/components/pages/settings/parts/item";
+import { SettingRenderer } from "@renderer/components/pages/settings/parts/renderer";
 import { Stepper } from "@renderer/components/stepper";
 import { useReaderSettings } from "@renderer/hooks/services/preferences/helpers";
 

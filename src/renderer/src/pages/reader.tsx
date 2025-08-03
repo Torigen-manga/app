@@ -1,5 +1,5 @@
 import type { PageLayout, ReadingDir } from "@common/index";
-import { ReaderMenu } from "@renderer/components/reader/reader-menu";
+import { ReaderMenu } from "@renderer/components/pages/reader";
 import { Card } from "@renderer/components/ui/card";
 import {
   useChapterNavigation,
@@ -11,11 +11,13 @@ import {
 } from "@renderer/hooks/pages/reader";
 import { extensionMethods } from "@renderer/hooks/services/extensions";
 import { usePreferences } from "@renderer/hooks/services/preferences/use-preferences";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LoadingPage } from "./loading";
 
 export default function Reader(): React.JSX.Element {
+  const navigate = useNavigate();
+
   const { source, mangaId, chapterId } = useParams({
     from: "/manga/$source/$mangaId/chapter/$chapterId",
   });
@@ -42,6 +44,7 @@ export default function Reader(): React.JSX.Element {
   const {
     nextChapter,
     previousChapter,
+    currentChapter,
     handleNextChapter,
     handlePreviousChapter,
   } = useChapterNavigation(source, mangaId, chapters, chapterId);
@@ -71,6 +74,7 @@ export default function Reader(): React.JSX.Element {
   usePagePreloading(data?.pages, currentPage);
 
   const imageRefs = useIntersectionObserver(data?.pages, setCurrentPage);
+  const chapterNumber = currentChapter?.number || 0;
 
   useReadingProgress(
     manga,
@@ -78,6 +82,7 @@ export default function Reader(): React.JSX.Element {
     source,
     chapterId,
     currentPage,
+    chapterNumber,
     !!nextChapter
   );
 
@@ -103,12 +108,13 @@ export default function Reader(): React.JSX.Element {
     });
   }
 
+  function navigateToManga() {
+    navigate({ to: `/manga/${source}/${mangaId}` });
+  }
+
   return (
     <main className="relative flex h-full w-full justify-center overflow-y-scroll">
-      <Card className="fixed top-10 right-10 z-10 p-2">
-        Page {currentPage} of {totalPages}
-      </Card>
-      <div className="flex max-w-3xl flex-col gap-0">
+      <div className="flex flex-col gap-0">
         {readerDisplayPreferences.pageLayout === "vertical-scroll" ? (
           data.pages.map((src, index) => (
             <img
@@ -133,7 +139,13 @@ export default function Reader(): React.JSX.Element {
           />
         )}
       </div>
+
+      <Card className="fixed top-10 right-10 z-10 p-2">
+        Page {currentPage} of {totalPages}
+      </Card>
+
       <ReaderMenu
+        navigateToManga={navigateToManga}
         onFirst={goToFirst}
         onLast={goToLast}
         onNext={goToNext}

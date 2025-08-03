@@ -1,7 +1,7 @@
 import type { SearchParams, Tag } from "@torigen/mounter";
 import { motion } from "motion/react";
-import { Checkbox } from "../ui/checkbox";
-import { Input } from "../ui/input";
+import { Checkbox } from "../../ui/checkbox";
+import { Input } from "../../ui/input";
 import { ParamBadge, TagBadge, type TagSelectMMode } from "./badges";
 
 interface ParametersCompProps {

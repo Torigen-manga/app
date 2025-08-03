@@ -1,5 +1,5 @@
 import { AppSidebar } from "@renderer/components/nav";
-import { SettingsDialog } from "@renderer/components/settings-dialog";
+import { SettingsDialog } from "@renderer/components/pages/settings";
 import { TitleBar } from "@renderer/components/titlebar";
 import { Outlet } from "@tanstack/react-router";
 import { useState } from "react";

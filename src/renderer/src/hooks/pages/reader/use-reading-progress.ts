@@ -8,6 +8,7 @@ export function useReadingProgress(
 	source: string,
 	chapterId: string,
 	currentPage: number,
+	chapterNumber: number,
 	hasNextChapter: boolean
 ) {
 	const [hasMarkedRead, setHasMarkedRead] = useState(false);
@@ -33,7 +34,7 @@ export function useReadingProgress(
 
 	useEffect(() => {
 		if (!hasMarkedRead && currentPage > 1 && hasNextChapter && appManga) {
-			useMarkChapterAsRead.mutate({ data: appManga, chapterId });
+			useMarkChapterAsRead.mutate({ data: appManga, chapterId, chapterNumber });
 			setHasMarkedRead(true);
 		}
 	}, [
@@ -42,6 +43,7 @@ export function useReadingProgress(
 		hasNextChapter,
 		useMarkChapterAsRead,
 		chapterId,
+		chapterNumber,
 		appManga,
 	]);
 

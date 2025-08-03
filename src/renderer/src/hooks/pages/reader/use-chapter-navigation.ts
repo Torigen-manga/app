@@ -15,18 +15,18 @@ export function useChapterNavigation(
 			return { currentChatper: null, nextChapter: null, previousChapter: null };
 		}
 
-		const current = chapters.find((ch) => ch.id === currentChapterId);
-		const next = chapters.find(
-			(ch) => ch.number === (current?.number ?? 0) + 1
-		);
-		const previous = chapters.find(
-			(ch) => ch.number === (current?.number ?? 0) - 1
-		);
+		const sorted = [...chapters].sort((a, b) => a.number - b.number);
+
+		const currentIndex = sorted.findIndex((ch) => ch.id === currentChapterId);
+
+		if (currentIndex === -1) {
+			return { currentChapter: null, nextChapter: null, previousChapter: null };
+		}
 
 		return {
-			currentChapter: current,
-			nextChapter: next,
-			previousChapter: previous,
+			currentChapter: sorted[currentIndex],
+			nextChapter: sorted[currentIndex + 1] ?? null,
+			previousChapter: sorted[currentIndex - 1] ?? null,
 		};
 	}, [chapters, currentChapterId]);
 

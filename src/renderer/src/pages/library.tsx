@@ -5,13 +5,11 @@ import {
 } from "@dnd-kit/sortable";
 import { LibraryCard } from "@renderer/components/cards";
 import {
-  CategoryCard,
-  CategorySection,
-} from "@renderer/components/library/category";
-import {
   AddCategoryDialog,
   CategoryAlertDialog,
-} from "@renderer/components/library/dialogs";
+  CategoryCard,
+  CategorySection,
+} from "@renderer/components/pages/library";
 import { Button } from "@renderer/components/ui/button";
 import { Menubar, MenubarLabel } from "@renderer/components/ui/menubar";
 import {
@@ -118,13 +116,12 @@ export default function Library(): React.JSX.Element {
         </Menubar>
       </header>
       <div className="flex h-full w-full flex-1 flex-col gap-4 overflow-y-scroll px-2 py-4">
-        <CategoryCard defaultOpen id="all-entries" title="All Entries">
+        <CategoryCard id="all-entries" title="All Entries">
           {data.entries.map((entry) => (
             <LibraryCard
               image={entry.cover}
               key={entry.id}
               mangaId={entry.mangaId}
-              property="shadow"
               source={entry.sourceId}
               title={entry.title}
               unreadCount={entry.cachedTotalChapters || 0}

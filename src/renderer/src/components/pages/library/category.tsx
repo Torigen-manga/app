@@ -22,7 +22,7 @@ import {
   Trash2,
 } from "lucide-react";
 import React from "react";
-import { LibraryCard } from "../cards";
+import { LibraryCard } from "../../cards";
 
 interface CategoryCardProps {
   id: string;

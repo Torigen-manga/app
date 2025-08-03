@@ -5,8 +5,10 @@ import { historyService } from "./instance";
 function createHistoryHandlers() {
 	ipcMain.handle(
 		channels.history.markAsRead,
-		async (_, data: AppManga, chapterId: string) =>
-			apiWrapper(() => historyService.markChapterAsRead(data, chapterId))
+		async (_, data: AppManga, chapterId: string, chapterNumber: number) =>
+			apiWrapper(() =>
+				historyService.markChapterAsRead(data, chapterId, chapterNumber)
+			)
 	);
 
 	ipcMain.handle(

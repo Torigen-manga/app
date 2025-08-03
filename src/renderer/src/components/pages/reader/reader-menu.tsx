@@ -32,6 +32,7 @@ import {
   ChevronUp,
   type LucideIcon,
   Menu,
+  Undo2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -168,6 +169,7 @@ interface ReaderMenuProps {
   onLast: () => void;
   onNextChapter: () => void;
   onPreviousChapter: () => void;
+  navigateToManga: () => void;
 }
 
 function ReaderMenu({
@@ -181,6 +183,7 @@ function ReaderMenu({
   onReadingDirectionChange,
   onNextChapter,
   onPreviousChapter,
+  navigateToManga,
 }: ReaderMenuProps) {
   const isVertical = pageLayout === "vertical-scroll";
 
@@ -242,11 +245,17 @@ function ReaderMenu({
   return (
     <div
       className={cn(
-        "right-5 bottom-5 flex items-center gap-4 rounded-lg border bg-background p-2 shadow-lg",
+        "right-5 bottom-5 flex items-center gap-3 rounded-lg border bg-background p-2 opacity-40 shadow-lg transition-opacity duration-150 hover:opacity-100",
         isVertical ? "fixed flex-col" : "absolute h-14 flex-row"
       )}
     >
       <TooltipProvider>
+        <CustomTooltipButton
+          action={navigateToManga}
+          icon={Undo2}
+          text="Return to Manga"
+        />
+        <Separator orientation={isVertical ? "horizontal" : "vertical"} />
         <ReaderMenuButton
           onPageLayoutChange={onPageLayoutChange}
           onReadingDirectionChange={onReadingDirectionChange}

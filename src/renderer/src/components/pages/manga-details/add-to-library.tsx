@@ -1,7 +1,7 @@
 import type { AppManga } from "@common/index";
 import { useLibraryDialog } from "@renderer/hooks/pages/manga-details/use-library-dialog";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
+import { Button } from "../../ui/button";
+import { Checkbox } from "../../ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -10,16 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+} from "../../ui/dialog";
+import { Input } from "../../ui/input";
+import { Label } from "../../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../../ui/select";
 
 interface MangaAddDialogProps {
   children: React.ReactNode;

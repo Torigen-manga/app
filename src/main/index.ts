@@ -11,6 +11,7 @@ import {
 	createLibraryHandlers,
 	createPreferencesHandlers,
 	directories,
+	ensureDatabase,
 	ensureDirectoriesExist,
 	ensureExtensionService,
 } from "./src/index";
@@ -112,6 +113,7 @@ app.whenReady().then(async () => {
 	});
 
 	await ensureDirectoriesExist();
+	await ensureDatabase();
 
 	protocol.handle("cover", (req) => {
 		const url = new URL(req.url);

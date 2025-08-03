@@ -1,9 +1,9 @@
 import type { AppManga } from "@common/index";
-import { ChapterTable } from "@renderer/components/chapter-table";
 import {
+  ChapterTable,
   MangaAddToLibrary,
   MangaRemoveFromLibrary,
-} from "@renderer/components/manga-details";
+} from "@renderer/components/pages/manga-details";
 import { Badge } from "@renderer/components/ui/badge";
 import { Button } from "@renderer/components/ui/button";
 import { useChapterSorting } from "@renderer/hooks/pages/manga-details/use-chapter-sorting";

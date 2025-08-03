@@ -1,36 +1,85 @@
+import { HistoryLogEntry, ReadEntry } from "@renderer/components/pages/history";
+import { Button } from "@renderer/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@renderer/components/ui/tabs";
 import { historyMethods } from "@renderer/hooks/services/history";
+import { useState } from "react";
 import { ErrorPage } from "./error";
 import { LoadingPage } from "./loading";
 
+type HistoryView = "historyEntries" | "readEntries";
+
 export default function History(): React.JSX.Element {
-  const test = historyMethods.MUTATIONS.useClearAllReadEntries();
-  const { data, isLoading } = historyMethods.QUERIES.useHistoryEntries();
+  const clearAllEntries = historyMethods.MUTATIONS.useClearAllReadEntries();
+  const { data: historyEntries, isLoading } =
+    historyMethods.QUERIES.useHistoryEntries();
+  const { data: readEntries } = historyMethods.QUERIES.useReadEntries();
+
+  const [currentView, setCurrentView] = useState<HistoryView>("readEntries");
 
   if (isLoading) {
     return <LoadingPage />;
   }
 
-  if (!data) {
+  if (!(historyEntries && readEntries)) {
     return <ErrorPage code={500} message="Failed to load history entries" />;
   }
 
-  async function handleTest() {
-    await test.mutateAsync();
+  async function handleClear() {
+    await clearAllEntries.mutateAsync();
   }
 
-  return (
-    <main className="">
-      History Page
-      <button onClick={handleTest} type="button">
-        test
-      </button>
-      {data.map((entry) => (
-        <div key={`${entry.log.chapterId}__${entry.log.readAt}`}>
-          <img alt={entry.data?.title} src={entry.data?.cover} />
+  const currentEntries =
+    currentView === "historyEntries" ? historyEntries : readEntries;
+  const hasEntries = currentEntries && currentEntries.length > 0;
 
-          {entry.data?.title}
+  return (
+    <div className="flex h-full flex-col">
+      <header className="flex w-full items-center justify-between border-b p-2">
+        <div className="inline-flex items-center gap-4">
+          <h1 className="font-bold text-2xl">History</h1>
+          <Tabs
+            onValueChange={(value) => setCurrentView(value as HistoryView)}
+            value={currentView}
+          >
+            <TabsList>
+              <TabsTrigger value="historyEntries">History Entries</TabsTrigger>
+              <TabsTrigger value="readEntries">Read Entries</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
-      ))}
-    </main>
+        <Button
+          disabled={!hasEntries}
+          onClick={handleClear}
+          variant="destructive"
+        >
+          Clear All
+        </Button>
+      </header>
+      <div className="flex h-full flex-col gap-y-2 overflow-y-auto p-2">
+        {hasEntries ? (
+          currentView === "historyEntries" ? (
+            historyEntries.map((entry, index) => (
+              <HistoryLogEntry
+                entry={entry}
+                key={`${entry.log.sourceId}_${entry.log.mangaId}_${entry.log.chapterId}_${index}`}
+              />
+            ))
+          ) : (
+            readEntries.map((entry) => (
+              <ReadEntry
+                entry={entry}
+                key={`${entry.log.sourceId}_${entry.log.mangaId}`}
+              />
+            ))
+          )
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <p className="text-lg text-muted-foreground">
+              No {currentView.toLowerCase()} found
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

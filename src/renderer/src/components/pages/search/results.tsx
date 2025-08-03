@@ -1,5 +1,5 @@
 import type { MangaEntry } from "@torigen/mounter";
-import { MangaCard } from "../cards";
+import { MangaCard } from "../../cards";
 
 interface SearchResultProps {
   entries: MangaEntry[];

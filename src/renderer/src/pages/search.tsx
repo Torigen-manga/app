@@ -1,9 +1,9 @@
-import { ParameterComp } from "@renderer/components/search/parameter-area";
 import {
   MultiSearchResults,
+  ParameterComp,
   SearchResults,
-} from "@renderer/components/search/results";
-import { SearchCamp } from "@renderer/components/search/search-camp";
+} from "@renderer/components/pages/search";
+import { SearchCamp } from "@renderer/components/pages/search/search-camp";
 import { extensionMethods } from "@renderer/hooks/services/extensions";
 import { useLoadExtensions } from "@renderer/hooks/services/extensions/registry";
 import { cn } from "@renderer/lib/utils";

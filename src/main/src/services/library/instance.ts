@@ -12,11 +12,37 @@ import { directories } from "../../paths";
 import { type AppMangaService, appMangaService } from "../core";
 import { downloadCover } from "./download";
 
+interface RefreshProgress {
+	current: number;
+	total: number;
+	currentEntry: {
+		title: string;
+		sourceId: string;
+	};
+	errors: Array<{
+		entryId: string;
+		title: string;
+		error: string;
+	}>;
+}
+
+//biome-ignore lint/correctness/noUnusedVariables: Not used for now
+interface LibraryEntryWithUnreadCount extends LibraryEntryTable {
+	readChaptersCount: number;
+	unreadCount: number;
+	lastRefreshAt?: Date;
+}
+
 class LibraryService {
 	readonly appService: AppMangaService;
+	private refreshProgressCallback?: (progress: RefreshProgress) => void;
 
 	constructor(appService: AppMangaService) {
 		this.appService = appService;
+	}
+
+	setRefreshProgressCallback(callback: (progress: RefreshProgress) => void) {
+		this.refreshProgressCallback = callback;
 	}
 
 	async getLibrary(): Promise<AppLibrary> {

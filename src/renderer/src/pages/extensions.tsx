@@ -19,6 +19,10 @@ export default function Extensions(): React.JSX.Element {
 
   const customSourcesAllowed = experimentalPreferences?.enableCustomSources;
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
   if (!customSourcesAllowed) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center">
@@ -35,10 +39,6 @@ export default function Extensions(): React.JSX.Element {
         </Link>
       </div>
     );
-  }
-
-  if (isLoading) {
-    return <LoadingPage />;
   }
 
   if (error) {
