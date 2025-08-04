@@ -94,6 +94,7 @@ export function NavMain({ onOpenChange }: NavMainProps) {
                   isActive(item.path) &&
                     "bg-primary text-white hover:bg-primary hover:text-white"
                 )}
+                tooltip={item.name}
               >
                 <Link to={item.path || ""}>
                   <Icon />
@@ -107,6 +108,7 @@ export function NavMain({ onOpenChange }: NavMainProps) {
           <SidebarMenuButton
             className="cursor-pointer"
             onClick={() => onOpenChange(true)}
+            tooltip="Settings"
           >
             <SlidersHorizontal />
             Settings

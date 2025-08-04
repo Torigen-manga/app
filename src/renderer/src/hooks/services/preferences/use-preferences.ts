@@ -158,30 +158,25 @@ function usePreferences() {
 	};
 
 	return {
-		// Load Preferences
 		preferences,
 		loading,
 		error,
 		reloadPreferences,
 
-		// Update Preferences
 		updatePreferences,
 		isUpdating: updatePreferencesMutation.isPending,
 		updateError: updatePreferencesMutation.error,
 
-		// Reset Preferences
 		resetPreferences,
 		isResetting: resetPreferences.isPending,
 		resetError: resetPreferences.error,
 
-		// Specific Preferences
 		layoutPreferences,
 		readerDisplayPreferences,
 		libraryHistoryPreferences,
 		systemBehaviorPreferences,
 		experimentalPreferences,
 
-		//  Update Specific Preferences
 		updateLayoutPreferences,
 		updateReaderPreferences,
 		updateLibraryHistoryPreferences,

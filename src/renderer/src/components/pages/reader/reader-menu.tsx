@@ -36,11 +36,20 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+interface ButtonReaderMenuProps {
+  pageLayout: PageLayout;
+  onPageLayoutChange: (value: PageLayout) => void;
+  readingDirectory: ReadingDir;
+  onReadingDirectionChange: (value: ReadingDir) => void;
+  isVertical: boolean;
+}
+
 function ReaderMenuButton({
   pageLayout,
   onPageLayoutChange,
   readingDirectory,
   onReadingDirectionChange,
+  isVertical,
 }: ButtonReaderMenuProps) {
   const [menuToolTipVisible, setMenuToolTipVisible] = useState(false);
 
@@ -59,7 +68,7 @@ function ReaderMenuButton({
             </Button>
           </TooltipTrigger>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" side={isVertical ? "left" : "bottom"}>
           <DropdownMenuLabel>Page Layout</DropdownMenuLabel>
           <DropdownMenuRadioGroup value={pageLayout}>
             <DropdownMenuRadioItem
@@ -99,28 +108,23 @@ function ReaderMenuButton({
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <TooltipContent>
+      <TooltipContent side={isVertical ? "left" : "top"}>
         <span>Reader Options</span>
       </TooltipContent>
     </Tooltip>
   );
 }
 
-interface ButtonReaderMenuProps {
-  pageLayout: PageLayout;
-  onPageLayoutChange: (value: PageLayout) => void;
-  readingDirectory: ReadingDir;
-  onReadingDirectionChange: (value: ReadingDir) => void;
-}
-
 function CustomTooltipButton({
   text,
   action,
   icon,
+  isVertical,
 }: {
   text: string;
   action?: () => void;
   icon: LucideIcon;
+  isVertical: boolean;
 }) {
   const IconComponent = icon;
 
@@ -131,7 +135,7 @@ function CustomTooltipButton({
           <IconComponent />
         </Button>
       </TooltipTrigger>
-      <TooltipContent>
+      <TooltipContent side={isVertical ? "left" : "top"}>
         <span>{text}</span>
       </TooltipContent>
     </Tooltip>
@@ -150,6 +154,7 @@ function ReaderButtonGroup({ buttons, isVertical }: ButtonGroupProps) {
         <CustomTooltipButton
           action={button.action}
           icon={button.icon}
+          isVertical={isVertical}
           key={button.text}
           text={button.text}
         />
@@ -253,10 +258,12 @@ function ReaderMenu({
         <CustomTooltipButton
           action={navigateToManga}
           icon={Undo2}
+          isVertical={isVertical}
           text="Return to Manga"
         />
         <Separator orientation={isVertical ? "horizontal" : "vertical"} />
         <ReaderMenuButton
+          isVertical={isVertical}
           onPageLayoutChange={onPageLayoutChange}
           onReadingDirectionChange={onReadingDirectionChange}
           pageLayout={pageLayout}

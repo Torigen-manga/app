@@ -10,7 +10,7 @@ export function ReadEntry({ entry }: { entry: ReadEntryWithData }) {
     <div className="flex h-24 rounded-lg border p-2 transition-colors hover:bg-muted/20">
       <img
         alt={entry.data?.title}
-        className="h-full w-16 flex-shrink-0 rounded-md border object-cover"
+        className="h-full flex-shrink-0 rounded-md border"
         src={entry.data?.cover}
       />
 
@@ -67,7 +67,7 @@ export function ReadEntry({ entry }: { entry: ReadEntryWithData }) {
       </div>
       <div className="ml-2 flex h-full items-center justify-center border-l pl-2">
         <Button
-          className="h-8 w-8"
+          className="cursor-pointer"
           onClick={() => {
             // Dropdown Menu
           }}

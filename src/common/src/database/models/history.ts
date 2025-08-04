@@ -22,6 +22,7 @@ const readLogs = sqliteTable(
 		mangaId: text("manga_id").notNull(),
 		chapterId: text("chapter_id").notNull(),
 		chapterNumber: integer("chapter_number").notNull(),
+		pageNumber: integer("page_number").notNull(),
 		readAt: integer("read_at", { mode: "timestamp" }).notNull(),
 	},
 	(t) => [primaryKey({ columns: [t.sourceId, t.mangaId, t.chapterId] })]

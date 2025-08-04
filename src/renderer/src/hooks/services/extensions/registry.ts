@@ -1,6 +1,9 @@
-// import type { Section, SourceProvider } from '@torigen/mounter'
-
-import { type APIResponse, channels, type RegistryEntry } from "@common/index";
+import {
+	type APIResponse,
+	channels,
+	type Maybe,
+	type RegistryEntry,
+} from "@common/index";
 import { invoke } from "@renderer/lib/ipc-methods";
 import { useQuery } from "@tanstack/react-query";
 import type { SourceCapabilities, SourceInfo } from "@torigen/mounter";
@@ -24,7 +27,7 @@ function useLoadExtensions() {
 	});
 }
 
-function useGetExtensionEntry(id: string) {
+function useGetExtensionEntry(id: Maybe<string>) {
 	return useQuery({
 		queryKey: ["extensions", id, "entry"],
 		queryFn: async () => {

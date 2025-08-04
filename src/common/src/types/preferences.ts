@@ -90,14 +90,12 @@ export {
 };
 
 export type {
-	// Schema types
 	AppPreferences,
 	LayoutPreferences,
 	ReaderPreferences,
 	LibraryHistoryPreferences,
 	SystemBehaviorPreferences,
 	ExperimentalPreferences,
-	// Enums
 	Theme,
 	PreferDarkMode,
 	CoverStyle,

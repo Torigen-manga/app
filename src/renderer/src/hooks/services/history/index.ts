@@ -79,16 +79,19 @@ function useMarkChapterAsRead() {
 			data,
 			chapterId,
 			chapterNumber,
+			pageNumber,
 		}: {
 			data: AppManga;
 			chapterId: string;
 			chapterNumber: number;
+			pageNumber: number;
 		}) => {
 			const res: APIResponse<void> = await invoke(
 				channels.history.markAsRead,
 				data,
 				chapterId,
-				chapterNumber
+				chapterNumber,
+				pageNumber
 			);
 
 			if (!res.success) {
@@ -103,7 +106,6 @@ function useMarkChapterAsRead() {
 			queryClient.invalidateQueries({
 				queryKey: historyKeys.mangaReadEntry(data.sourceId, data.mangaId),
 			});
-			toast.success(`Marked chapter as read for ${data.title}`);
 		},
 		onError: (error) => {
 			toast.error(`Failed to mark chapter as read: ${error.message}`);

@@ -1,3 +1,4 @@
+import { ExtensionDialog } from "@renderer/components/pages/extensions/info-dialog";
 import { Button } from "@renderer/components/ui/button";
 import {
   Card,
@@ -8,12 +9,16 @@ import {
 } from "@renderer/components/ui/card";
 import { useLoadExtensions } from "@renderer/hooks/services/extensions/registry";
 import { usePreferences } from "@renderer/hooks/services/preferences/use-preferences";
-
-import { Link } from "@tanstack/react-router";
+import type { ExtReturnProps } from "@renderer/types/util";
+import { Settings2 } from "lucide-react";
+import { useState } from "react";
 import { ErrorPage } from "./error";
 import { LoadingPage } from "./loading";
 
 export default function Extensions(): React.JSX.Element {
+  const [ext, setExt] = useState<ExtReturnProps | undefined>(undefined);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const { experimentalPreferences } = usePreferences();
   const { data, isLoading, error } = useLoadExtensions();
 
@@ -32,11 +37,6 @@ export default function Extensions(): React.JSX.Element {
         <p className="mb-4 text-muted-foreground text-sm">
           Custom sources are disabled in your settings.
         </p>
-        <Link to="/settings/experimental">
-          <Button className="cursor-pointer" variant="outline">
-            Enable Custom Sources
-          </Button>
-        </Link>
       </div>
     );
   }
@@ -49,17 +49,18 @@ export default function Extensions(): React.JSX.Element {
     return <ErrorPage code={404} message="Extensions not found" />;
   }
 
-  const capabilityLabels: Record<string, string> = {
-    supportsHomepage: "Supports Homepage",
-    supportsSearch: "Supports Search",
-    supportsViewMore: "Supports View More",
-    supportIncludeTags: "Supports Include Tags",
-    supportExcludeTags: "Supports Exclude Tags",
-    supportPagination: "Supports Pagination",
-  };
+  function handleExtensionClick(extension: ExtReturnProps) {
+    setExt(extension);
+    setIsDialogOpen(true);
+  }
 
   return (
     <main className="p-4">
+      <ExtensionDialog
+        extension={ext}
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
       <h1 className="ml-4 font-semibold text-3xl">Extensions</h1>
       <div className="grid grid-cols-4 gap-4 p-4">
         {data.map((extension) => (
@@ -67,20 +68,21 @@ export default function Extensions(): React.JSX.Element {
             <CardHeader>
               <CardTitle>{extension.info.name}</CardTitle>
               <CardDescription>
-                <button type="button">{extension.info.id}</button>
+                <p>ID: {extension.info.id}</p>
               </CardDescription>
             </CardHeader>
 
-            <CardContent>
-              <ul>
-                {Object.entries(extension.capabilities)
-                  .filter(([_, value]) => value)
-                  .map(([key]) => (
-                    <li className="list-disc text-sm" key={key}>
-                      {capabilityLabels[key]}
-                    </li>
-                  ))}
-              </ul>
+            <CardContent className="flex justify-between">
+              <Button
+                onClick={() => handleExtensionClick(extension)}
+                variant="outline"
+              >
+                Info
+              </Button>
+
+              <Button size="icon">
+                <Settings2 />
+              </Button>
             </CardContent>
           </Card>
         ))}

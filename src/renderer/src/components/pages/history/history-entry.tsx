@@ -7,27 +7,32 @@ export function HistoryLogEntry({ entry }: { entry: HistoryEntryWithData }) {
   const readDate = new Date(entry.log.readAt);
 
   return (
-    <div className="flex h-20 rounded-lg border p-2 transition-colors hover:bg-muted/20">
+    <div className="flex h-22 rounded-lg border p-2 transition-colors hover:bg-muted/20">
       <img
         alt={entry.data?.title}
-        className="h-full w-12 flex-shrink-0 rounded-md border object-cover"
+        className="h-full flex-shrink-0 rounded-md border object-cover"
         src={entry.data?.cover}
       />
 
       <div className="flex w-full min-w-0 justify-between px-3">
         <div className="flex min-w-0 flex-1 flex-col justify-between">
-          <Link
-            className="w-fit cursor-pointer truncate font-semibold text-lg hover:underline"
-            to={`/manga/${entry.data?.sourceId}/${entry.data?.mangaId}`}
-          >
-            {entry.data?.title}
-          </Link>
-          <Link
-            className="w-fit font-semibold text-primary hover:underline"
-            to={`/manga/${entry.data?.sourceId}/${entry.data?.mangaId}/chapter/${entry.log.chapterId}`}
-          >
-            Chapter {entry.log.chapterNumber}
-          </Link>
+          <div className="flex flex-col">
+            <Link
+              className="w-fit cursor-pointer truncate font-semibold text-lg hover:underline"
+              to={`/manga/${entry.data?.sourceId}/${entry.data?.mangaId}`}
+            >
+              {entry.data?.title}
+            </Link>
+            <Link
+              className="-mt-1 w-fit font-semibold text-primary text-sm hover:underline"
+              to={`/manga/${entry.data?.sourceId}/${entry.data?.mangaId}/chapter/${entry.log.chapterId}`}
+            >
+              Chapter {entry.log.chapterNumber}
+            </Link>
+          </div>
+          <p className="text-muted-foreground text-sm">
+            Last read page: {entry.log.pageNumber}
+          </p>
         </div>
 
         <div className="flex flex-col items-end justify-between text-right">
@@ -48,7 +53,7 @@ export function HistoryLogEntry({ entry }: { entry: HistoryEntryWithData }) {
 
       <div className="ml-2 flex h-full items-center justify-center border-l pl-2">
         <Button
-          className="h-8 w-8"
+          className="cursor-pointer"
           onClick={() => {
             // Dropdown Menu
           }}

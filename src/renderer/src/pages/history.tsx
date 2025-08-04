@@ -1,5 +1,5 @@
 import { HistoryLogEntry, ReadEntry } from "@renderer/components/pages/history";
-import { Button } from "@renderer/components/ui/button";
+import { ClearHistoryDialog } from "@renderer/components/pages/history/clear-history-dialogs";
 import { Tabs, TabsList, TabsTrigger } from "@renderer/components/ui/tabs";
 import { historyMethods } from "@renderer/hooks/services/history";
 import { useState } from "react";
@@ -42,18 +42,12 @@ export default function History(): React.JSX.Element {
             value={currentView}
           >
             <TabsList>
-              <TabsTrigger value="historyEntries">History Entries</TabsTrigger>
               <TabsTrigger value="readEntries">Read Entries</TabsTrigger>
+              <TabsTrigger value="historyEntries">History</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
-        <Button
-          disabled={!hasEntries}
-          onClick={handleClear}
-          variant="destructive"
-        >
-          Clear All
-        </Button>
+        <ClearHistoryDialog hasEntries={!hasEntries} onClear={handleClear} />
       </header>
       <div className="flex h-full flex-col gap-y-2 overflow-y-auto p-2">
         {hasEntries ? (

@@ -1,29 +1,25 @@
 import { cva } from "class-variance-authority";
 
-const coverVariant = cva("transition-all duration-200", {
-	variants: {
-		property: {
-			default: "rounded",
-			shadow: "rounded-lg shadow-lg hover:shadow-xl dark:shadow-white/10",
-			rounded: "rounded-2xl",
-			border: "rounded-none border border-primary/50 hover:border-primary",
+export const coverVariant = cva(
+	"group relative h-full overflow-hidden rounded-(--card-radius) bg-sidebar p-(--card-padding) transition-all duration-300 ease-out hover:rounded-(--card-radius) focus:bg-primary/40 focus:outline-none focus:ring-2 focus:ring-primary",
+	{
+		variants: {
+			property: {
+				default: "[--card-radius:var(--radius)]",
+				shadow:
+					"[--card-radius:var(--radius-lg)] hover:shadow-xl dark:shadow-white/10",
+				rounded: "[--card-radius:var(--radius-2xl)]",
+				border:
+					"border border-primary/50 [--card-radius:var(--radius-none)] hover:border-primary",
+			},
+			showTitles: {
+				true: "[--card-padding:--spacing(1)]",
+				false: "[--card-padding:--spacing(0.5)]",
+			},
 		},
-	},
-	defaultVariants: {
-		property: "default",
-	},
-});
-
-const gridMap = (grid: number): string => {
-	const map = {
-		4: "grid-cols-4",
-		6: "grid-cols-6",
-		8: "grid-cols-8",
-		10: "grid-cols-10",
-		12: "grid-cols-12",
-	};
-
-	return map[grid as keyof typeof map] || "grid-cols-4";
-};
-
-export { coverVariant, gridMap };
+		defaultVariants: {
+			property: "default",
+			showTitles: true,
+		},
+	}
+);

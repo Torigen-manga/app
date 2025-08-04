@@ -1,6 +1,6 @@
 import { SettingItem } from "@renderer/components/pages/settings/parts/item";
 import { SettingRenderer } from "@renderer/components/pages/settings/parts/renderer";
-import { Stepper } from "@renderer/components/stepper";
+import { Stepper } from "@renderer/components/ui/stepper";
 import { useReaderSettings } from "@renderer/hooks/services/preferences/helpers";
 
 export function Reader() {

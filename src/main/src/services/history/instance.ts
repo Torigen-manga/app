@@ -20,7 +20,8 @@ class HistoryService {
 	async markChapterAsRead(
 		data: AppManga,
 		chapterId: string,
-		chapterNumber: number
+		chapterNumber: number,
+		pageNumber: number
 	): Promise<void> {
 		const { sourceId, mangaId } = data;
 
@@ -88,6 +89,7 @@ class HistoryService {
 				.set({
 					readAt: now,
 					chapterNumber,
+					pageNumber,
 				})
 				.where(
 					and(
@@ -102,6 +104,7 @@ class HistoryService {
 				mangaId,
 				chapterId,
 				chapterNumber,
+				pageNumber,
 				readAt: now,
 			});
 		}

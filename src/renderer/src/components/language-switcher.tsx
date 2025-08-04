@@ -1,4 +1,11 @@
 import { useLanguage } from "../providers/localization";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 export function LanguageSwitcher() {
   const { currentLanguage, setLanguage, availableLanguages } = useLanguage();
@@ -10,17 +17,22 @@ export function LanguageSwitcher() {
 
   return (
     <div className="language-switcher">
-      <select
-        className="language-select"
-        onChange={(e) => setLanguage(e.target.value as typeof currentLanguage)}
+      <Select
+        onValueChange={(e) => setLanguage(e as typeof currentLanguage)}
         value={currentLanguage}
       >
-        {availableLanguages.map((lang) => (
-          <option key={lang} value={lang}>
-            {languageNames[lang]}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="w-32">
+          <SelectValue placeholder="Select Language" />
+        </SelectTrigger>
+
+        <SelectContent>
+          {availableLanguages.map((lang) => (
+            <SelectItem key={lang} value={lang}>
+              {languageNames[lang]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

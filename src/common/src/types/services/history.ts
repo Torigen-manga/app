@@ -1,41 +1,28 @@
-type AppReadStateEntry = {
+import type { AppManga } from "../../database";
+
+export interface AppReadEntry {
 	sourceId: string;
 	mangaId: string;
-	readChapterIds: string[];
-	lastReadChapterId?: string;
-	lastPageRead?: number;
+	readChaptersIds: string[] | null;
+	lastReadChapterId: string | null;
 	lastReadAt: Date;
-	progressPercentage?: number;
-};
+}
 
-type AppHistoryEntry = {
-	id: string;
+export interface ReadLog {
 	sourceId: string;
 	mangaId: string;
 	chapterId: string;
-	chapterTitle?: string;
-	lastPageRead: number;
+	chapterNumber: number;
+	pageNumber: number;
 	readAt: Date;
-};
+}
 
-type AppRecentRead = {
-	sourceId: string;
-	mangaId: string;
-	lastReadChapterId: string;
-	lastReadChapterTitle: string;
-	lastPageRead: number;
-	lastReadAt: Date;
-};
+export interface ReadEntryWithData {
+	log: AppReadEntry;
+	data: AppManga | null;
+}
 
-type AppReadState = Map<string, AppReadStateEntry>;
-type AppHistoryState = AppHistoryEntry[];
-type AppRecentReadState = AppRecentRead[];
-
-export type {
-	AppReadStateEntry,
-	AppHistoryEntry,
-	AppRecentRead,
-	AppReadState,
-	AppHistoryState,
-	AppRecentReadState,
-};
+export interface HistoryEntryWithData {
+	log: ReadLog;
+	data: AppManga | null;
+}

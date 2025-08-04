@@ -1,5 +1,6 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
+import { app } from "electron";
 import { paths } from "./paths";
 
 function pathToFileUrl(path: string): string {
@@ -9,7 +10,9 @@ function pathToFileUrl(path: string): string {
 	return `file://${path}`;
 }
 
-const client = createClient({ url: pathToFileUrl(paths.devDatabasePath) });
+const dbPath = app.isPackaged ? paths.databasePath : paths.devDatabasePath;
+
+const client = createClient({ url: pathToFileUrl(dbPath) });
 const db = drizzle({ client });
 
 export { db };

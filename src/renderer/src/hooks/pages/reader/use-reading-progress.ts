@@ -8,10 +8,9 @@ export function useReadingProgress(
 	source: string,
 	chapterId: string,
 	currentPage: number,
-	chapterNumber: number,
-	hasNextChapter: boolean
+	chapterNumber: number
 ) {
-	const [hasMarkedRead, setHasMarkedRead] = useState(false);
+	const [lastRecordedPage, setLastRecordedPage] = useState(0);
 	const useMarkChapterAsRead = historyMethods.MUTATIONS.useMarkChapterAsRead();
 
 	const appManga = useMemo(() => {
@@ -33,14 +32,18 @@ export function useReadingProgress(
 	}, [manga, mangaId, source]);
 
 	useEffect(() => {
-		if (!hasMarkedRead && currentPage > 1 && hasNextChapter && appManga) {
-			useMarkChapterAsRead.mutate({ data: appManga, chapterId, chapterNumber });
-			setHasMarkedRead(true);
+		if (currentPage > 1 && currentPage > lastRecordedPage && appManga) {
+			useMarkChapterAsRead.mutate({
+				data: appManga,
+				chapterId,
+				chapterNumber,
+				pageNumber: currentPage, 
+			});
+			setLastRecordedPage(currentPage);
 		}
 	}, [
-		hasMarkedRead,
 		currentPage,
-		hasNextChapter,
+		lastRecordedPage,
 		useMarkChapterAsRead,
 		chapterId,
 		chapterNumber,
@@ -49,6 +52,6 @@ export function useReadingProgress(
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: This effect runs on chapterId change
 	useEffect(() => {
-		setHasMarkedRead(false);
+		setLastRecordedPage(0);
 	}, [chapterId]);
 }

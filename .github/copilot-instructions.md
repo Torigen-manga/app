@@ -1,10 +1,73 @@
 ---
-description: Ultracite Rules
+description: Torigen App Development Guide
 globs: "**/*.{ts,tsx,js,jsx}"
 alwaysApply: true
 ---
 
-- Don't use `accessKey` attribute on any HTML element.
+# Torigen Architecture & Patterns
+
+## Project Structure
+
+This is an Electron app with React frontend built using:
+
+- **Main Process**: `src/main/` - Electron backend services and IPC handlers
+- **Renderer Process**: `src/renderer/` - React UI application
+- **Preload**: `src/preload/` - Secure bridge between main and renderer
+- **Common**: `src/common/` - Shared types, database models, and utilities
+
+## Core Concepts
+
+### Extension System
+
+- Uses `@torigen/mounter` library for manga source plugins
+- Extensions are JavaScript files loaded dynamically from filesystem
+- Each extension implements `SourceProvider` interface with methods like `getHomepage()`, `getMangaDetails()`, etc.
+- Registry service manages extension lifecycle and metadata
+- Extensions require experimental flag `enableCustomSources` to be enabled
+
+### IPC Communication Pattern
+
+- All communication uses typed channels defined in `src/common/src/lib/methods.ts`
+- Services in main process create IPC handlers using `apiWrapper()` for consistent error handling
+- Renderer uses React Query hooks that call `invoke()` from `@renderer/lib/ipc-methods`
+- Example: `channels.extension.homepage` -> `extensionService.getHomepage(id)` -> `useHomepage(id)`
+
+### Database & State Management
+
+- SQLite database with Drizzle ORM
+- Models: `AppManga`, `LibraryEntry`, `HistoryEntry`, `AppPreferences`
+- Services pattern: `libraryService`, `historyService`, `preferencesService`
+- React Query for server state, Zustand for client state
+- Preferences are typed and split into categories: layout, reader, system, experimental
+
+### Custom Protocols
+
+- `cover://` protocol for cached manga cover images
+- `proxy-fetch` IPC for extension network requests with custom User-Agent
+
+### UI Patterns
+
+- Radix UI components with Tailwind CSS
+- Custom CSS properties for theming: `--card-radius`, `--card-padding`
+- Layout variants using `class-variance-authority` (see `coverVariant` in `layout-options.ts`)
+- Sonner for toast notifications, Framer Motion for animations
+
+## Development Commands
+
+- `pnpm dev` - Start development with hot reload
+- `pnpm build` - Build for production
+- `pnpm typecheck` - Check TypeScript across main/renderer processes
+- Database changes require `drizzle-kit generate` and migrations
+
+## Key File Patterns
+
+- IPC handlers: `src/main/src/services/*/ipc.ts`
+- React Query hooks: `src/renderer/src/hooks/services/*/`
+- Database models: `src/common/src/database/models/`
+- Themes: `src/renderer/src/style/themes/*.css`
+
+## Coding Conventions
+
 - Don't set `aria-hidden="true"` on focusable elements.
 - Don't add ARIA roles, states, and properties to elements that don't support them.
 - Don't use distracting elements like `<marquee>` or `<blink>`.
@@ -120,7 +183,7 @@ alwaysApply: true
 - Don't use expressions where the operation doesn't change the value.
 - Don't destructure props inside JSX components in Solid projects.
 - Make sure Promise-like statements are handled appropriately.
-- Don't use __dirname and __filename in the global scope.
+- Don't use **dirname and **filename in the global scope.
 - Prevent import cycles.
 - Don't define React components inside other components.
 - Don't use event handlers on non-interactive elements.
@@ -219,7 +282,7 @@ alwaysApply: true
 - Don't use control characters and escape sequences that match control characters in regular expression literals.
 - Don't use debugger.
 - Don't assign directly to document.cookie.
-- Don't import next/document outside of pages/_document.jsx in Next.js projects.
+- Don't import next/document outside of pages/\_document.jsx in Next.js projects.
 - Use `===` and `!==`.
 - Don't use duplicate case labels.
 - Don't use duplicate class members.
@@ -240,7 +303,7 @@ alwaysApply: true
 - Don't allow assignments to native objects and read-only global variables.
 - Use Number.isFinite instead of global isFinite.
 - Use Number.isNaN instead of global isNaN.
-- Don't use the next/head module in pages/_document.js on Next.js projects.
+- Don't use the next/head module in pages/\_document.js on Next.js projects.
 - Don't use implicit any type on variable declarations.
 - Don't assign to imported bindings.
 - Don't use irregular whitespace characters.

@@ -15,11 +15,11 @@ function resolveThemeClasses(
 		},
 		strawberryRush: {
 			light: ["strawberry-rush"],
-			dark: ["strawberry-rush", "strawberry-night"], // Apply BOTH classes
+			dark: ["strawberry-rush", "strawberry-night"],
 		},
 		blueberryBreeze: {
 			light: ["blueberry-breeze"],
-			dark: ["blueberry-breeze", "blueberry-dark"], // Apply BOTH classes
+			dark: ["blueberry-breeze", "blueberry-dark"],
 		},
 	};
 
