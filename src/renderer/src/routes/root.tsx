@@ -2,7 +2,6 @@ import BaseLayout from "@renderer/layout/base-layout";
 import { ErrorPage } from "@renderer/pages/error";
 import Extensions from "@renderer/pages/extensions";
 import History from "@renderer/pages/history";
-import Home from "@renderer/pages/home";
 import Library from "@renderer/pages/library";
 import MangaDetail from "@renderer/pages/manga-details";
 import Reader from "@renderer/pages/reader";
@@ -12,12 +11,6 @@ import { createRootRoute, createRoute } from "@tanstack/react-router";
 export const rootRoute = createRootRoute({
   component: BaseLayout,
   notFoundComponent: () => <ErrorPage code={404} message="Page Not Found" />,
-});
-
-export const homeRoute = createRoute({
-  path: "/",
-  getParentRoute: () => rootRoute,
-  component: Home,
 });
 
 export interface SearchPageSearch {
@@ -84,7 +77,6 @@ export const readerRoute = createRoute({
 });
 
 export const baseRoutes = [
-  homeRoute,
   searchRoute,
   extensionsRoute,
   historyPage,

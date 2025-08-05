@@ -15,7 +15,7 @@ export default function BaseLayout(): React.JSX.Element {
 
       <div className="relative h-screen w-full overflow-hidden bg-sidebar md:pb-10">
         <TitleBar />
-        <main className="relative h-full overflow-hidden border bg-background shadow shadow-black/20 md:mr-2 md:rounded-lg">
+        <main className="relative h-full overflow-hidden border bg-background shadow-2xl shadow-black/40 md:mr-2 md:rounded-lg">
           <Outlet />
         </main>
       </div>

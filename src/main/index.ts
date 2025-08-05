@@ -80,6 +80,7 @@ function createWindow(): void {
 
 app.whenReady().then(async () => {
 	electronApp.setAppUserModelId("com.electron");
+	app.setAsDefaultProtocolClient("wtorigen");
 
 	app.on("browser-window-created", (_, window) => {
 		optimizer.watchWindowShortcuts(window);

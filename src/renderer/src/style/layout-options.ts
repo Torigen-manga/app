@@ -6,8 +6,7 @@ export const coverVariant = cva(
 		variants: {
 			property: {
 				default: "[--card-radius:var(--radius)]",
-				shadow:
-					"[--card-radius:var(--radius-lg)] hover:shadow-xl dark:shadow-white/10",
+				shadow: "shadow-lg [--card-radius:var(--radius-lg)] hover:shadow-xl",
 				rounded: "[--card-radius:var(--radius-2xl)]",
 				border:
 					"border border-primary/50 [--card-radius:var(--radius-none)] hover:border-primary",
