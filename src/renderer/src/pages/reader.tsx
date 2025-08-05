@@ -143,6 +143,7 @@ export default function Reader(): React.JSX.Element {
     source,
     chapterId,
     currentPage,
+    totalPages,
     chapterNumber
   );
 

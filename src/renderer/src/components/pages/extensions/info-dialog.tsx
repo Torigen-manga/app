@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from "@renderer/components/ui/dialog";
 import { Separator } from "@renderer/components/ui/separator";
-import { extensionMethods } from "@renderer/hooks/services/extensions";
 import { useGetExtensionEntry } from "@renderer/hooks/services/extensions/registry";
 import type { ExtReturnProps } from "@renderer/types/util";
 import {
@@ -27,7 +26,7 @@ interface ExtensionDialogProps {
 
 const capabilityLabels: Record<string, string> = {
   supportsHomepage: "Homepage",
-  supportsSearch: "Search",
+  supportsSearch: "Advanced Search",
   supportsViewMore: "View More",
   supportIncludeTags: "Include Tags",
   supportExcludeTags: "Exclude Tags",
@@ -219,20 +218,14 @@ export function ExtensionDialog({
   isOpen,
   onOpenChange,
 }: ExtensionDialogProps) {
-  const { useSourceInfo } = extensionMethods.QUERIES;
   const extensionId = extension?.info.id;
 
-  const { data: sourceInfo, isLoading: sourceInfoLoading } = useSourceInfo(
-    extensionId || undefined
-  );
   const { data: registryEntry } = useGetExtensionEntry(extensionId);
 
   if (!extension) {
     return null;
   }
-
-  const isLoading = sourceInfoLoading;
-  const info = sourceInfo || extension.info;
+  const info = extension.info;
   const capabilities = extension.capabilities;
 
   return (
@@ -266,14 +259,6 @@ export function ExtensionDialog({
           <CapabilitiesSection capabilities={capabilities} />
 
           <DependenciesSection info={info} registryEntry={registryEntry} />
-
-          {isLoading && (
-            <div className="py-4 text-center">
-              <div className="text-muted-foreground text-sm">
-                Loading additional information...
-              </div>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>

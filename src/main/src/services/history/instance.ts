@@ -1,9 +1,9 @@
 import {
 	type AppManga,
-	type AppReadEntry,
 	appReadEntryTable,
 	type HistoryEntryWithData,
 	type ReadEntryWithData,
+	type ReadLogReturnal,
 	readLogs,
 } from "@common/index";
 import { and, desc, eq } from "drizzle-orm";
@@ -21,7 +21,8 @@ class HistoryService {
 		data: AppManga,
 		chapterId: string,
 		chapterNumber: number,
-		pageNumber: number
+		pageNumber: number,
+		isComplete = false
 	): Promise<void> {
 		const { sourceId, mangaId } = data;
 
@@ -46,13 +47,16 @@ class HistoryService {
 		const readChapters = entry?.readChaptersIds || [];
 		const isAlreadyRead = readChapters.includes(chapterId);
 
+		const updatedReadChapters =
+			isComplete && !isAlreadyRead
+				? [...readChapters, chapterId]
+				: readChapters;
+
 		if (entry) {
 			await db
 				.update(appReadEntryTable)
 				.set({
-					readChaptersIds: isAlreadyRead
-						? readChapters
-						: [...readChapters, chapterId],
+					readChaptersIds: updatedReadChapters,
 					lastReadChapterId: chapterId,
 					lastReadAt: now,
 				})
@@ -90,6 +94,7 @@ class HistoryService {
 					readAt: now,
 					chapterNumber,
 					pageNumber,
+					isComplete,
 				})
 				.where(
 					and(
@@ -105,6 +110,7 @@ class HistoryService {
 				chapterId,
 				chapterNumber,
 				pageNumber,
+				isComplete,
 				readAt: now,
 			});
 		}
@@ -170,24 +176,22 @@ class HistoryService {
 		}));
 	}
 
-	async getMangaReadEntry(
+	async getMangaReadLogs(
 		sourceId: string,
 		mangaId: string
-	): Promise<AppReadEntry | null> {
+	): Promise<ReadLogReturnal[]> {
 		const log = await db
-			.select()
-			.from(appReadEntryTable)
+			.select({
+				chapterId: readLogs.chapterId,
+				chapterNumber: readLogs.chapterNumber,
+				pageNumber: readLogs.pageNumber,
+				isComplete: readLogs.isComplete,
+				readAt: readLogs.readAt,
+			})
+			.from(readLogs)
 			.where(
-				and(
-					eq(appReadEntryTable.sourceId, sourceId),
-					eq(appReadEntryTable.mangaId, mangaId)
-				)
-			)
-			.then((r) => r[0]);
-
-		if (!log) {
-			return null;
-		}
+				and(eq(readLogs.sourceId, sourceId), eq(readLogs.mangaId, mangaId))
+			);
 
 		return log;
 	}

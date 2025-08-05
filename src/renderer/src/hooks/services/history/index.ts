@@ -1,10 +1,10 @@
 import {
 	type APIResponse,
 	type AppManga,
-	type AppReadEntry,
 	channels,
 	type HistoryEntryWithData,
 	type ReadEntryWithData,
+	type ReadLogReturnal,
 } from "@common/index";
 import { invoke } from "@renderer/lib/ipc-methods";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -55,9 +55,9 @@ function useHistoryEntries() {
 function useMangaReadEntry(sourceId: string, mangaId: string) {
 	return useQuery({
 		queryKey: historyKeys.mangaReadEntry(sourceId, mangaId),
-		queryFn: async (): Promise<AppReadEntry | null> => {
-			const res: APIResponse<AppReadEntry | null> = await invoke(
-				channels.history.getMangaReadEntry,
+		queryFn: async (): Promise<ReadLogReturnal[]> => {
+			const res: APIResponse<ReadLogReturnal[]> = await invoke(
+				channels.history.getMangaReadLogs,
 				sourceId,
 				mangaId
 			);
@@ -80,18 +80,21 @@ function useMarkChapterAsRead() {
 			chapterId,
 			chapterNumber,
 			pageNumber,
+			isComplete,
 		}: {
 			data: AppManga;
 			chapterId: string;
 			chapterNumber: number;
 			pageNumber: number;
+			isComplete?: boolean;
 		}) => {
 			const res: APIResponse<void> = await invoke(
 				channels.history.markAsRead,
 				data,
 				chapterId,
 				chapterNumber,
-				pageNumber
+				pageNumber,
+				isComplete
 			);
 
 			if (!res.success) {

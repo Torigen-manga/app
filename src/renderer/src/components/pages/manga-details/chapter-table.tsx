@@ -1,3 +1,5 @@
+import type { ReadLogReturnal } from "@common/index";
+import { Badge } from "@renderer/components/ui/badge";
 import { Button } from "@renderer/components/ui/button";
 import { Checkbox } from "@renderer/components/ui/checkbox";
 import { Label } from "@renderer/components/ui/label";
@@ -46,102 +48,187 @@ import {
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  PlusIcon,
+  Menu,
 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
-const columns: ColumnDef<ChapterEntry>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          aria-label="Select all"
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          aria-label="Select row"
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "title",
-    header: "Title",
-    cell: ({ row }) => (
-      <div className="flex">
-        <Button
-          asChild
-          className="w-fit px-0 text-left text-foreground"
-          variant="link"
-        >
-          <Link to={`chapter/${row.original.id}`}>{row.original.title}</Link>
-        </Button>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "released_since",
-    header: () => (
-      <div className="flex justify-end">
-        <span className="text-muted-foreground">Released Since</span>
-      </div>
-    ),
-    cell: ({ row }) => {
-      const timestamp = row.original.timestamp;
+const createColumns = (
+  readLogs?: ReadLogReturnal[]
+): ColumnDef<ChapterEntry>[] => {
+  const getReadLog = (chapterId: string): ReadLogReturnal | undefined => {
+    return readLogs?.find((log) => log.chapterId === chapterId);
+  };
 
-      return (
-        <div className="flex justify-end">
-          {timestamp ? (
-            <time className="text-muted-foreground/60" dateTime={timestamp}>
-              {new Date(timestamp).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
-            </time>
-          ) : (
-            <span className="text-muted-foreground italic">Unknown</span>
-          )}
+  const isChapterRead = (chapterId: string): boolean => {
+    const readLog = getReadLog(chapterId);
+    return readLog?.isComplete ?? false;
+  };
+
+  const getLastReadChapter = (): ReadLogReturnal | null => {
+    if (!readLogs || readLogs.length === 0) {
+      return null;
+    }
+    return readLogs.reduce((latest, current) =>
+      current.readAt > latest.readAt ? current : latest
+    );
+  };
+
+  const isLastReadChapter = (chapterId: string): boolean => {
+    const lastRead = getLastReadChapter();
+    return lastRead?.chapterId === chapterId;
+  };
+
+  const renderCompleteStatus = () => (
+    <Badge className="flex items-center gap-1" variant="outline">
+      Complete
+    </Badge>
+  );
+
+  const renderPartialStatus = (
+    readLog: ReadLogReturnal,
+    isLastRead: boolean
+  ) => (
+    <div className="flex items-center gap-1">
+      <Badge
+        className={cn("font-medium text-xs", !isLastRead && "bg-amber-600")}
+      >
+        Page {readLog.pageNumber}
+      </Badge>
+    </div>
+  );
+
+  const renderReadStatus = (chapterId: string) => {
+    const readLog = getReadLog(chapterId);
+    const isLastRead = isLastReadChapter(chapterId);
+
+    if (!readLog) {
+      return null;
+    }
+
+    if (readLog.isComplete) {
+      return renderCompleteStatus();
+    }
+
+    return renderPartialStatus(readLog, isLastRead);
+  };
+
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            aria-label="Select all"
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+          />
         </div>
-      );
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            aria-label="Select row"
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+          />
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-  },
-  {
-    id: "actions",
-    header: () => (
-      <div className="flex justify-end">
-        <span className="text-muted-foreground">Actions</span>
-      </div>
-    ),
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => {
+        const chapterId = row.original.id;
+        const isRead = isChapterRead(chapterId);
+        const isLastRead = isLastReadChapter(chapterId);
+        const readStatus = renderReadStatus(chapterId);
 
-    cell: () => (
-      <div className="flex items-center justify-end gap-2">
-        <Button
-          className="size-6"
-          onClick={() => toast("Download feature coming soon!")}
-          size="icon"
-          variant="outline"
-        >
-          <PlusIcon className="size-4" />
-        </Button>
-      </div>
-    ),
-  },
-];
+        return (
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <Button
+                asChild
+                className={cn(
+                  "h-auto w-fit min-w-0 flex-1 justify-start px-0 py-1 text-left text-foreground",
+                  isRead && "opacity-70"
+                )}
+                variant="link"
+              >
+                <Link to={`chapter/${row.original.id}`}>
+                  <span className={cn("truncate", isRead && "line-through")}>
+                    {row.original.title}
+                  </span>
+                  {isLastRead && (
+                    <span className="ml-2 shrink-0 rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary text-xs">
+                      Last Read
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            </div>
+            {readStatus && <div className="shrink-0">{readStatus}</div>}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "released_since",
+      header: () => (
+        <div className="flex justify-end">
+          <span className="text-muted-foreground">Released Since</span>
+        </div>
+      ),
+      cell: ({ row }) => {
+        const timestamp = row.original.timestamp;
+
+        return (
+          <div className="flex justify-end">
+            {timestamp ? (
+              <time className="text-muted-foreground/60" dateTime={timestamp}>
+                {new Date(timestamp).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </time>
+            ) : (
+              <span className="text-muted-foreground italic">Unknown</span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: () => (
+        <div className="flex justify-end">
+          <span className="text-muted-foreground">Actions</span>
+        </div>
+      ),
+
+      cell: () => (
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            className="size-6"
+            onClick={() => toast("Chapter features coming soon!")}
+            size="icon"
+            variant="ghost"
+          >
+            <Menu className="size-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+};
 
 function ChapterRow({ row }: { row: Row<ChapterEntry> }) {
   return (
@@ -179,7 +266,7 @@ const renderRows = (
 
   return (
     <TableRow>
-      <TableCell className="h-24 text-center" colSpan={columns.length}>
+      <TableCell className="h-24 text-center" colSpan={cols.length}>
         No chapters found.
       </TableCell>
     </TableRow>
@@ -189,14 +276,18 @@ const renderRows = (
 export function ChapterTable({
   data: initialData,
   isLoading,
+  readLogs,
 }: {
   data: ChapterEntry[];
   isLoading: boolean;
+  readLogs?: ReadLogReturnal[];
 }): React.JSX.Element {
   const [inverted, setInverted] = React.useState(false);
   const data = React.useMemo(() => {
     return inverted ? [...initialData].reverse() : initialData;
   }, [initialData, inverted]);
+
+  const columns = React.useMemo(() => createColumns(readLogs), [readLogs]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -236,32 +327,46 @@ export function ChapterTable({
 
   return (
     <div className="mt-8 w-full max-w-4xl">
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <h2 className="font-semibold text-xl">Chapters</h2>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                className="ml-auto size-8"
-                onClick={() => {
-                  setInverted(!inverted);
-                }}
-                size="icon"
-                variant="outline"
-              >
-                <ArrowUp
-                  className={cn(
-                    "size-4 transition-all",
-                    inverted && "rotate-180"
-                  )}
-                />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="pointer-events-none">
-              Invert list
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-center justify-end gap-2">
+          <TooltipProvider>
+            {table.getFilteredSelectedRowModel().rows.length > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button className="" size="icon" variant="outline">
+                    <Menu className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="pointer-events-none">
+                  Selection Actions
+                </TooltipContent>
+              </Tooltip>
+            )}
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => {
+                    setInverted(!inverted);
+                  }}
+                  size="icon"
+                  variant="outline"
+                >
+                  <ArrowUp
+                    className={cn(
+                      "size-4 transition-all",
+                      inverted && "rotate-180"
+                    )}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="pointer-events-none">
+                Invert list
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
       <div
         className={cn(
@@ -270,7 +375,7 @@ export function ChapterTable({
         )}
       >
         <Table>
-          <TableHeader className="sticky top-0 z-10 bg-muted">
+          <TableHeader className="sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -329,7 +434,7 @@ export function ChapterTable({
           </div>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             <Button
-              className="hidden h-8 w-8 p-0 lg:flex"
+              className="hidden size-8 p-0 lg:flex"
               disabled={!table.getCanPreviousPage()}
               onClick={() => table.setPageIndex(0)}
               variant="outline"

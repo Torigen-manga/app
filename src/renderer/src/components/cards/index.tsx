@@ -70,13 +70,13 @@ export function MangaCard({
         params={{ source, mangaId }}
         to={mangaDetailRoute.to}
       >
-        <div className="relative overflow-hidden rounded-(--card-radius)">
+        <div className="relative overflow-hidden rounded-(--card-radius) transition-all">
           {imageState === "loading" && (
             <div className="absolute inset-0 animate-pulse rounded-(--card-radius) bg-muted" />
           )}
 
           {imageState === "error" ? (
-            <div className="flex aspect-[3/4] items-center justify-center rounded-(--card-radius) bg-muted text-muted-foreground text-xs">
+            <div className="flex aspect-[3/4] items-center justify-center rounded-(--card-radius) bg-muted text-muted-foreground text-xs transition-all">
               No Image
             </div>
           ) : (
@@ -84,7 +84,7 @@ export function MangaCard({
             <img
               alt={title}
               className={cn(
-                "aspect-[3/4] h-auto w-full rounded-(--card-radius) object-cover transition-opacity duration-300 ease-out",
+                "aspect-[3/4] h-auto w-full rounded-(--card-radius) object-cover transition-all duration-300 ease-out",
                 imageState === "loading" && "opacity-0"
               )}
               decoding="async"

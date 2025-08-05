@@ -10,14 +10,16 @@ function createHistoryHandlers() {
 			data: AppManga,
 			chapterId: string,
 			chapterNumber: number,
-			pageNumber: number
+			pageNumber: number,
+			isComplete?: boolean
 		) =>
 			apiWrapper(() =>
 				historyService.markChapterAsRead(
 					data,
 					chapterId,
 					chapterNumber,
-					pageNumber
+					pageNumber,
+					isComplete
 				)
 			)
 	);
@@ -31,9 +33,9 @@ function createHistoryHandlers() {
 	);
 
 	ipcMain.handle(
-		channels.history.getMangaReadEntry,
+		channels.history.getMangaReadLogs,
 		async (_, sourceId: string, mangaId: string) =>
-			apiWrapper(() => historyService.getMangaReadEntry(sourceId, mangaId))
+			apiWrapper(() => historyService.getMangaReadLogs(sourceId, mangaId))
 	);
 
 	ipcMain.handle(channels.history.getHistoryEntries, async () =>

@@ -51,7 +51,7 @@ const channels = {
 		clearManga: "history:clear-manga",
 		clearSource: "history:clear-source",
 		clearAll: "history:clear-all",
-		getMangaReadEntry: "history:get-manga-read-entry",
+		getMangaReadLogs: "history:get-manga-read-entry",
 		getHistoryEntries: "history:get-history-entries",
 		getReadEntries: "history:get-read-entries",
 	},

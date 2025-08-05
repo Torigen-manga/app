@@ -1,21 +1,4 @@
-import type { AppManga } from "../../database";
-
-export interface AppReadEntry {
-	sourceId: string;
-	mangaId: string;
-	readChaptersIds: string[] | null;
-	lastReadChapterId: string | null;
-	lastReadAt: Date;
-}
-
-export interface ReadLog {
-	sourceId: string;
-	mangaId: string;
-	chapterId: string;
-	chapterNumber: number;
-	pageNumber: number;
-	readAt: Date;
-}
+import type { AppManga, AppReadEntry, ReadLog } from "../../database";
 
 export interface ReadEntryWithData {
 	log: AppReadEntry;

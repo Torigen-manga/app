@@ -10,6 +10,7 @@ import { useChapterSorting } from "@renderer/hooks/pages/manga-details/use-chapt
 import { useDescriptionOverflow } from "@renderer/hooks/pages/manga-details/use-description-overflow";
 import { useMangaLibraryStatus } from "@renderer/hooks/pages/manga-details/use-manga-library-status";
 import { extensionMethods } from "@renderer/hooks/services/extensions";
+import { historyMethods } from "@renderer/hooks/services/history";
 import { cn } from "@renderer/lib/utils";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
@@ -70,6 +71,11 @@ function DetailCamp({
 export default function MangaDetail(): React.JSX.Element {
   const { mangaId, source } = useParams({ from: "/manga/$source/$mangaId" });
   const [expanded, setExpanded] = useState(false);
+
+  const { data: readLogs } = historyMethods.QUERIES.useMangaReadEntry(
+    source,
+    mangaId
+  );
 
   const { data: manga, isLoading } = extensionMethods.QUERIES.useMangaDetails(
     source,
@@ -166,7 +172,11 @@ export default function MangaDetail(): React.JSX.Element {
           </div>
         </div>
       </div>
-      <ChapterTable data={chapterSorted ?? []} isLoading={chaptersLoading} />
+      <ChapterTable
+        data={chapterSorted ?? []}
+        isLoading={chaptersLoading}
+        readLogs={readLogs}
+      />
     </main>
   );
 }

@@ -8,6 +8,7 @@ export function useReadingProgress(
 	source: string,
 	chapterId: string,
 	currentPage: number,
+	totalPages: number,
 	chapterNumber: number
 ) {
 	const [lastRecordedPage, setLastRecordedPage] = useState(0);
@@ -31,13 +32,18 @@ export function useReadingProgress(
 		};
 	}, [manga, mangaId, source]);
 
+	const isComplete = useMemo(() => {
+		return currentPage === totalPages;
+	}, [currentPage, totalPages]);
+
 	useEffect(() => {
 		if (currentPage > 1 && currentPage > lastRecordedPage && appManga) {
 			useMarkChapterAsRead.mutate({
 				data: appManga,
 				chapterId,
 				chapterNumber,
-				pageNumber: currentPage, 
+				pageNumber: currentPage,
+				isComplete,
 			});
 			setLastRecordedPage(currentPage);
 		}
@@ -48,6 +54,7 @@ export function useReadingProgress(
 		chapterId,
 		chapterNumber,
 		appManga,
+		isComplete,
 	]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: This effect runs on chapterId change

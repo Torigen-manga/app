@@ -1,4 +1,5 @@
 import type { ReadEntryWithData } from "@common/index";
+import { Badge } from "@renderer/components/ui/badge";
 import { Button } from "@renderer/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
@@ -49,14 +50,12 @@ export function ReadEntry({ entry }: { entry: ReadEntryWithData }) {
         </div>
 
         <div className="flex flex-col items-end justify-center space-y-2 text-right">
-          <div className="rounded-full bg-primary/10 px-2 py-1">
-            <p className="text-sm">
-              Chapters read:{" "}
-              <span className="font-bold">
-                {entry.log.readChaptersIds?.length || 0}
-              </span>
-            </p>
-          </div>
+          <Badge variant="secondary">
+            Chapters read:{" "}
+            <span className="font-bold">
+              {entry.log.readChaptersIds?.length || 0}
+            </span>
+          </Badge>
           <div className="text-right">
             <p className="text-muted-foreground text-xs">Last read</p>
             <p className="font-medium text-sm">
