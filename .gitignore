@@ -5,3 +5,4 @@ out
 .eslintcache
 *.log*
 dev.db
+pnpm-lock.yaml
