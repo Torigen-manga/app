@@ -146,6 +146,7 @@ export default function Library(): React.JSX.Element {
                 key={category.id}
                 onDelete={handleDeleteClick}
                 onRename={handleRenameCategory}
+                reorderMode={reorderMode}
               />
             ))}
           </SortableContext>

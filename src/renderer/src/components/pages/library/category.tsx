@@ -30,6 +30,7 @@ interface CategoryCardProps {
   children?: React.ReactNode;
   draggable?: boolean;
   defaultOpen?: boolean;
+  reorderMode?: boolean;
   onRename?: (categoryId: string, newName: string) => void;
   onDelete?: (categoryId: string) => void;
   isDeletable?: boolean;
@@ -41,6 +42,7 @@ function CategoryCard({
   children,
   draggable,
   defaultOpen,
+  reorderMode,
   onRename,
   onDelete,
   isDeletable = true,
@@ -92,6 +94,12 @@ function CategoryCard({
   React.useEffect(() => {
     setEditValue(title);
   }, [title]);
+
+  React.useEffect(() => {
+    if (reorderMode) {
+      setOpen(false);
+    }
+  }, [reorderMode]);
 
   return (
     <div
@@ -201,6 +209,7 @@ interface CategorySectionProps {
   categoryId: string;
   categoryName: string;
   draggable?: boolean;
+  reorderMode?: boolean;
   onRename?: (categoryId: string, newName: string) => void;
   onDelete?: (categoryId: string) => void;
 }
@@ -209,6 +218,7 @@ function CategorySection({
   categoryId,
   categoryName,
   draggable,
+  reorderMode,
   onRename,
   onDelete,
 }: CategorySectionProps) {
@@ -222,6 +232,7 @@ function CategorySection({
         id={categoryId}
         onDelete={onDelete}
         onRename={onRename}
+        reorderMode={reorderMode}
         title={categoryName}
       >
         <div className="col-span-8 flex items-center justify-center p-4">
@@ -237,6 +248,7 @@ function CategorySection({
       id={categoryId}
       onDelete={onDelete}
       onRename={onRename}
+      reorderMode={reorderMode}
       title={categoryName}
     >
       {entries?.map((entry) => {

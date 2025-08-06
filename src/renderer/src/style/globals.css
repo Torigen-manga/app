@@ -8,6 +8,22 @@
 @custom-variant blueberry-breeze (&:is(.blueberry-breeze *));
 @custom-variant blueberry-dark (&:is(.blueberry-dark *));
 
+@theme inline {
+  --p-light: oklch(0.596 0.145 163.225);
+  --p-dark: oklch(0.596 0.145 163.225);
+  --p-strawberry-rush: oklch(0.628 0.208 359.001);
+  --p-strawberry-night: oklch(0.461 0.186 4.072);
+  --p-blueberry-breeze: oklch(0.6 0.169 260.439);
+  --p-blueberry-dark: oklch(0.441 0.15 255.895);
+
+  --b-light: oklch(0.982 0.005 95.099);
+  --b-dark: oklch(0.268 0.004 106.643);
+  --b-strawberry-rush: oklch(0.982 0.01 325.65);
+  --b-strawberry-night: oklch(0.228 0.02 307.469);
+  --b-blueberry-breeze: oklch(0.982 0.01 325.65);
+  --b-blueberry-dark: oklch(22.798% 0.01584 274.075);
+}
+
 @font-face {
   font-family: Figtree;
   font-style: normal;
@@ -198,6 +214,7 @@
 body,
 html {
   -webkit-app-region: no-drag;
+  overflow-y: hidden;
 }
 
 ::-webkit-scrollbar {

@@ -72,10 +72,10 @@ function NavMainData() {
 }
 
 interface NavMainProps {
-  onOpenChange: (value: boolean) => void;
+  onSettingsOpenChange: (value: boolean) => void;
 }
 
-export function NavMain({ onOpenChange }: NavMainProps) {
+export function NavMain({ onSettingsOpenChange }: NavMainProps) {
   const { navLinks, isActive } = NavMainData();
 
   return (
@@ -107,7 +107,7 @@ export function NavMain({ onOpenChange }: NavMainProps) {
         <SidebarMenuItem>
           <SidebarMenuButton
             className="cursor-pointer"
-            onClick={() => onOpenChange(true)}
+            onClick={() => onSettingsOpenChange(true)}
             tooltip="Settings"
           >
             <SlidersHorizontal />

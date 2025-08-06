@@ -1,6 +1,17 @@
-import { Separator } from "@renderer/components/ui/separator";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+} from "@renderer/components/ui/sidebar";
 import { useLoadExtensions } from "@renderer/hooks/services/extensions/registry";
-import { cn } from "@renderer/lib/utils";
 import { ErrorPage } from "@renderer/pages/error";
 import { LoadingPage } from "@renderer/pages/loading";
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
@@ -9,8 +20,6 @@ import { BookMarked, BookOpenText, House } from "lucide-react";
 
 function ExploreSidebar({ sources }: { sources: SourceInfo[] }) {
   const location = useLocation();
-
-  const path = location.pathname;
 
   const links = sources.map((source) => ({
     id: source.id,
@@ -21,44 +30,57 @@ function ExploreSidebar({ sources }: { sources: SourceInfo[] }) {
   const isActive = (linkPath: string) => location.pathname === linkPath;
 
   return (
-    <div className="x sticky z-10 h-full w-54 border-r bg-muted p-2 pt-4">
-      <div className="inline-flex">
-        <h1 className="mb-2 ml-2 font-bold text-2xl">Explore</h1>
-      </div>
-      <nav className="scrollbar-none flex gap-2 overflow-x-scroll md:flex-col md:overflow-y-auto">
-        <Link
-          className={cn(
-            "flex h-8 items-center gap-3 rounded-md border-transparent border-b-2 px-2 font-medium text-muted-foreground text-sm transition-colors md:border-none [&>svg]:size-4",
-            path === "/explore"
-              ? "border-primary text-primary md:bg-primary md:text-primary-foreground"
-              : "md:hover:bg-primary/40 md:hover:text-primary-foreground"
-          )}
-          to="/explore"
-        >
-          <House /> Home
-        </Link>
-        <Separator />
-        {links.map((link) => (
-          <Link
-            className={cn(
-              "flex h-8 items-center gap-3 rounded-md border-transparent border-b-2 px-2 font-medium text-muted-foreground text-sm transition-colors md:border-none [&>svg]:size-4",
-              isActive(link.path)
-                ? "border-primary text-primary md:bg-primary md:text-primary-foreground"
-                : "md:hover:bg-primary/40 md:hover:text-primary-foreground"
-            )}
-            key={link.id}
-            to={link.path}
-          >
-            {location.pathname === link.path ? (
-              <BookOpenText />
-            ) : (
-              <BookMarked />
-            )}
-            {link.name}
-          </Link>
-        ))}
-      </nav>
-    </div>
+    <Sidebar className="sticky [&_[data-sidebar=sidebar]]:bg-muted">
+      <SidebarHeader>
+        <h1 className="font-bold text-2xl">Explore</h1>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className="data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+                  isActive={isActive("/explore")}
+                >
+                  <Link to="/explore">
+                    <House />
+                    <span>Home</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Extensions</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {links.map((link) => (
+                <SidebarMenuItem key={link.id}>
+                  <SidebarMenuButton
+                    asChild
+                    className="mb-1 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+                    isActive={isActive(link.path)}
+                  >
+                    <Link to={link.path}>
+                      {location.pathname === link.path ? (
+                        <BookOpenText />
+                      ) : (
+                        <BookMarked />
+                      )}
+                      <span>{link.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
 }
 
@@ -78,12 +100,13 @@ export default function ExploreLayout(): React.JSX.Element {
   }
 
   return (
-    <div className="relative flex h-full rounded-t-lg">
-      <ExploreSidebar sources={data.map((ext) => ext.info)} />
-
-      <div className="h-full w-full flex-1 overflow-y-auto">
-        <Outlet />
+    <SidebarProvider className="h-full w-full">
+      <div className="flex h-full w-full">
+        <ExploreSidebar sources={data.map((ext) => ext.info)} />
+        <SidebarInset className="flex-1 overflow-y-auto pb-8">
+          <Outlet />
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

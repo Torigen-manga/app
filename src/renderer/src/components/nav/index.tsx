@@ -1,22 +1,25 @@
 import type React from "react";
-import { Sidebar, SidebarContent } from "../ui/sidebar";
+import { Sidebar, SidebarContent, SidebarRail } from "../ui/sidebar";
 import { NavMain } from "./main";
-import { NavHeader } from "./nav-header";
 
 interface SidebarProps {
-  onOpenChange: (value: boolean) => void;
+  onSettingsOpenChange: (value: boolean) => void;
 }
 
 export function AppSidebar({
-  onOpenChange,
+  onSettingsOpenChange,
   ...props
 }: React.ComponentProps<typeof Sidebar> & SidebarProps) {
   return (
-    <Sidebar className="border-none" collapsible="icon" {...props}>
-      <NavHeader />
+    <Sidebar
+      className="top-(--header-height) border-none"
+      collapsible="icon"
+      {...props}
+    >
       <SidebarContent>
-        <NavMain onOpenChange={onOpenChange} />
+        <NavMain onSettingsOpenChange={onSettingsOpenChange} />
       </SidebarContent>
+      <SidebarRail />
     </Sidebar>
   );
 }
