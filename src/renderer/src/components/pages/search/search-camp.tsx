@@ -6,85 +6,85 @@ import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 
 interface SearchCampProps {
-  source: string | null;
-  setSource: (source: string | null) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  handleSearch: () => void;
-  result?: PagedResults<MangaEntry> | undefined;
-  setResult: (result: PagedResults<MangaEntry> | undefined) => void;
-  searchInputRef: React.RefObject<HTMLInputElement | null>;
+	source: string | null;
+	setSource: (source: string | null) => void;
+	searchQuery: string;
+	setSearchQuery: (query: string) => void;
+	handleSearch: () => void;
+	result?: PagedResults<MangaEntry> | undefined;
+	setResult: (result: PagedResults<MangaEntry> | undefined) => void;
+	searchInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 function SearchCamp({
-  source,
-  setSource,
-  searchQuery,
-  setSearchQuery,
-  handleSearch,
-  result,
-  setResult,
-  searchInputRef,
+	source,
+	setSource,
+	searchQuery,
+	setSearchQuery,
+	handleSearch,
+	result,
+	setResult,
+	searchInputRef,
 }: SearchCampProps) {
-  function handleReturn() {
-    if (searchInputRef.current) {
-      searchInputRef.current.value = "";
-    }
-    setSearchQuery("");
-    setResult(undefined);
-    setSource(null);
-  }
+	function handleReturn() {
+		if (searchInputRef.current) {
+			searchInputRef.current.value = "";
+		}
+		setSearchQuery("");
+		setResult(undefined);
+		setSource(null);
+	}
 
-  return (
-    <motion.div
-      className={cn(
-        "flex flex-col gap-2",
-        source ? "sticky w-full" : "w-96 items-center"
-      )}
-      layout
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
-      <div className="flex items-center gap-2">
-        {(source || searchQuery) && (
-          <Button onClick={handleReturn} size="icon" variant="outline">
-            <ArrowLeft />
-          </Button>
-        )}
-        <motion.h1
-          className={cn("font-semibold", source ? "text-4xl" : "text-3xl")}
-          transition={{ duration: 1 }}
-        >
-          Search
-        </motion.h1>
-      </div>
-      <div className="flex gap-2">
-        <Input
-          className="rounded-lg"
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
-          placeholder="Search..."
-          ref={searchInputRef}
-          value={searchQuery}
-        />
+	return (
+		<motion.div
+			className={cn(
+				"flex flex-col gap-2",
+				source ? "sticky w-full" : "w-96 items-center"
+			)}
+			layout
+			transition={{ type: "spring", stiffness: 300, damping: 30 }}
+		>
+			<div className="flex items-center gap-2">
+				{(source || searchQuery) && (
+					<Button onClick={handleReturn} size="icon" variant="outline">
+						<ArrowLeft />
+					</Button>
+				)}
+				<motion.h1
+					className={cn("font-semibold", source ? "text-4xl" : "text-3xl")}
+					transition={{ duration: 1 }}
+				>
+					Search
+				</motion.h1>
+			</div>
+			<div className="flex gap-2">
+				<Input
+					className="rounded-lg"
+					onChange={(e) => setSearchQuery(e.target.value)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter") {
+							handleSearch();
+						}
+					}}
+					placeholder="Search..."
+					ref={searchInputRef}
+					value={searchQuery}
+				/>
 
-        {result && (
-          <Button
-            onClick={() => setResult(undefined)}
-            size="icon"
-            variant="destructive"
-          >
-            <Trash2 />
-          </Button>
-        )}
+				{result && (
+					<Button
+						onClick={() => setResult(undefined)}
+						size="icon"
+						variant="destructive"
+					>
+						<Trash2 />
+					</Button>
+				)}
 
-        <Button onClick={handleSearch}>Search</Button>
-      </div>
-    </motion.div>
-  );
+				<Button onClick={handleSearch}>Search</Button>
+			</div>
+		</motion.div>
+	);
 }
 
 export { SearchCamp };

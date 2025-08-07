@@ -86,7 +86,7 @@ function SidebarProvider({
       } else {
         _setOpen(openState);
       }
-      //   biome-ignore lint/suspicious/noDocumentCookie: Shad/cn thing
+      // biome-ignore lint/suspicious/noDocumentCookie: Shad/cn thing
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open]

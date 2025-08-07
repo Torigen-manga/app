@@ -2,11 +2,20 @@ import type {
 	APIResponse,
 	AppLibrary,
 	AppManga,
+	CategoryRefreshProgress,
 	LibraryEntryTable,
+	LibraryRefreshProgress,
 } from "@common/index";
 import { channels } from "@common/index";
 import { invoke } from "@renderer/lib/ipc-methods";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRefreshProgress } from "./use-refresh-progress";
+
+interface LibraryEntryWithUnreadCount extends LibraryEntryTable {
+	readChaptersCount: number;
+	unreadCount: number;
+	lastRefreshAt?: Date;
+}
 
 function useGetLibrary() {
 	return useQuery({
@@ -318,18 +327,126 @@ function useRenameCategory() {
 	});
 }
 
+function useGetLibraryWithUnreadCounts() {
+	return useQuery({
+		queryKey: ["library", "get-with-unread-counts"],
+		queryFn: async () => {
+			const res: APIResponse<LibraryEntryWithUnreadCount[]> = await invoke(
+				channels.library.getWithUnreadCounts
+			);
+
+			if (!res.success) {
+				throw new Error(
+					res.error || "Failed to get library with unread counts"
+				);
+			}
+
+			return res.data;
+		},
+	});
+}
+
+function useGetUnreadCount(sourceId: string, mangaId: string) {
+	return useQuery({
+		queryKey: ["library", "unread-count", sourceId, mangaId],
+		queryFn: async () => {
+			const res: APIResponse<number> = await invoke(
+				channels.library.getUnreadCount,
+				sourceId,
+				mangaId
+			);
+
+			if (!res.success) {
+				throw new Error(res.error || "Failed to get unread count");
+			}
+
+			return res.data;
+		},
+		enabled: !!sourceId && !!mangaId,
+	});
+}
+
+function useRefreshAllLibrary() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationKey: ["library", "refresh-all"],
+		mutationFn: async () => {
+			const res: APIResponse<LibraryRefreshProgress> = await invoke(
+				channels.library.refreshAll
+			);
+
+			if (!res.success) {
+				throw new Error(res.error || "Failed to refresh library");
+			}
+
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["library"] });
+		},
+	});
+}
+
+function useRefreshCategory(categoryId: string) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationKey: ["library", "refresh-category", categoryId],
+		mutationFn: async () => {
+			const res: APIResponse<CategoryRefreshProgress> = await invoke(
+				channels.library.refreshCategory,
+				categoryId
+			);
+
+			if (!res.success) {
+				throw new Error(res.error || "Failed to refresh category");
+			}
+
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["library"] });
+		},
+	});
+}
+
+function useIsLibraryRefreshing() {
+	return useQuery({
+		queryKey: ["library", "is-refreshing"],
+		queryFn: async () => {
+			const res: APIResponse<boolean> = await invoke(
+				channels.library.isRefreshing
+			);
+
+			if (!res.success) {
+				throw new Error(res.error || "Failed to check refresh status");
+			}
+
+			return res.data;
+		},
+		refetchInterval: 1000,
+	});
+}
+
 const libraryMethods = {
 	QUERIES: {
 		useGetLibrary,
 		useGetEntries,
 		useGetEntriesByCategory,
 		useHasEntry,
+		useGetLibraryWithUnreadCounts,
+		useGetUnreadCount,
+		useIsLibraryRefreshing,
+		useRefreshProgress,
 	},
 	MUTATIONS: {
 		useAddMangaToLibrary,
 		useRemoveMangaFromLibrary,
 		useClearLibrary,
 		useUpdateMangaMetadata,
+		useRefreshAllLibrary,
+		useRefreshCategory,
 	},
 };
 

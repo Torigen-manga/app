@@ -1,4 +1,3 @@
-import { Button } from "@renderer/components/ui/button";
 import { Input } from "@renderer/components/ui/input";
 import {
   Select,
@@ -10,7 +9,6 @@ import {
 import { Slider } from "@renderer/components/ui/slider";
 import { Switch } from "@renderer/components/ui/switch";
 import type { Any, Preferences } from "@renderer/types/preferences";
-import { FolderOpen } from "lucide-react";
 
 interface SettingRendererProps {
   setting: Preferences;
@@ -68,20 +66,6 @@ export function SettingRenderer({
           placeholder={setting.placeholder}
           value={value}
         />
-      );
-
-    case "folder":
-      return (
-        <Button
-          className="w-46"
-          onClick={() => {
-            // TODO: Implement folder selection logic
-          }}
-          variant="outline"
-        >
-          <FolderOpen className="size-4" />
-          Select
-        </Button>
       );
 
     default:

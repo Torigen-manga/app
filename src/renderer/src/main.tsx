@@ -8,10 +8,10 @@ import { Providers } from "./providers";
 
 // biome-ignore lint/style/noNonNullAssertion: The root element is guaranteed to exist in the HTML.
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Providers>
-      <RouterProvider router={router} />
-      <Toaster />
-    </Providers>
-  </StrictMode>
+	<StrictMode>
+		<Providers>
+			<RouterProvider router={router} />
+			<Toaster />
+		</Providers>
+	</StrictMode>
 );

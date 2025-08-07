@@ -148,7 +148,6 @@ function useUnmarkChapterAsRead() {
 			queryClient.invalidateQueries({
 				queryKey: historyKeys.mangaReadEntry(sourceId, mangaId),
 			});
-			toast.success(`Unmarked chapter as read for ${mangaId}`);
 		},
 		onError: (error) => {
 			toast.error(`Failed to clear all read entries: ${error.message}`);
@@ -243,6 +242,83 @@ function useClearAllReadEntries() {
 	});
 }
 
+function useBulkMarkChaptersAsRead() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			data,
+			chapters,
+		}: {
+			data: AppManga;
+			chapters: Array<{ chapterId: string; chapterNumber: number }>;
+		}) => {
+			const res: APIResponse<void> = await invoke(
+				channels.history.bulkMarkAsRead,
+				data,
+				chapters
+			);
+
+			if (!res.success) {
+				throw new Error(res.error || "Failed to bulk mark chapters as read");
+			}
+
+			return res.data;
+		},
+		onSuccess: (_, { data }) => {
+			queryClient.invalidateQueries({ queryKey: historyKeys.readEntries() });
+			queryClient.invalidateQueries({ queryKey: historyKeys.historyEntries() });
+			queryClient.invalidateQueries({
+				queryKey: historyKeys.mangaReadEntry(data.sourceId, data.mangaId),
+			});
+			toast.success("Marked chapters as read");
+		},
+		onError: (error) => {
+			toast.error(`Failed to mark chapters as read: ${error.message}`);
+		},
+	});
+}
+
+function useBulkUnmarkChaptersAsRead() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			sourceId,
+			mangaId,
+			chapterIds,
+		}: {
+			sourceId: string;
+			mangaId: string;
+			chapterIds: string[];
+		}) => {
+			const res: APIResponse<void> = await invoke(
+				channels.history.bulkUnmarkAsRead,
+				sourceId,
+				mangaId,
+				chapterIds
+			);
+
+			if (!res.success) {
+				throw new Error(res.error || "Failed to bulk unmark chapters as read");
+			}
+
+			return res.data;
+		},
+		onSuccess: (_, { sourceId, mangaId }) => {
+			queryClient.invalidateQueries({ queryKey: historyKeys.readEntries() });
+			queryClient.invalidateQueries({ queryKey: historyKeys.historyEntries() });
+			queryClient.invalidateQueries({
+				queryKey: historyKeys.mangaReadEntry(sourceId, mangaId),
+			});
+			toast.success("Unmarked chapters as read");
+		},
+		onError: (error) => {
+			toast.error(`Failed to unmark chapters as read: ${error.message}`);
+		},
+	});
+}
+
 const historyMethods = {
 	QUERIES: {
 		useHistoryEntries,
@@ -252,6 +328,8 @@ const historyMethods = {
 	MUTATIONS: {
 		useMarkChapterAsRead,
 		useUnmarkChapterAsRead,
+		useBulkMarkChaptersAsRead,
+		useBulkUnmarkChaptersAsRead,
 		useClearMangaReadEntry,
 		useClearSourceReadEntries,
 		useClearAllReadEntries,

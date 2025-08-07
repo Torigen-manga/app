@@ -36,6 +36,12 @@ const channels = {
 		getEntriesByCategory: "library:get-entries-by-category",
 		hasEntry: "library:has-entry",
 		updateEntryMetadata: "library:update-entry-metadata",
+		refreshAll: "library:refresh-all",
+		refreshCategory: "library:refresh-category",
+		isRefreshing: "library:is-refreshing",
+		setRefreshProgressCallback: "library:set-refresh-progress-callback",
+		getWithUnreadCounts: "library:get-with-unread-counts",
+		getUnreadCount: "library:get-unread-count",
 	},
 	category: {
 		addCategory: "category:add-category",
@@ -48,6 +54,8 @@ const channels = {
 	history: {
 		markAsRead: "history:mark-as-read",
 		unmarkAsRead: "history:unmark-as-read",
+		bulkMarkAsRead: "history:bulk-mark-as-read",
+		bulkUnmarkAsRead: "history:bulk-unmark-as-read",
 		clearManga: "history:clear-manga",
 		clearSource: "history:clear-source",
 		clearAll: "history:clear-all",

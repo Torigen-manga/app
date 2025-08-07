@@ -1,7 +1,14 @@
-import type { ReadLogReturnal } from "@common/index";
+import type { AppManga, ReadLogReturnal } from "@common/index";
 import { Badge } from "@renderer/components/ui/badge";
 import { Button } from "@renderer/components/ui/button";
 import { Checkbox } from "@renderer/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@renderer/components/ui/dropdown-menu";
 import { Label } from "@renderer/components/ui/label";
 import {
   Select,
@@ -24,6 +31,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@renderer/components/ui/tooltip";
+import { historyMethods } from "@renderer/hooks/services/history";
 import { cn } from "@renderer/lib/utils";
 import { Link } from "@tanstack/react-router";
 import {
@@ -44,16 +52,24 @@ import {
 import type { ChapterEntry } from "@torigen/mounter";
 import {
   ArrowUp,
+  BookCheck,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
   Menu,
+  MousePointerClick,
 } from "lucide-react";
 import React from "react";
-import { toast } from "sonner";
 
 const createColumns = (
+  markAsReadMutation: ReturnType<
+    typeof historyMethods.MUTATIONS.useMarkChapterAsRead
+  >,
+  unmarkAsReadMutation: ReturnType<
+    typeof historyMethods.MUTATIONS.useUnmarkChapterAsRead
+  >,
+  manga: AppManga,
   readLogs?: ReadLogReturnal[]
 ): ColumnDef<ChapterEntry>[] => {
   const getReadLog = (chapterId: string): ReadLogReturnal | undefined => {
@@ -214,18 +230,56 @@ const createColumns = (
         </div>
       ),
 
-      cell: () => (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            className="size-6"
-            onClick={() => toast("Chapter features coming soon!")}
-            size="icon"
-            variant="ghost"
-          >
-            <Menu className="size-4" />
-          </Button>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const chapterId = row.original.id;
+        const chapterNumber = row.original.number;
+
+        const handleMarkAsRead = () => {
+          markAsReadMutation.mutate({
+            data: manga,
+            chapterId,
+            chapterNumber,
+            pageNumber: 0,
+            isComplete: true,
+          });
+        };
+
+        const handleMarkAsUnread = () => {
+          unmarkAsReadMutation.mutate({
+            sourceId: manga.sourceId,
+            mangaId: manga.mangaId,
+            chapterId,
+          });
+        };
+
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  className="size-6 text-muted-foreground"
+                  disabled={
+                    markAsReadMutation.isPending ||
+                    unmarkAsReadMutation.isPending
+                  }
+                  size="icon"
+                  variant="outline"
+                >
+                  <Menu className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleMarkAsRead}>
+                  Mark as Read
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleMarkAsUnread}>
+                  Mark as Unread
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
     },
   ];
 };
@@ -277,17 +331,32 @@ export function ChapterTable({
   data: initialData,
   isLoading,
   readLogs,
+  manga,
 }: {
   data: ChapterEntry[];
   isLoading: boolean;
   readLogs?: ReadLogReturnal[];
+  manga: AppManga;
 }): React.JSX.Element {
   const [inverted, setInverted] = React.useState(false);
   const data = React.useMemo(() => {
     return inverted ? [...initialData].reverse() : initialData;
   }, [initialData, inverted]);
 
-  const columns = React.useMemo(() => createColumns(readLogs), [readLogs]);
+  const markAsReadMutation = historyMethods.MUTATIONS.useMarkChapterAsRead();
+  const unmarkAsReadMutation =
+    historyMethods.MUTATIONS.useUnmarkChapterAsRead();
+  const bulkMarkAsReadMutation =
+    historyMethods.MUTATIONS.useBulkMarkChaptersAsRead();
+  const bulkUnmarkAsReadMutation =
+    historyMethods.MUTATIONS.useBulkUnmarkChaptersAsRead();
+
+  const columns = React.useMemo(
+    () =>
+      createColumns(markAsReadMutation, unmarkAsReadMutation, manga, readLogs),
+    [readLogs, markAsReadMutation, unmarkAsReadMutation, manga]
+  );
+
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -299,6 +368,105 @@ export function ChapterTable({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const handleBulkMarkAsRead = () => {
+    if (!manga) {
+      return;
+    }
+
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const chapters = selectedRows.map((row) => ({
+      chapterId: row.original.id,
+      chapterNumber: row.original.number,
+    }));
+
+    bulkMarkAsReadMutation.mutate({
+      data: manga,
+      chapters,
+    });
+    table.resetRowSelection();
+  };
+
+  const handleBulkMarkAsUnread = () => {
+    if (!manga) {
+      return;
+    }
+
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const chapterIds = selectedRows.map((row) => row.original.id);
+
+    bulkUnmarkAsReadMutation.mutate({
+      sourceId: manga.sourceId,
+      mangaId: manga.mangaId,
+      chapterIds,
+    });
+    table.resetRowSelection();
+  };
+
+  const getSelectedRowIndices = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    return selectedRows.map((row) => row.index).sort((a, b) => a - b);
+  };
+
+  const selectRowRange = (startIndex: number, endIndex: number) => {
+    const newSelection: Record<string, boolean> = {};
+    const rows = table.getFilteredRowModel().rows;
+
+    for (
+      let i = Math.min(startIndex, endIndex);
+      i <= Math.max(startIndex, endIndex);
+      i++
+    ) {
+      if (rows[i]) {
+        newSelection[rows[i].id] = true;
+      }
+    }
+
+    setRowSelection(newSelection);
+  };
+
+  const handleSelectAfter = () => {
+    const selectedIndices = getSelectedRowIndices();
+    if (selectedIndices.length === 0) {
+      return;
+    }
+
+    const lastSelectedIndex = Math.max(...selectedIndices);
+    const totalRows = table.getFilteredRowModel().rows.length;
+
+    selectRowRange(lastSelectedIndex, totalRows - 1);
+  };
+
+  const handleSelectBefore = () => {
+    const selectedIndices = getSelectedRowIndices();
+    if (selectedIndices.length === 0) {
+      return;
+    }
+
+    const firstSelectedIndex = Math.min(...selectedIndices);
+
+    selectRowRange(0, firstSelectedIndex);
+  };
+
+  const handleSelectBetween = () => {
+    const selectedIndices = getSelectedRowIndices();
+    if (selectedIndices.length < 2) {
+      return;
+    }
+
+    const firstIndex = Math.min(...selectedIndices);
+    const lastIndex = Math.max(...selectedIndices);
+
+    selectRowRange(firstIndex, lastIndex);
+  };
+
+  const handleSelectAll = () => {
+    table.toggleAllPageRowsSelected(true);
+  };
+
+  const handleClearSelection = () => {
+    table.resetRowSelection();
+  };
 
   const table = useReactTable({
     data,
@@ -332,16 +500,64 @@ export function ChapterTable({
         <div className="flex items-center justify-end gap-2">
           <TooltipProvider>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button className="" size="icon" variant="outline">
-                    <Menu className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="pointer-events-none">
-                  Selection Actions
-                </TooltipContent>
-              </Tooltip>
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon" variant="outline">
+                      <MousePointerClick />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={handleSelectAll}>
+                      Select All Chapters
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleClearSelection}>
+                      Clear Selection
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      disabled={
+                        table.getFilteredSelectedRowModel().rows.length === 0
+                      }
+                      onClick={handleSelectAfter}
+                    >
+                      Select All After Last Selected
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      disabled={
+                        table.getFilteredSelectedRowModel().rows.length === 0
+                      }
+                      onClick={handleSelectBefore}
+                    >
+                      Select All Before First Selected
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      disabled={
+                        table.getFilteredSelectedRowModel().rows.length < 2
+                      }
+                      onClick={handleSelectBetween}
+                    >
+                      Fill Selection Between First & Last
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon" variant="outline">
+                      <BookCheck className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={handleBulkMarkAsRead}>
+                      Mark Selected as Read
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleBulkMarkAsUnread}>
+                      Mark Selected as Unread
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             )}
 
             <Tooltip>

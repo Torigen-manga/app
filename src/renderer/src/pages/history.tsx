@@ -9,71 +9,71 @@ import { LoadingPage } from "./loading";
 type HistoryView = "historyEntries" | "readEntries";
 
 export default function History(): React.JSX.Element {
-  const clearAllEntries = historyMethods.MUTATIONS.useClearAllReadEntries();
-  const { data: historyEntries, isLoading } =
-    historyMethods.QUERIES.useHistoryEntries();
-  const { data: readEntries } = historyMethods.QUERIES.useReadEntries();
+	const clearAllEntries = historyMethods.MUTATIONS.useClearAllReadEntries();
+	const { data: historyEntries, isLoading } =
+		historyMethods.QUERIES.useHistoryEntries();
+	const { data: readEntries } = historyMethods.QUERIES.useReadEntries();
 
-  const [currentView, setCurrentView] = useState<HistoryView>("readEntries");
+	const [currentView, setCurrentView] = useState<HistoryView>("readEntries");
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
-  if (!(historyEntries && readEntries)) {
-    return <ErrorPage code={500} message="Failed to load history entries" />;
-  }
+	if (!(historyEntries && readEntries)) {
+		return <ErrorPage code={500} message="Failed to load history entries" />;
+	}
 
-  async function handleClear() {
-    await clearAllEntries.mutateAsync();
-  }
+	async function handleClear() {
+		await clearAllEntries.mutateAsync();
+	}
 
-  const currentEntries =
-    currentView === "historyEntries" ? historyEntries : readEntries;
-  const hasEntries = currentEntries && currentEntries.length > 0;
+	const currentEntries =
+		currentView === "historyEntries" ? historyEntries : readEntries;
+	const hasEntries = currentEntries && currentEntries.length > 0;
 
-  return (
-    <div className="flex h-full flex-col">
-      <header className="flex w-full items-center justify-between border-b p-2">
-        <div className="inline-flex items-center gap-4">
-          <h1 className="font-bold text-2xl">History</h1>
-          <Tabs
-            onValueChange={(value) => setCurrentView(value as HistoryView)}
-            value={currentView}
-          >
-            <TabsList>
-              <TabsTrigger value="readEntries">Read Entries</TabsTrigger>
-              <TabsTrigger value="historyEntries">History</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-        <ClearHistoryDialog hasEntries={!hasEntries} onClear={handleClear} />
-      </header>
-      <div className="flex h-full flex-col gap-y-2 overflow-y-auto p-2">
-        {hasEntries ? (
-          currentView === "historyEntries" ? (
-            historyEntries.map((entry, index) => (
-              <HistoryLogEntry
-                entry={entry}
-                key={`${entry.log.sourceId}_${entry.log.mangaId}_${entry.log.chapterId}_${index}`}
-              />
-            ))
-          ) : (
-            readEntries.map((entry) => (
-              <ReadEntry
-                entry={entry}
-                key={`${entry.log.sourceId}_${entry.log.mangaId}`}
-              />
-            ))
-          )
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-lg text-muted-foreground">
-              No {currentView.toLowerCase()} found
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+	return (
+		<div className="flex h-full flex-col">
+			<header className="flex w-full items-center justify-between border-b p-2">
+				<div className="inline-flex items-center gap-4">
+					<h1 className="font-bold text-2xl">History</h1>
+					<Tabs
+						onValueChange={(value) => setCurrentView(value as HistoryView)}
+						value={currentView}
+					>
+						<TabsList>
+							<TabsTrigger value="readEntries">Read Entries</TabsTrigger>
+							<TabsTrigger value="historyEntries">History</TabsTrigger>
+						</TabsList>
+					</Tabs>
+				</div>
+				<ClearHistoryDialog hasEntries={!hasEntries} onClear={handleClear} />
+			</header>
+			<div className="flex h-full flex-col gap-y-2 overflow-y-auto p-2">
+				{hasEntries ? (
+					currentView === "historyEntries" ? (
+						historyEntries.map((entry, index) => (
+							<HistoryLogEntry
+								entry={entry}
+								key={`${entry.log.sourceId}_${entry.log.mangaId}_${entry.log.chapterId}_${index}`}
+							/>
+						))
+					) : (
+						readEntries.map((entry) => (
+							<ReadEntry
+								entry={entry}
+								key={`${entry.log.sourceId}_${entry.log.mangaId}`}
+							/>
+						))
+					)
+				) : (
+					<div className="flex h-full items-center justify-center">
+						<p className="text-lg text-muted-foreground">
+							No {currentView.toLowerCase()} found
+						</p>
+					</div>
+				)}
+			</div>
+		</div>
+	);
 }

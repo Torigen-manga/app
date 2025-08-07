@@ -6,27 +6,27 @@ import { Reader } from "./reader";
 import { System } from "./system";
 
 interface SettingsRenderProps {
-  currentRoute: SettingsRoutes;
+	currentRoute: SettingsRoutes;
 }
 
 export function SettingsRender({ currentRoute }: SettingsRenderProps) {
-  switch (currentRoute) {
-    case "Layout and Appearance":
-      return <Layout />;
+	switch (currentRoute) {
+		case "Layout and Appearance":
+			return <Layout />;
 
-    case "Reader Preferences":
-      return <Reader />;
+		case "Reader Preferences":
+			return <Reader />;
 
-    case "Library and History":
-      return <Library />;
+		case "Library and History":
+			return <Library />;
 
-    case "System and Behavior":
-      return <System />;
+		case "System and Behavior":
+			return <System />;
 
-    case "Experimental Features":
-      return <Experimental />;
+		case "Experimental Features":
+			return <Experimental />;
 
-    default:
-      return <p>error</p>;
-  }
+		default:
+			return <p>error</p>;
+	}
 }

@@ -59,6 +59,25 @@ class AppMangaService {
 
 		return metadataList;
 	}
+
+	async updateManga(
+		sourceId: string,
+		mangaId: string,
+		data: Partial<AppManga>
+	): Promise<void> {
+		const res = await db
+			.update(mangaTable)
+			.set(data)
+			.where(
+				and(eq(mangaTable.sourceId, sourceId), eq(mangaTable.mangaId, mangaId))
+			);
+
+		if (res.rowsAffected === 0) {
+			throw new Error(
+				`Manga with ID ${mangaId} does not exist in source ${sourceId}`
+			);
+		}
+	}
 }
 
 const appMangaService = new AppMangaService();

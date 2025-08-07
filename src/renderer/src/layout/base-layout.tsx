@@ -2,85 +2,107 @@ import { AppSidebar } from "@renderer/components/nav";
 import { SettingsDialog } from "@renderer/components/pages/settings";
 import { TitleBar } from "@renderer/components/titlebar";
 import { LoadingPage } from "@renderer/pages/loading";
-import { type AnyRouter, Outlet, useRouter } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Outlet, useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SidebarInset, SidebarProvider } from "../components/ui/sidebar";
 
 class WindowActions {
-  private router: AnyRouter;
+	private queryClient: ReturnType<typeof useQueryClient>;
+	private setIsRefreshing: (loading: boolean) => void;
 
-  constructor(router: AnyRouter) {
-    this.router = router;
-  }
+	constructor(
+		queryClient: ReturnType<typeof useQueryClient>,
+		setIsRefreshing: (loading: boolean) => void
+	) {
+		this.queryClient = queryClient;
+		this.setIsRefreshing = setIsRefreshing;
+	}
 
-  onMinimize() {
-    window.electron.ipcRenderer.invoke("window:minimize");
-  }
+	onMinimize = () => {
+		window.electron.ipcRenderer.invoke("window:minimize");
+	};
 
-  onToggleMaximize() {
-    window.electron.ipcRenderer.invoke("window:maximize");
-  }
+	onToggleMaximize = () => {
+		window.electron.ipcRenderer.invoke("window:maximize");
+	};
 
-  onClose() {
-    window.electron.ipcRenderer.invoke("window:close");
-  }
+	onClose = () => {
+		window.electron.ipcRenderer.invoke("window:close");
+	};
 
-  onBack() {
-    this.router.history.back();
-  }
+	onBack = () => {
+		window.history.back();
+	};
 
-  onForward() {
-    this.router.history.forward();
-  }
+	onForward = () => {
+		window.history.forward();
+	};
 
-  onRefresh() {
-    // There will be a refresh button in the title bar when I implement it;
-  }
+	onRefresh = async () => {
+		this.setIsRefreshing(true);
+
+		try {
+			await this.queryClient.invalidateQueries();
+
+			await this.queryClient.refetchQueries();
+		} finally {
+			setTimeout(() => {
+				this.setIsRefreshing(false);
+			}, 500);
+		}
+	};
 }
 
 export default function BaseLayout(): React.JSX.Element {
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const router = useRouter();
+	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [isRefreshing, setIsRefreshing] = useState(false);
+	const router = useRouter();
+	const queryClient = useQueryClient();
 
-  const windowActions = useMemo(() => new WindowActions(router), [router]);
+	const windowActions = useMemo(
+		() => new WindowActions(queryClient, setIsRefreshing),
+		[queryClient]
+	);
 
-  const {
-    onMinimize,
-    onToggleMaximize,
-    onClose,
-    onBack,
-    onForward,
-    onRefresh,
-  } = windowActions;
+	const {
+		onMinimize,
+		onToggleMaximize,
+		onClose,
+		onBack,
+		onForward,
+		onRefresh,
+	} = windowActions;
 
-  const isLoading = router.state.isLoading;
+	const isLoading = router.state.isLoading || isRefreshing;
 
-  return (
-    <div className="[--header-height:calc(--spacing(8))]">
-      <SidebarProvider className="flex flex-col">
-        <TitleBar
-          isRefreshing={isLoading}
-          onBack={onBack}
-          onClose={onClose}
-          onForward={onForward}
-          onMinimize={onMinimize}
-          onRefresh={onRefresh}
-          onToggleMaximize={onToggleMaximize}
-        />
+	return (
+		<div className="[--header-height:calc(--spacing(8))]">
+			<SidebarProvider className="flex flex-col">
+				<TitleBar
+					isRefreshing={isLoading}
+					onBack={onBack}
+					onClose={onClose}
+					onForward={onForward}
+					onMinimize={onMinimize}
+					onRefresh={onRefresh}
+					onToggleMaximize={onToggleMaximize}
+				/>
 
-        <SettingsDialog onOpenChange={setSettingsOpen} open={settingsOpen} />
-        <div className="flex flex-1">
-          <AppSidebar
-            onSettingsOpenChange={setSettingsOpen}
-            variant="sidebar"
-          />
-          <SidebarInset className="relative h-screen w-full bg-sidebar md:pb-10">
-            <main className="relative h-full overflow-hidden border bg-background shadow-2xl shadow-black/40 md:rounded-l-lg">
-              {isLoading ? <LoadingPage /> : <Outlet />}
-            </main>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    </div>
-  );
+				<SettingsDialog onOpenChange={setSettingsOpen} open={settingsOpen} />
+				<div className="flex flex-1">
+					<AppSidebar
+						onSettingsOpenChange={setSettingsOpen}
+						settingsOpen={settingsOpen}
+						variant="sidebar"
+					/>
+					<SidebarInset className="relative h-screen w-full bg-sidebar md:pb-10">
+						<main className="relative h-full overflow-hidden border bg-background shadow-2xl shadow-black/40 md:rounded-l-lg">
+							{isLoading ? <LoadingPage /> : <Outlet />}
+						</main>
+					</SidebarInset>
+				</div>
+			</SidebarProvider>
+		</div>
+	);
 }

@@ -3,6 +3,6 @@ import type { ElectronAPI } from "@electron-toolkit/preload";
 declare global {
 	interface Window {
 		electron: ElectronAPI;
-		api: {};
+		api: Record<string, unknown>;
 	}
 }

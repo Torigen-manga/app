@@ -59,6 +59,23 @@ function createHistoryHandlers() {
 	ipcMain.handle(channels.history.clearAll, async () =>
 		apiWrapper(() => historyService.clearAllReadEntries())
 	);
+
+	ipcMain.handle(
+		channels.history.bulkMarkAsRead,
+		async (
+			_,
+			data: AppManga,
+			chapters: Array<{ chapterId: string; chapterNumber: number }>
+		) => apiWrapper(() => historyService.bulkMarkChaptersAsRead(data, chapters))
+	);
+
+	ipcMain.handle(
+		channels.history.bulkUnmarkAsRead,
+		async (_, sourceId: string, mangaId: string, chapterIds: string[]) =>
+			apiWrapper(() =>
+				historyService.bulkUnmarkChaptersAsRead(sourceId, mangaId, chapterIds)
+			)
+	);
 }
 
 export { createHistoryHandlers };

@@ -4,7 +4,7 @@ import {
 	channels,
 	type LibraryEntryTable,
 } from "@common/index";
-import { ipcMain } from "electron";
+import { BrowserWindow, ipcMain } from "electron";
 import { categoryService, libraryService } from "./instance";
 
 function createLibraryHandlers() {
@@ -32,6 +32,40 @@ function createLibraryHandlers() {
 		channels.library.hasEntry,
 		async (_, sourceId: string, mangaId: string) =>
 			apiWrapper(() => libraryService.hasEntry(sourceId, mangaId))
+	);
+	ipcMain.handle(channels.library.refreshAll, async () =>
+		apiWrapper(() => libraryService.refreshAllLibrary())
+	);
+	ipcMain.handle(
+		channels.library.refreshCategory,
+		async (_, categoryId: string) =>
+			apiWrapper(() => libraryService.refreshCategory(categoryId))
+	);
+	ipcMain.handle(channels.library.isRefreshing, async () =>
+		apiWrapper(() => Promise.resolve(libraryService.isRefreshing()))
+	);
+	ipcMain.handle(channels.library.getWithUnreadCounts, async () =>
+		apiWrapper(() => libraryService.getLibraryWithUnreadCounts())
+	);
+	ipcMain.handle(
+		channels.library.getUnreadCount,
+		async (_, sourceId: string, mangaId: string) =>
+			apiWrapper(() => libraryService.getUnreadCount(sourceId, mangaId))
+	);
+	ipcMain.handle(
+		channels.library.setRefreshProgressCallback,
+		(_, callbackId: string) => {
+			libraryService.setRefreshProgressCallback((progress) => {
+				const allWindows = BrowserWindow.getAllWindows();
+				for (const window of allWindows) {
+					window.webContents.send(
+						`library-refresh-progress-${callbackId}`,
+						progress
+					);
+				}
+			});
+			return { success: true };
+		}
 	);
 }
 
