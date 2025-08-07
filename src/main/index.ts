@@ -1,5 +1,6 @@
 import { createReadStream, existsSync } from "node:fs";
-import { join } from "node:path";
+import { extname, join } from "node:path";
+import { getMimeType } from "@common/index";
 import { electronApp, is, optimizer } from "@electron-toolkit/utils";
 import { app, BrowserWindow, ipcMain, net, protocol, shell } from "electron";
 import icon from "../../resources/icon.png?asset";
@@ -118,7 +119,7 @@ app.whenReady().then(async () => {
 
 	protocol.handle("cover", (req) => {
 		const url = new URL(req.url);
-		const fileName = url.hostname + url.pathname;
+		const fileName = url.hostname + (url.pathname === "/" ? "" : url.pathname);
 
 		const filePath = join(
 			directories.coverCacheDir,
@@ -133,12 +134,13 @@ app.whenReady().then(async () => {
 		}
 
 		const stream = createReadStream(filePath);
+		const extension = extname(fileName);
+		const mimeType = getMimeType(extension);
 
-		// biome-ignore lint/suspicious/noExplicitAny: Idk what to specify here for now
-		return new Response(stream as any, {
+		return new Response(stream as unknown as BodyInit, {
 			status: 200,
 			headers: {
-				"Content-Type": "image/jpeg",
+				"Content-Type": mimeType,
 				"Access-Control-Allow-Origin": "*",
 			},
 		});
